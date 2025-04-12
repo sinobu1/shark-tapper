@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shark Tapper</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      background: linear-gradient(160deg, #e8ecef, #cfd8dc);
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .game-container {
+      position: relative;
+      width: 90vw;
+      max-width: 400px;
+      height: 90vh;
+      max-height: 700px;
+      background: #ffffff;
+      border: 4px solid #d0d0d0;
+      border-radius: 24px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .balance {
+      color: #333;
+      font-size: 22px;
+      text-align: center;
+    }
+    .progress {
+      width: 100%;
+      background: #f1f1f1;
+      border-radius: 10px;
+      overflow: hidden;
+      height: 14px;
+      margin: 10px 0;
+    }
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background-color: #3cba54;
+      transition: width 0.3s ease;
+    }
+    .tap-image {
+      max-width: 80%;
+      height: auto;
+      object-fit: contain;
+      cursor: pointer;
+      user-select: none;
+      border-radius: 20px;
+      transition: transform 0.1s ease;
+      display: block;
+      margin: 0 auto;
+    }
+    .tap-image:active {
+      transform: scale(0.96);
+    }
+    .floating-text {
+      position: absolute;
+      font-size: 18px;
+      color: #3cba54;
+      font-weight: 600;
+      animation: floatUp 1s ease-out forwards;
+      pointer-events: none;
+    }
+    @keyframes floatUp {
+      0% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-50px);
+      }
+    }
+    .achievements {
+      margin-top: 10px;
+      color: #333;
+      text-align: center;
+      font-size: 14px;
+    }
+    .achievement-icon {
+      display: inline-block;
+      margin: 4px;
+      width: 28px;
+      height: 28px;
+      background-image: url('https://cdn-icons-png.flaticon.com/512/616/616408.png');
+      background-size: cover;
+    }
+    #achievement-icons {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .shop-button {
+      background: #3cba54;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    .shop-modal {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.95);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 10;
+    }
+    .shop-item {
+      margin: 10px;
+      text-align: center;
+    }
+    .shop-item img {
+      width: 100px;
+      height: auto;
+      border-radius: 12px;
+    }
+    .shop-item button {
+      margin-top: 5px;
+      padding: 6px 12px;
+      border: none;
+      background: #333;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <div class="balance">Токены: <span id="token-count">0</span></div>
+    <div class="progress"><div class="progress-bar" id="progress-bar"></div></div>
+    <img src="https://downloader.disk.yandex.ru/preview/6eaed1745a897d6c6633735234afc066db821f20c02f6c7f1d7613be378f1de0/67fb12cc/vB83ouN2ytmSTDcwX8zYsF-htolnfJL3xcxvmjYCh4XK-2_audFLuSmeLVKFAfboM6h6IdZGXbQp0l-rU_YDiw%3D%3D?uid=0&filename=_image.png&disposition=inline&hash=&limit=0&content_type=image%2Fpng&owner_uid=0&tknv=v2&size=1366x651" class="tap-image" id="tap-area" alt="shark">
+    <div class="achievements" id="achievements">Достижения: 0</div>
+    <div id="achievement-icons"></div>
+    <button class="shop-button" onclick="openShop()">Магазин</button>
+    <div class="shop-modal" id="shop-modal">
+      <div class="shop-item">
+        <img src="https://downloader.disk.yandex.ru/preview/6eaed1745a897d6c6633735234afc066db821f20c02f6c7f1d7613be378f1de0/67fb12cc/vB83ouN2ytmSTDcwX8zYsF-htolnfJL3xcxvmjYCh4XK-2_audFLuSmeLVKFAfboM6h6IdZGXbQp0l-rU_YDiw%3D%3D?uid=0&filename=_image.png&disposition=inline&hash=&limit=0&content_type=image%2Fpng&owner_uid=0&tknv=v2&size=1366x651" alt="Оригинальный">
+        <div>Оригинальный (установлено)</div>
+        <button onclick="selectSkin('default')">Выбрать</button>
+      </div>
+      <div class="shop-item">
+        <img src="https://downloader.disk.yandex.ru/preview/04eb091a2903be4d5af5cbcdb1150d34f4c1993cc6c73ad39c2ca69d9fc29da5/67fb1ade/Isc8GDZYol9Y-mzUAz8K8W8rzkJLlZu5mvVdzxcVqptvnjQssbrTJnjN6Xhn_5wwsRoW-K4oSvCepaSSgv7H4Q%3D%3D" alt="Leopard">
+        <div>Скин Леопард (5)</div>
+        <button onclick="buySkin('leopard', 5)">Купить</button>
+      </div>
+      <div class="shop-item">
+        <img src="https://downloader.disk.yandex.ru/preview/1343602687185b913ad2602956493ff421e1b4f904f72f7c206f7a790789db88/67fb1af3/OS-bpSyN7QRTFglZ9F3K-5WXBMwaJllCAz-v3kWh601w2jtm3bHrRv2ik77Z8OQi78ALQG-fKM0rCVt1GBjOSg%3D%3D" alt="Gold">
+        <div>Скин Голд (5)</div>
+        <button onclick="buySkin('gold', 5)">Купить</button>
+      </div>
+      <button class="shop-button" onclick="closeShop()">Закрыть</button>
+    </div>
+  </div>
+
+  <script>
+    const tg = window.Telegram.WebApp;
+    tg.ready();
+    tg.expand();
+
+    let currentSkin = 'default';
+    let balance = parseInt(localStorage.getItem('balance')) || 0;
+
+    const tokenCount = document.getElementById('token-count');
+    tokenCount.textContent = balance;
+
+    const tapArea = document.getElementById('tap-area');
+    const progressBar = document.getElementById('progress-bar');
+
+    tapArea.addEventListener('click', (e) => {
+      balance++;
+      tokenCount.textContent = balance;
+      localStorage.setItem('balance', balance);
+      showFloatingText('+1', e.clientX, e.clientY);
+      progressBar.style.width = (balance % 100) + '%';
+    });
+
+    function openShop() {
+      document.getElementById('shop-modal').style.display = 'flex';
+    }
+
+    function closeShop() {
+      document.getElementById('shop-modal').style.display = 'none';
+    }
+
+    function selectSkin(skin) {
+      currentSkin = skin;
+      updateSkin();
+      alert(`Скин '${skin}' выбран!`);
+    }
+
+    function buySkin(skin, price) {
+      if (balance >= price) {
+        balance -= price;
+        tokenCount.textContent = balance;
+        localStorage.setItem('balance', balance);
+        selectSkin(skin);
+        alert(`Скин '${skin}' куплен за ${price} токенов!`);
+
+        // Отправим в Telegram
+        tg.sendData(JSON.stringify({
+          action: 'buy_skin',
+          skin: skin,
+          balance: balance
+        }));
+      } else {
+        alert('Недостаточно токенов!');
+      }
+    }
+
+    function updateSkin() {
+      if (currentSkin === 'leopard') {
+        tapArea.src = 'https://downloader.disk.yandex.ru/preview/04eb091a2903be4d5af5cbcdb1150d34f4c1993cc6c73ad39c2ca69d9fc29da5/67fb1ade/Isc8GDZYol9Y-mzUAz8K8W8rzkJLlZu5mvVdzxcVqptvnjQssbrTJnjN6Xhn_5wwsRoW-K4oSvCepaSSgv7H4Q%3D%3D';
+      } else if (currentSkin === 'gold') {
+        tapArea.src = 'https://downloader.disk.yandex.ru/preview/1343602687185b913ad2602956493ff421e1b4f904f72f7c206f7a790789db88/67fb1af3/OS-bpSyN7QRTFglZ9F3K-5WXBMwaJllCAz-v3kWh601w2jtm3bHrRv2ik77Z8OQi78ALQG-fKM0rCVt1GBjOSg%3D%3D';
+      } else {
+        tapArea.src = 'https://downloader.disk.yandex.ru/preview/6eaed1745a897d6c6633735234afc066db821f20c02f6c7f1d7613be378f1de0/67fb12cc/vB83ouN2ytmSTDcwX8zYsF-htolnfJL3xcxvmjYCh4XK-2_audFLuSmeLVKFAfboM6h6IdZGXbQp0l-rU_YDiw%3D%3D';
+      }
+    }
+
+    function showFloatingText(text, x, y) {
+      const floatText = document.createElement('div');
+      floatText.className = 'floating-text';
+      floatText.textContent = text;
+      floatText.style.left = x + 'px';
+      floatText.style.top = y + 'px';
+      document.body.appendChild(floatText);
+      setTimeout(() => document.body.removeChild(floatText), 1000);
+    }
+  </script>
+</body>
+</html>
