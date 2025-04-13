@@ -46,277 +46,36 @@
 
 </script>
 <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-    html, body {
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      background: linear-gradient(160deg, #e8ecef, #cfd8dc);
-      font-family: 'Segoe UI', sans-serif;
-      touch-action: manipulation;
-    }
-    .loading-screen {
-      position: fixed;
-      width: 100%;
-      height: 100%;
-      background: #fff;
-      z-index: 9999;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
-    .loading-screen img {
-      max-width: 80%;
-    }
-    .loading-screen span {
-      font-size: 20px;
-      margin-top: 12px;
-      color: #333;
-    }
-    .game-container {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      width: 90vw;
-      max-width: 400px;
-      height: 90vh;
-      max-height: 700px;
-      background: #ffffff;
-      border: 4px solid #d0d0d0;
-      border-radius: 24px;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .balance {
-      color: #111;
-      font-size: 22px;
-      font-weight: bold;
-    }
-    .tap-image {
-      max-width: 100%;
-      cursor: pointer;
-      transition: transform 0.1s;
-      border-radius: 16px;
-    }
-    .tap-animation {
-      animation: tapPulse 0.2s ease;
-    }
-    @keyframes tapPulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(0.9); }
-      100% { transform: scale(1); }
-    }
-    .floating-text {
-      position: absolute;
-      font-size: 18px;
-      color: #3cba54;
-      font-weight: 700;
-      animation: floatUp 1s ease-out forwards;
-      pointer-events: none;
-      text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
-    }
-    @keyframes floatUp {
-      0% { opacity: 1; transform: translateY(0); }
-      100% { opacity: 0; transform: translateY(-50px); }
-    }
-    .menu-buttons {
-      display: flex;
-      gap: 12px;
-    }
-    .shop-button {
-      background: #3cba54;
-      color: white;
-      border: none;
-      padding: 10px 16px;
-      border-radius: 10px;
-      cursor: pointer;
-      font-size: 16px;
-    }
-    .shop-modal, .booster-modal {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(255, 255, 255, 0.95);
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      z-index: 10;
-    }
-    .shop-item, .booster-item {
-      margin: 10px;
-      text-align: center;
-    }
-    .shop-item img {
-      width: 100px;
-      height: auto;
-      border-radius: 12px;
-    }
-    .shop-item button, .booster-item button {
-      margin-top: 5px;
-      padding: 6px 12px;
-      border: none;
-      background: #333;
-      color: white;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-  
-.tap-image:active {
-  transform: scale(0.88);
-  filter: brightness(0.95);
-}
-
-.floating-text {
-  font-size: 24px !important;
-  color: #00c853 !important;
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.4);
-}
-
-.shop-button {
-  background: linear-gradient(135deg, #43e97b, #38f9d7) !important;
-  transition: all 0.2s ease;
-}
-
-.shop-button:active {
-  transform: scale(0.96);
-  filter: brightness(0.9);
-}
-
-@keyframes loadProgress {
-  0% { width: 0%; }
-  100% { width: 100%; }
-}
-
-@keyframes loadProgress {
-  0% { width: 0%; }
-  100% { width: 100%; }
-}
-
-.in-game-nav {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 10px;
-  margin-top: 20px;
-  background: rgba(255,255,255,0.85);
-  padding: 10px;
-  border-radius: 20px;
-  backdrop-filter: blur(16px);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-}
-.tab-button {
-  background: white;
-  border-radius: 16px;
-  padding: 10px 16px;
-  font-weight: 600;
-  font-size: 14px;
-  color: #000;
-  text-align: center;
-  flex: 1 1 auto;
-  min-width: 70px;
-  border: none;
-  cursor: pointer;
-  transition: background 0.2s ease;
-}
-.tab-button:active {
-  background: #e6e6e6;
-}
-
-body {
+html, body {
+  margin: 0;
+  padding: 0;
   background: #f2f2f7;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  overflow-x: hidden;
+  width: 100%;
+  height: 100%;
 }
 
 .game-container {
-  background: #fff;
-  border-radius: 28px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-  padding: 24px;
-  max-width: 420px;
-  width: 92vw;
-  margin: 0 auto;
-  position: relative;
   display: flex;
   flex-direction: column;
+  align-items: center;
   justify-content: flex-start;
-  align-items: center;
-  box-sizing: border-box;
-  height: auto;
-  min-height: 88vh;
-}
-
-.balance {
-  font-size: 24px;
-  font-weight: 600;
-  color: #1c1c1e;
-  margin-bottom: 12px;
-}
-
-.tab-button {
-  background: #fff;
-  border: none;
-  padding: 12px 18px;
-  font-size: 15px;
-  font-weight: 600;
-  border-radius: 16px;
-  color: #007aff;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-  transition: background 0.2s ease;
-}
-
-.tab-button:active {
-  background: #e5e5ea;
-}
-
-.in-game-nav {
-  margin-top: 24px;
-  gap: 12px;
-  flex-wrap: wrap;
-  justify-content: space-between;
-}
-
-.game-container {
-  margin: 40px auto;
-  align-self: center;
-}
-
-.avatar-wrapper {
+  padding: 140px 20px 60px;
+  max-width: 420px;
+  width: 100%;
+  margin: 0 auto;
+  background: white;
+  border-radius: 28px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  min-height: 100vh;
   position: relative;
-  width: 200px;
-  height: 200px;
-  margin: 20px auto;
-  border-radius: 50%;
-  box-shadow: 0 12px 24px rgba(0,0,0,0.15);
-  background: linear-gradient(135deg, #ffffff, #f0f0f0);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-#tapImage {
-  width: 180px;
-  height: 180px;
-  border-radius: 50%;
-  border: 6px solid white;
-  object-fit: cover;
-  z-index: 2;
+  box-sizing: border-box;
 }
 
 .avatar-wrapper {
   position: absolute;
-  top: -60px;
+  top: -100px;
   left: 50%;
   transform: translateX(-50%);
   width: 200px;
@@ -329,6 +88,7 @@ body {
   justify-content: center;
   z-index: 10;
 }
+
 #tapImage {
   width: 180px;
   height: 180px;
@@ -337,9 +97,44 @@ body {
   object-fit: cover;
   z-index: 11;
 }
-.game-container {
-  position: relative;
-  padding-top: 100px;
+
+.balance {
+  font-size: 24px;
+  font-weight: 600;
+  color: #1c1c1e;
+  margin-bottom: 20px;
+}
+
+.in-game-nav {
+  margin-top: 40px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  background: rgba(255,255,255,0.9);
+  padding: 16px;
+  border-radius: 20px;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  width: 100%;
+}
+
+.tab-button {
+  background: white;
+  border: none;
+  padding: 12px 18px;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: 16px;
+  color: #007aff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  cursor: pointer;
+  transition: background 0.2s ease;
+  min-width: 80px;
+}
+
+.tab-button:active {
+  background: #e5e5ea;
 }
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&amp;display=swap" rel="stylesheet"/></head>
@@ -361,9 +156,9 @@ body {
 </div>
 </div>
 </div>
-<div class="game-container" id="gameContainer" style="display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 24px 16px; max-width: 420px; width: 100%; margin: 0 auto; background: #fff; border-radius: 28px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); min-height: 100vh; box-sizing: border-box; position: relative; padding-top: 100px;">
-<div class="balance" id="tokenCount">0 токенов</div><div class="avatar-wrapper" style="position: absolute; top: -60px; left: 50%; transform: translateX(-50%); width: 200px; height: 200px; border-radius: 50%; box-shadow: 0 12px 24px rgba(0,0,0,0.15); background: linear-gradient(135deg, #ffffff, #f0f0f0); display: flex; align-items: center; justify-content: center; z-index: 10;"><img alt="Shark" class="tap-image" id="tapImage" onclick="handleTap()" src="" style="width: 180px; height: 180px; border-radius: 50%; border: 6px solid white; object-fit: cover; z-index: 11;"/></div>
-<div class="in-game-nav" style="margin-top: 32px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; background: rgba(255,255,255,0.9); padding: 14px; border-radius: 20px; backdrop-filter: blur(16px); box-shadow: 0 2px 6px rgba(0,0,0,0.1); width: 100%;"><button class="tab-button" onclick="openShop()">🛒 Магазин</button><button class="tab-button" onclick="openBoosters()">🚀 Бустеры</button><button class="tab-button" onclick="openLeaderboard()">🏆 Лидерборд</button><button class="tab-button" onclick="Telegram.WebApp.close()">❌ Завершить</button></div></div>
+<div class="game-container" id="gameContainer">
+<div class="balance" id="tokenCount">0 токенов</div><div class="avatar-wrapper"><img alt="Shark" class="tap-image" id="tapImage" onclick="handleTap()" src=""/></div>
+<div class="in-game-nav"><button class="tab-button" onclick="openShop()">🛒 Магазин</button><button class="tab-button" onclick="openBoosters()">🚀 Бустеры</button><button class="tab-button" onclick="openLeaderboard()">🏆 Лидерборд</button><button class="tab-button" onclick="Telegram.WebApp.close()">❌ Завершить</button></div></div>
 <div class="shop-modal" id="shop-modal">
 <div class="shop-item">
 <img src="shark.png?v=1"/>
