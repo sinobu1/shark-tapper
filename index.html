@@ -61,6 +61,16 @@ function switchTab(tabId) {
     window.navigator.vibrate(30);
   }
 }
+
+function switchTab(tabId) {
+  document.querySelectorAll('[id^="screen-"]').forEach(div => div.style.display = 'none');
+  const active = document.getElementById(tabId);
+  if (active) active.style.display = 'block';
+  document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+  const clicked = Array.from(document.querySelectorAll('.tab-button')).find(b => b.onclick.toString().includes(tabId));
+  if (clicked) clicked.classList.add('active');
+  if (window.navigator.vibrate) window.navigator.vibrate(30);
+}
 </script>
 <style>
     * {
@@ -300,6 +310,41 @@ function switchTab(tabId) {
 .tab-button.active {
   color: #ffeb3b;
   text-shadow: 0 0 5px #fff;
+}
+
+/* Единая нижняя панель */
+.tab-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  width: 100%;
+  justify-content: space-around;
+  background: linear-gradient(90deg, #0d47a1, #1976d2);
+  padding: 10px 0;
+  z-index: 10000;
+  border-top: 2px solid #fff3;
+}
+.tab-button {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.tab-button:active {
+  transform: scale(0.95);
+}
+.tab-button.active {
+  color: #ffeb3b;
+  text-shadow: 0 0 5px #fff;
+}
+/* Экран */
+.screen {
+  padding: 20px;
 }
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&amp;display=swap" rel="stylesheet"/></head>
@@ -668,12 +713,7 @@ setTimeout(() => {
 <ul id="leaderboardList"></ul>
 <button onclick="closeLeaderboard()">Закрыть</button>
 </div>
-<div id="bottom-nav" style="position:fixed;bottom:0;width:100%;display:flex;justify-content:space-around;padding:10px;background:#fff;z-index:10001;box-shadow:0 -2px 10px rgba(0,0,0,0.1);; display: none;">
-<button class="tab-btn" onclick="switchTab('screen-game')">🦈</button>
-<button class="tab-btn" onclick="switchTab('screen-shop')">🛒</button>
-<button class="tab-btn" onclick="switchTab('screen-boosters')">⚡</button>
-<button class="tab-btn" onclick="switchTab('screen-leaderboard')">🏆</button>
-<button class="tab-btn" onclick="switchTab('screen-quests')">📜</button><button class="tab-btn" onclick="Telegram.WebApp.close()">❌</button></div>
+
 <div class="tab-screen" id="screen-quests" style="display:none">
 <h2>📜 Задания</h2>
 <div style="margin-top:10px;">
@@ -681,5 +721,5 @@ setTimeout(() => {
 <button class="shop-button" onclick="shareGame()">Пригласить через Telegram</button>
 </div>
 </div>
-<div class="tab-bar"><button class="tab-button" onclick="switchTab('screen-game')">🦈 Игра</button><button class="tab-button" onclick="switchTab('screen-quests')">🎯 Миссии</button><button class="tab-button" onclick="switchTab('screen-leaderboard')">🏆 Олимп</button><button class="tab-button" onclick="switchTab('screen-inventory')">🎒 Нора</button><button class="tab-button" onclick="switchTab('screen-profile')">👤 Профиль</button></div></body>
+<div class="tab-bar"><button class="tab-button" onclick="switchTab('screen-game')">🦈 Игра</button><button class="tab-button" onclick="switchTab('screen-quests')">🎯 Миссии</button><button class="tab-button" onclick="switchTab('screen-leaderboard')">🏆 Олимп</button><button class="tab-button" onclick="switchTab('screen-shop')">🛒 Скины</button><button class="tab-button" onclick="switchTab('screen-profile')">👤 Профиль</button></div><div class="screen" id="screen-leaderboard" style="display:none"><h2>🏆 Топ игроков</h2></div><div class="screen" id="screen-profile" style="display:none"><h2>👤 Профиль игрока</h2></div></body>
 </html>
