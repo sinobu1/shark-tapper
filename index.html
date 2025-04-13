@@ -251,11 +251,9 @@
 <div class="balance" id="tokenCount">0 токенов</div>
 <img alt="Shark" class="tap-image" id="tapImage" onclick="handleTap()" src=""/>
 <div class="menu-buttons">
-
-
 </div>
-<button class="shop-button" onclick="openLeaderboard()">Лидерборд</button>
-<button class="shop-button" id="endButton" onclick="Telegram.WebApp.close()" style="display: none;">Завершить</button>
+
+
 </div>
 <div class="shop-modal tab-screen" id="screen-shop">
 <div class="shop-item">
@@ -464,7 +462,11 @@ function saveProgress() {
       setTimeout(() => {
         loadingScreen.style.display = 'none';
         
+    
     gameContainer.style.display = 'flex';
+    const nav = document.getElementById('bottom-nav');
+    if (nav) nav.style.display = 'flex';
+    
     document.getElementById('bottom-nav').style.display = 'flex';
     
       }, 5000);
@@ -588,8 +590,7 @@ function shareGame() {
 <button class="tab-btn" onclick="switchTab('screen-shop')">🛒</button>
 <button class="tab-btn" onclick="switchTab('screen-boosters')">⚡</button>
 <button class="tab-btn" onclick="switchTab('screen-leaderboard')">🏆</button>
-<button class="tab-btn" onclick="switchTab('screen-quests')">📜</button></div>
-
+<button class="tab-btn" onclick="switchTab('screen-quests')">📜</button><button class="tab-btn" onclick="Telegram.WebApp.close()">❌</button></div>
 <div class="tab-screen" id="screen-quests" style="display:none; flex-direction:column; align-items:center; justify-content:center; padding:20px;">
 <h2>📜 Задания</h2>
 <div style="margin-top:10px;">
