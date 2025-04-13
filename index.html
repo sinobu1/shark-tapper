@@ -59,6 +59,11 @@ body, html {
 
 /* Центрированная карточка игры */
 .game-container {
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 10;
   background: white;
   border-radius: 28px;
   box-shadow: 0 6px 20px rgba(0,0,0,0.1);
@@ -85,6 +90,8 @@ body, html {
 
 /* Загрузочный экран с градиентом и плавным стилем */
 .loading-screen {
+  z-index: 9999;
+  display: flex !important;
   background: linear-gradient(160deg, #dbe4f0, #f2f2f7);
 }
 
@@ -97,7 +104,7 @@ body, html {
 
 /* Модальные окна с iOS стеклянным стилем */
 .shop-modal, .booster-modal {
-  background: rgba(255,255,255,0.92);
+  background: rgba(255,255,255,0.98);
   backdrop-filter: blur(20px);
   border-radius: 20px;
   box-shadow: 0 8px 20px rgba(0,0,0,0.1);
@@ -133,6 +140,8 @@ body, html {
       touch-action: manipulation;
     }
     .loading-screen {
+  z-index: 9999;
+  display: flex !important;
       position: fixed;
       width: 100%;
       height: 100%;
@@ -152,6 +161,11 @@ body, html {
       color: #333;
     }
     .game-container {
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 10;
       position: absolute;
       left: 50%;
       top: 50%;
