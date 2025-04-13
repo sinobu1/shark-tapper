@@ -248,14 +248,31 @@
       tapImage.src = skinPaths[currentSkin] || skinPaths.default;
     }
 
-    function saveProgress() {
-      if (!userId) return;
-      fetch(`${dbUrl}/users/${userId}.json`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ balance, currentSkin, ownedSkins, autoTap, ownedBoosters })
-      });
-    }
+    
+function saveProgress() {
+  if (!userId) return;
+
+  const user = Telegram.WebApp.initDataUnsafe?.user || {};
+
+  const userData = {
+    balance,
+    currentSkin,
+    ownedSkins,
+    autoTap,
+    ownedBoosters,
+    first_name: user.first_name || "",
+    last_name: user.last_name || "",
+    username: user.username || "",
+    photo_url: user.photo_url || ""
+  };
+
+  fetch(`${dbUrl}/users/${userId}.json`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(userData)
+  });
+}
+
 
     function loadProgress() {
       if (!userId) return;
