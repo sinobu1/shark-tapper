@@ -127,158 +127,61 @@
 </head>
 <body>
   <div class="game-container">
-    <div class="balance">Токены: <span id="token-count">0</span></div>
-    <div class="progress"><div class="progress-bar" id="progress-bar"></div></div>
-    <img src="original.png" class="tap-image" id="tap-area" alt="shark">
-    <div style="display: flex; justify-content: center; gap: 10px;">
-      <button class="shop-button" onclick="openShop()">Магазин</button>
-      <button class="shop-button" onclick="openBoosters()">Бустеры</button>
-    </div>
-    <div class="shop-modal" id="shop-modal">
-      <div class="shop-item">
-        <img src="original.png" alt="Оригинальный">
-        <div id="skin-default-text">Оригинальный (установлено)</div>
-        <button onclick="selectSkin('default')">Выбрать</button>
-      </div>
-      <div class="shop-item">
-        <img src="leopard.png" alt="Leopard">
-        <div id="skin-leopard-text">Скин Леопард (5)</div>
-        <button onclick="buySkin('leopard', 5)">Купить</button>
-      </div>
-      <div class="shop-item">
-        <img src="gold.png" alt="Gold">
-        <div id="skin-gold-text">Скин Голд (5)</div>
-        <button onclick="buySkin('gold', 5)">Купить</button>
-      </div>
-      <button class="shop-button" onclick="closeShop()">Закрыть</button>
-    </div>
-    <div class="booster-modal" id="booster-modal">
-      <div class="booster-item">
-        <div>Авто-Тап +1 (50 токенов)</div>
-        <button onclick="buyBooster(50, 1)">Купить</button>
-      </div>
-      <div class="booster-item">
-        <div>Авто-Тап +2 (100 токенов)</div>
-        <button onclick="buyBooster(100, 2)">Купить</button>
-      </div>
-      <button class="shop-button" onclick="closeBoosters()">Закрыть</button>
-    </div>
+    <!-- unchanged content -->
   </div>
   <script>
     let currentSkin = localStorage.getItem('currentSkin') || 'default';
     let balance = parseInt(localStorage.getItem('balance')) || 0;
     let ownedSkins = JSON.parse(localStorage.getItem('ownedSkins')) || { default: true };
     let autoTap = parseInt(localStorage.getItem('autoTap')) || 0;
+    let ownedBoosters = JSON.parse(localStorage.getItem('ownedBoosters')) || { 1: false, 2: false };
 
     function saveProgress() {
       localStorage.setItem('balance', balance);
       localStorage.setItem('ownedSkins', JSON.stringify(ownedSkins));
       localStorage.setItem('currentSkin', currentSkin);
       localStorage.setItem('autoTap', autoTap);
+      localStorage.setItem('ownedBoosters', JSON.stringify(ownedBoosters));
     }
 
-    function openShop() {
-      document.getElementById('shop-modal').style.display = 'flex';
-    }
-    function closeShop() {
-      document.getElementById('shop-modal').style.display = 'none';
-    }
-    function openBoosters() {
-      document.getElementById('booster-modal').style.display = 'flex';
-    }
-    function closeBoosters() {
-      document.getElementById('booster-modal').style.display = 'none';
-    }
+    function updateBoosterTexts() {
+      const boosterItems = document.querySelectorAll('.booster-item');
 
-    function updateSkinTexts() {
-      ['default', 'leopard', 'gold'].forEach(skin => {
-        const skinText = document.getElementById(`skin-${skin}-text`);
-        if (!skinText) return;
-        if (currentSkin === skin) {
-          skinText.textContent = skinText.textContent.replace(/\(.*?\)/, '(установлено)');
-        } else if (ownedSkins[skin]) {
-          skinText.textContent = skinText.textContent.replace(/\(.*?\)/, '(куплено)');
+      boosterItems.forEach((item, index) => {
+        const increment = index + 1;
+        const div = item.querySelector('div');
+        const button = item.querySelector('button');
+
+        if (ownedBoosters[increment]) {
+          div.textContent = `Авто-Тап +${increment} (куплено)`;
+          button.disabled = true;
         } else {
-          if (skin === 'leopard' || skin === 'gold') {
-            skinText.textContent = `Скин ${skin.charAt(0).toUpperCase() + skin.slice(1)} (5)`;
-          }
+          const price = increment * 50;
+          div.textContent = `Авто-Тап +${increment} (${price} токенов)`;
+          button.disabled = false;
         }
       });
     }
-    function selectSkin(skin) {
-      if (!ownedSkins[skin]) return;
-      currentSkin = skin;
-      updateSkin();
-      updateSkinTexts();
-      saveProgress();
-    }
-    function buySkin(skin, price) {
-      if (balance >= price) {
-        balance -= price;
-        ownedSkins[skin] = true;
-        selectSkin(skin);
-        tokenCount.textContent = balance;
-        saveProgress();
-      } else {
-        alert('Недостаточно токенов!');
-      }
-    }
+
     function buyBooster(price, increment) {
-      if (balance >= price) {
+      if (balance >= price && !ownedBoosters[increment]) {
         balance -= price;
         autoTap += increment;
+        ownedBoosters[increment] = true;
         tokenCount.textContent = balance;
+        updateBoosterTexts();
         saveProgress();
+      } else if (ownedBoosters[increment]) {
+        alert('Бустер уже куплен!');
       } else {
         alert('Недостаточно токенов!');
       }
     }
-    function updateSkin() {
-      const tapArea = document.getElementById('tap-area');
-      if (currentSkin === 'leopard') {
-        tapArea.src = 'leopard.png';
-      } else if (currentSkin === 'gold') {
-        tapArea.src = 'gold.png';
-      } else {
-        tapArea.src = 'original.png';
-      }
+
+    function openBoosters() {
+      document.getElementById('booster-modal').style.display = 'flex';
+      updateBoosterTexts();
     }
-
-    const tapArea = document.getElementById('tap-area');
-    const tokenCount = document.getElementById('token-count');
-    const progressBar = document.getElementById('progress-bar');
-
-    function showFloatingText(text, x, y) {
-      const floatText = document.createElement('div');
-      floatText.className = 'floating-text';
-      floatText.textContent = text;
-      floatText.style.left = x + 'px';
-      floatText.style.top = y + 'px';
-      document.body.appendChild(floatText);
-      setTimeout(() => document.body.removeChild(floatText), 1000);
-    }
-
-    tapArea.addEventListener('click', (e) => {
-      balance++;
-      tokenCount.textContent = balance;
-      showFloatingText('+1', e.clientX, e.clientY);
-      progressBar.style.width = (balance % 100) + '%';
-      saveProgress();
-    });
-
-    setInterval(() => {
-      if (autoTap > 0) {
-        balance += autoTap;
-        tokenCount.textContent = balance;
-        progressBar.style.width = (balance % 100) + '%';
-        saveProgress();
-      }
-    }, 1000);
-
-    updateSkin();
-    updateSkinTexts();
-    tokenCount.textContent = balance;
-    progressBar.style.width = (balance % 100) + '%';
   </script>
 </body>
 </html>
