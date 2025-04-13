@@ -346,6 +346,35 @@ function switchTab(tabId) {
 .screen {
   padding: 20px;
 }
+
+/* Нижняя панель вкладок */
+.tab-bar {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  display: flex;
+  background: linear-gradient(90deg, #1a237e, #3949ab);
+  border-top: 2px solid #fff3;
+  z-index: 1000;
+}
+.tab-button {
+  flex: 1;
+  padding: 10px;
+  font-size: 14px;
+  background: none;
+  border: none;
+  color: white;
+  font-weight: bold;
+}
+.tab-button.active {
+  background: rgba(255,255,255,0.2);
+  color: #ffeb3b;
+}
+.screen {
+  display: none;
+  padding: 20px;
+  padding-bottom: 60px;
+}
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&amp;display=swap" rel="stylesheet"/></head>
 <body>
@@ -366,7 +395,7 @@ function switchTab(tabId) {
 </div>
 </div>
 </div>
-<div class="game-container tab-screen active-tab" id="screen-game" style="display:none">
+<div class="screen" id="screen-game" style="display:none">
 <div style="text-align:center; margin-bottom:10px;">
 <div style="font-size:18px; font-weight:bold;">Уровень <span id="playerLevel">1</span></div>
 <div style="width:100%; background:#ccc; border-radius:8px; height:10px; margin-top:4px;">
@@ -376,7 +405,7 @@ function switchTab(tabId) {
 <div class="balance" id="tokenCount">0 токенов</div>
 <img alt="Shark" class="tap-image" id="tapImage" onclick="handleTap()" src=""/>
 </div>
-<div class="shop-modal tab-screen" id="screen-shop" style="display:none">
+<div class="screen" id="screen-shop" style="display:none">
 <div class="shop-item">
 <img src="shark.png?v=1"/>
 <button onclick="buySkin('default', 0)">Выбрать</button>
@@ -391,7 +420,7 @@ function switchTab(tabId) {
 </div>
 <button onclick="closeShop()">Закрыть</button>
 </div>
-<div class="booster-modal tab-screen" id="screen-boosters" style="display:none">
+<div class="screen" id="screen-boosters" style="display:none">
 <div class="booster-item">
 <div class="booster-info">Авто-Тап +1 (50 токенов)</div>
 <button onclick="buyBooster(50, 1)">Купить</button>
@@ -713,13 +742,12 @@ setTimeout(() => {
 <ul id="leaderboardList"></ul>
 <button onclick="closeLeaderboard()">Закрыть</button>
 </div>
-
-<div class="tab-screen" id="screen-quests" style="display:none">
+<div class="screen" id="screen-quests" style="display:none">
 <h2>📜 Задания</h2>
 <div style="margin-top:10px;">
 <p>👥 Пригласи друга и получи 🎁</p>
 <button class="shop-button" onclick="shareGame()">Пригласить через Telegram</button>
 </div>
 </div>
-<div class="tab-bar"><button class="tab-button" onclick="switchTab('screen-game')">🦈 Игра</button><button class="tab-button" onclick="switchTab('screen-quests')">🎯 Миссии</button><button class="tab-button" onclick="switchTab('screen-leaderboard')">🏆 Олимп</button><button class="tab-button" onclick="switchTab('screen-shop')">🛒 Скины</button><button class="tab-button" onclick="switchTab('screen-profile')">👤 Профиль</button></div><div class="screen" id="screen-leaderboard" style="display:none"><h2>🏆 Топ игроков</h2></div><div class="screen" id="screen-profile" style="display:none"><h2>👤 Профиль игрока</h2></div></body>
+<div class="screen" id="screen-leaderboard" style="display:none"><h2>🏆 Топ игроков</h2></div><div class="screen" id="screen-profile" style="display:none"><h2>👤 Профиль игрока</h2></div><div class="tab-bar"><button class="tab-button" onclick="switchTab('screen-game')">🦈 Игра</button><button class="tab-button" onclick="switchTab('screen-quests')">🎯 Задания</button><button class="tab-button" onclick="switchTab('screen-leaderboard')">🏆 Олимп</button><button class="tab-button" onclick="switchTab('screen-shop')">🛒 Магазин</button><button class="tab-button" onclick="switchTab('screen-profile')">👤 Профиль</button></div></body>
 </html>
