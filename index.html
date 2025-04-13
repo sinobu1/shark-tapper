@@ -99,7 +99,7 @@
 <div class="game-container" style="display:none" id="gameContainer">
   <div class="level" id="levelDisplay">Уровень 1 (XP: 0/10)</div>
   <div class="balance" id="tokenCount">0 токенов</div>
-  <img id="tapImage" class="tap-image" src="" onclick="handleTap()" alt="Shark" />
+  <img id="tapImage" class="tap-image" src="shark.png" onclick="handleTap()" alt="Shark" />
 
   <div class="menu-buttons">
     <button class="shop-button" onclick="openShop()">Магазин</button>
@@ -108,16 +108,12 @@
   <button class="shop-button" id="endButton" onclick="Telegram.WebApp.close()" style="display: none;">Завершить</button>
 </div>
 
-<!-- === МОДАЛЬНЫЕ ОКНА (МАГАЗИН И БУСТЕРЫ) === -->
-<!-- (оставим без изменений) -->
-
 <!-- === ИГРОВАЯ ЛОГИКА === -->
 <script>
   // === НАСТРОЙКИ И СОСТОЯНИЕ ===
   const dbUrl = 'https://tralalero-fec07-default-rtdb.firebaseio.com';
   let userId = null;
 
-  // Игровые переменные
   let balance = 0;
   let xp = 0;
   let level = 1;
@@ -125,12 +121,10 @@
   let incomePerTap = 1;
   let autoTap = 0;
 
-  // Состояние пользователя
   let currentSkin = 'default';
   let ownedSkins = { default: true };
   let ownedBoosters = { 1: false, 2: false, 3: false };
 
-  // DOM-элементы
   const tokenCount = document.getElementById('tokenCount');
   const levelDisplay = document.getElementById('levelDisplay');
   const tapImage = document.getElementById('tapImage');
@@ -157,8 +151,8 @@
     while (xp >= xpToNext) {
       xp -= xpToNext;
       level++;
-      xpToNext = Math.floor(xpToNext * 1.5); // Увеличение стоимости следующего уровня
-      incomePerTap += 1; // Усиление клика
+      xpToNext = Math.floor(xpToNext * 1.5);
+      incomePerTap += 1;
     }
     updateUI();
   }
@@ -183,13 +177,11 @@
     }, 1000);
   }
 
-  // ... (оставшиеся функции loadProgress, saveProgress, магазин, бустеры и т.д. вставим позже) ...
-
-  // Инициализация
   window.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
       loadingScreen.style.display = 'none';
       gameContainer.style.display = 'flex';
+      updateSkin(); // <=== добавлено для загрузки изображения скина
     }, 5000);
 
     if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
