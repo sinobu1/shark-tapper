@@ -161,8 +161,7 @@ html, body {
 </div>
 </div>
 </div>
-
-<div class="shop-modal" id="shop-modal">
+<div class="shop-modal" id="shop-modal" style="display:none;">
 <div class="shop-item">
 <img src="shark.png?v=1"/>
 <button onclick="buySkin('default', 0)">Выбрать</button>
@@ -177,7 +176,7 @@ html, body {
 </div>
 <button onclick="closeShop()">Закрыть</button>
 </div>
-<div class="booster-modal" id="booster-modal">
+<div class="booster-modal" id="booster-modal" style="display:none;">
 <div class="booster-item">
 <div class="booster-info">Авто-Тап +1 (50 токенов)</div>
 <button onclick="buyBooster(50, 1)">Купить</button>
@@ -418,7 +417,7 @@ function saveProgress() {
 
 
 </script>
-<div class="booster-modal" id="leaderboard-modal">
+<div class="booster-modal" id="leaderboard-modal" style="display:none;">
 <h2>Топ игроков</h2>
 <ul id="leaderboardList"></ul>
 <button onclick="closeLeaderboard()">Закрыть</button>
