@@ -75,6 +75,12 @@ function vibrate(ms = 50) {
 }
 
 // Пример вызова: addXP(10); при выполнении квеста
+
+function completeInviteQuest() {
+  addXP(50);
+  alert("🎉 Вы получили 50 XP за приглашение!");
+  vibrate(80);
+}
 </script>
 <style>
     * {
@@ -286,6 +292,40 @@ body, .balance, button, .shop-button, .menu-buttons {
   color: #333;
   cursor: pointer;
 }
+
+.tab-screen {
+  animation: fadeIn 0.3s ease;
+  padding: 20px;
+  color: #222;
+  background: #f2f2f2;
+  min-height: 80vh;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Прогресс бар */
+.level-info {
+  font-weight: bold;
+  font-size: 18px;
+  margin-bottom: 6px;
+}
+.xp-bar-container {
+  width: 100%;
+  height: 8px;
+  background: #ddd;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+.xp-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #00c6ff, #0072ff);
+  transition: width 0.3s ease;
+}
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&amp;display=swap" rel="stylesheet"/></head>
@@ -308,7 +348,6 @@ body, .balance, button, .shop-button, .menu-buttons {
 </div>
 </div>
 <div class="game-container" id="gameContainer" style="display:none">
-
 <div class="level-info" id="levelInfo">Уровень 1</div>
 <div class="xp-bar-container">
 <div class="xp-bar" id="xpBar"></div>
@@ -321,6 +360,8 @@ body, .balance, button, .shop-button, .menu-buttons {
 <div class="tab-screen" id="screen-quests" style="display: none;">
 <h2>Задания</h2>
 <p>👥 Пригласить друга (получи 100 XP)</p>
+
+<button class="shop-button" onclick="completeInviteQuest()" style="margin-top: 12px;">Получить награду</button>
 </div>
 <div class="tab-screen" id="screen-leaderboard" style="display: none;">
 <h2>Лидерборд</h2>
@@ -334,7 +375,6 @@ body, .balance, button, .shop-button, .menu-buttons {
 <h2>Профиль</h2>
 <p>Профиль пользователя Telegram</p>
 </div>
-
 <div class="shop-modal" id="shop-modal">
 <div class="shop-item">
 <img src="shark.png?v=1"/>
@@ -899,7 +939,6 @@ setTimeout(() => {
   if (nav) nav.classList.add('show');
 }, 100);
 </script>
-
 <div class="bottom-nav" id="bottomNav">
 <button onclick="showTab('game')">🎮</button>
 <button onclick="showTab('quests')">📋</button>
