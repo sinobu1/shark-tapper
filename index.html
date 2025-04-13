@@ -221,6 +221,35 @@
   .tab-screen { display: none; }
   .tab-screen.active-tab { display: flex !important; flex-direction: column; }
   .tab-btn { font-size: 20px; background: none; border: none; cursor: pointer; }
+
+#bottom-nav {
+  transition: opacity 0.5s ease;
+  opacity: 0;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: #fff;
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 0;
+  border-top: 2px solid #ccc;
+  z-index: 999;
+}
+#bottom-nav.show {
+  opacity: 1;
+}
+.tab-btn {
+  background: linear-gradient(to right, #4caf50, #81c784);
+  color: white;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 18px;
+}
+.tab-btn:active {
+  transform: scale(0.95);
+}
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&amp;display=swap" rel="stylesheet"/></head>
 <body>
@@ -250,9 +279,6 @@
 </div>
 <div class="balance" id="tokenCount">0 токенов</div>
 <img alt="Shark" class="tap-image" id="tapImage" onclick="handleTap()" src=""/>
-<div class="menu-buttons">
-</div>
-
 
 </div>
 <div class="shop-modal tab-screen" id="screen-shop">
@@ -296,7 +322,7 @@
 
     const tokenCount = document.getElementById('tokenCount');
     const tapImage = document.getElementById('tapImage');
-    const gameContainer = document.getElementById('gameContainer');
+    const gameContainer = document.getElementById('screen-game');
     const loadingScreen = document.getElementById('loading');
 
     const skinPaths = {
@@ -464,8 +490,10 @@ function saveProgress() {
         
     
     gameContainer.style.display = 'flex';
+    
     const nav = document.getElementById('bottom-nav');
     if (nav) nav.style.display = 'flex';
+    
     
     document.getElementById('bottom-nav').style.display = 'flex';
     
@@ -579,6 +607,11 @@ function shareGame() {
     alert("Поделиться можно только внутри Telegram WebApp.");
   }
 }
+
+setTimeout(() => {
+  const nav = document.getElementById('bottom-nav');
+  if (nav) nav.classList.add('show');
+}, 100);
 </script>
 <div class="booster-modal" id="leaderboard-modal">
 <h2>Топ игроков</h2>
