@@ -242,7 +242,6 @@
 </div>
 </div>
 <div class="game-container tab-screen active-tab" id="screen-game" style="display:none">
-
 <div style="text-align:center; margin-bottom:10px;">
 <div style="font-size:18px; font-weight:bold;">Уровень <span id="playerLevel">1</span></div>
 <div style="width:100%; background:#ccc; border-radius:8px; height:10px; margin-top:4px;">
@@ -252,8 +251,8 @@
 <div class="balance" id="tokenCount">0 токенов</div>
 <img alt="Shark" class="tap-image" id="tapImage" onclick="handleTap()" src=""/>
 <div class="menu-buttons">
-<button class="shop-button" onclick="openShop()">Магазин</button>
-<button class="shop-button" onclick="openBoosters()">Бустеры</button>
+
+
 </div>
 <button class="shop-button" onclick="openLeaderboard()">Лидерборд</button>
 <button class="shop-button" id="endButton" onclick="Telegram.WebApp.close()" style="display: none;">Завершить</button>
@@ -464,7 +463,10 @@ function saveProgress() {
     window.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => {
         loadingScreen.style.display = 'none';
-        gameContainer.style.display = 'flex';
+        
+    gameContainer.style.display = 'flex';
+    document.getElementById('bottom-nav').style.display = 'flex';
+    
       }, 5000);
 
       if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
@@ -565,17 +567,35 @@ handleTap = function () {
   originalHandleTap();
   updateXP(1);
 }
+
+function shareGame() {
+  if (Telegram.WebApp && Telegram.WebApp.shareGame) {
+    Telegram.WebApp.shareGame();
+    updateXP(10); // Награда XP за приглашение
+    alert("Спасибо за приглашение! Получено 10 XP!");
+  } else {
+    alert("Поделиться можно только внутри Telegram WebApp.");
+  }
+}
 </script>
 <div class="booster-modal" id="leaderboard-modal">
 <h2>Топ игроков</h2>
 <ul id="leaderboardList"></ul>
 <button onclick="closeLeaderboard()">Закрыть</button>
 </div>
-<div id="bottom-nav" style="position:fixed;bottom:0;width:100%;display:flex;justify-content:space-around;padding:10px;background:#fff;z-index:10001;box-shadow:0 -2px 10px rgba(0,0,0,0.1);">
+<div id="bottom-nav" style="position:fixed;bottom:0;width:100%;display:flex;justify-content:space-around;padding:10px;background:#fff;z-index:10001;box-shadow:0 -2px 10px rgba(0,0,0,0.1);; display: none;">
 <button class="tab-btn" onclick="switchTab('screen-game')">🦈</button>
 <button class="tab-btn" onclick="switchTab('screen-shop')">🛒</button>
 <button class="tab-btn" onclick="switchTab('screen-boosters')">⚡</button>
 <button class="tab-btn" onclick="switchTab('screen-leaderboard')">🏆</button>
+<button class="tab-btn" onclick="switchTab('screen-quests')">📜</button></div>
+
+<div class="tab-screen" id="screen-quests" style="display:none; flex-direction:column; align-items:center; justify-content:center; padding:20px;">
+<h2>📜 Задания</h2>
+<div style="margin-top:10px;">
+<p>👥 Пригласи друга и получи 🎁</p>
+<button class="shop-button" onclick="shareGame()">Пригласить через Telegram</button>
+</div>
 </div>
 </body>
 </html>
