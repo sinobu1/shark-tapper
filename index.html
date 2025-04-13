@@ -17,24 +17,31 @@
       document.getElementById('leaderboard-modal').style.display = 'none';
     }
 
+    
     function loadLeaderboard() {
       fetch(`${dbUrl}/users.json`)
         .then(response => response.json())
         .then(data => {
           const users = Object.entries(data || {}).map(([id, info]) => ({
             id,
-            balance: info.balance || 0
+            balance: info.balance || 0,
+            first_name: info.first_name,
+            username: info.username,
+            photo_url: info.photo_url
           }));
           users.sort((a, b) => b.balance - a.balance);
           const leaderboard = document.getElementById('leaderboardList');
           leaderboard.innerHTML = '';
           users.slice(0, 10).forEach(user => {
+            const name = user.first_name || `ID ${user.id.slice(-4)}`;
+            const avatar = user.photo_url ? `<img src="${user.photo_url}" style="width:24px;height:24px;border-radius:50%;margin-right:6px;">` : "";
             const li = document.createElement('li');
-            li.textContent = `Игрок ${user.id.slice(-4)}: ${user.balance}`;
+            li.innerHTML = `${avatar}<strong>${name}</strong>: ${user.balance}`;
             leaderboard.appendChild(li);
           });
         });
     }
+
 
 </script>
   <style>
@@ -398,24 +405,31 @@
       document.getElementById('leaderboard-modal').style.display = 'none';
     }
 
+    
     function loadLeaderboard() {
       fetch(`${dbUrl}/users.json`)
         .then(response => response.json())
         .then(data => {
           const users = Object.entries(data || {}).map(([id, info]) => ({
             id,
-            balance: info.balance || 0
+            balance: info.balance || 0,
+            first_name: info.first_name,
+            username: info.username,
+            photo_url: info.photo_url
           }));
           users.sort((a, b) => b.balance - a.balance);
           const leaderboard = document.getElementById('leaderboardList');
           leaderboard.innerHTML = '';
           users.slice(0, 10).forEach(user => {
+            const name = user.first_name || `ID ${user.id.slice(-4)}`;
+            const avatar = user.photo_url ? `<img src="${user.photo_url}" style="width:24px;height:24px;border-radius:50%;margin-right:6px;">` : "";
             const li = document.createElement('li');
-            li.textContent = `Игрок ${user.id.slice(-4)}: ${user.balance}`;
+            li.innerHTML = `${avatar}<strong>${name}</strong>: ${user.balance}`;
             leaderboard.appendChild(li);
           });
         });
     }
+
 
 </script>
 
