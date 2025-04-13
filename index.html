@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 
 <html lang="ru">
@@ -146,67 +145,7 @@
 
 
 
-<script>
-    let balance = 0;
-    function handleTap() {
-      balance++;
-      document.getElementById("tokenCount").textContent = balance;
-      const tapImage = document.getElementById("tapImage");
-      tapImage.classList.add("tap-animation");
-      setTimeout(() => tapImage.classList.remove("tap-animation"), 200);
 
-      // Вибрация (универсально)
-      if (navigator.vibrate) {
-        navigator.vibrate(50);
-      } else {
-        try {
-          const ctx = new (window.AudioContext || window.webkitAudioContext)();
-          const oscillator = ctx.createOscillator();
-          oscillator.type = "square";
-          oscillator.frequency.value = 1000;
-          oscillator.connect(ctx.destination);
-          oscillator.start();
-          setTimeout(() => {
-            oscillator.stop();
-            ctx.close();
-          }, 20);
-        } catch (e) {}
-      }
-
-      // Плавающий текст
-      const float = document.createElement("div");
-      float.className = "floating-text";
-      float.textContent = "+1";
-      float.style.left = "50%";
-      float.style.top = "40%";
-      document.body.appendChild(float);
-      setTimeout(() => document.body.removeChild(float), 1000);
-    }
-
-    function openShop() {
-      closeModals();
-      document.getElementById("shopModal").style.display = "flex";
-    }
-    function openBoosters() {
-      closeModals();
-      document.getElementById("boosterModal").style.display = "flex";
-    }
-    function openLeaderboard() {
-      closeModals();
-      document.getElementById("leaderboardModal").style.display = "flex";
-    }
-    function closeModals() {
-      document.querySelectorAll(".modal").forEach(modal => modal.style.display = "none");
-    }
-
-    // Загрузка
-    window.onload = () => {
-      setTimeout(() => {
-        document.getElementById("loadingScreen").style.display = "none";
-        document.querySelector(".game-container").style.display = "flex";
-      }, 800);
-    };
-  </script>
 
 <div class="modal" id="shopModal">
 <div class="shop-item">
