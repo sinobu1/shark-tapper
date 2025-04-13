@@ -3,7 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <title>Shark Tapper</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     * {
       box-sizing: border-box;
@@ -16,6 +20,7 @@
       overflow: hidden;
       background: linear-gradient(160deg, #e8ecef, #cfd8dc);
       font-family: 'Segoe UI', sans-serif;
+      touch-action: manipulation;
     }
     .game-container {
       position: absolute;
@@ -113,32 +118,33 @@
 <body>
   <div class="game-container">
     <div class="balance" id="tokenCount">0 токенов</div>
-    <img src="shark.png?v=1" class="tap-image" onclick="handleTap()" alt="Shark" />
+    <img id="tapImage" class="tap-image" src="" onclick="handleTap()" alt="Shark" />
     <div class="menu-buttons">
       <button class="shop-button" onclick="openShop()">Магазин</button>
       <button class="shop-button" onclick="openBoosters()">Бустеры</button>
     </div>
+    <button class="shop-button" id="endButton" onclick="Telegram.WebApp.close()" style="display: none;">Завершить</button>
   </div>
 
   <div id="shop-modal" class="shop-modal">
     <div class="shop-item">
       <img src="shark_skin1.png?v=1" />
-      <button onclick="buySkin('skin1', 20)">Купить (20 токенов)</button>
+      <button onclick="buySkin('skin1', 20)">Купить / Выбрать</button>
     </div>
     <div class="shop-item">
       <img src="shark_skin2.png?v=1" />
-      <button onclick="buySkin('skin2', 50)">Купить (50 токенов)</button>
+      <button onclick="buySkin('skin2', 50)">Купить / Выбрать</button>
     </div>
     <button onclick="closeShop()">Закрыть</button>
   </div>
 
   <div id="booster-modal" class="booster-modal">
     <div class="booster-item">
-      <div>Авто-Тап +1 (50 токенов)</div>
+      <div class="booster-info">Авто-Тап +1 (50 токенов)</div>
       <button onclick="buyBooster(50, 1)">Купить</button>
     </div>
     <div class="booster-item">
-      <div>Авто-Тап +2 (100 токенов)</div>
+      <div class="booster-info">Авто-Тап +2 (100 токенов)</div>
       <button onclick="buyBooster(100, 2)">Купить</button>
     </div>
     <button onclick="closeBoosters()">Закрыть</button>
@@ -152,7 +158,17 @@
     let ownedBoosters = JSON.parse(localStorage.getItem('ownedBoosters')) || { 1: false, 2: false };
 
     const tokenCount = document.getElementById('tokenCount');
-    const tapImage = document.querySelector('.tap-image');
+    const tapImage = document.getElementById('tapImage');
+
+    const skinPaths = {
+      default: 'shark.png?v=1',
+      skin1: 'shark_skin1.png?v=1',
+      skin2: 'shark_skin2.png?v=1'
+    };
+
+    function updateSkin() {
+      tapImage.src = skinPaths[currentSkin] || skinPaths.default;
+    }
 
     function saveProgress() {
       localStorage.setItem('balance', balance);
@@ -160,6 +176,47 @@
       localStorage.setItem('currentSkin', currentSkin);
       localStorage.setItem('autoTap', autoTap);
       localStorage.setItem('ownedBoosters', JSON.stringify(ownedBoosters));
+
+      if (window.Telegram && Telegram.WebApp.initDataUnsafe) {
+        const userId = Telegram.WebApp.initDataUnsafe.user?.id;
+        if (userId) {
+          fetch('https://your-server.com/api/save-progress', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              userId,
+              balance,
+              currentSkin,
+              ownedSkins,
+              autoTap,
+              ownedBoosters
+            })
+          });
+        }
+      }
+    }
+
+    function loadProgressFromServer() {
+      if (window.Telegram && Telegram.WebApp.initDataUnsafe) {
+        const userId = Telegram.WebApp.initDataUnsafe.user?.id;
+        if (userId) {
+          fetch(`https://your-server.com/api/load-progress?userId=${userId}`)
+            .then(res => res.json())
+            .then(data => {
+              if (data) {
+                balance = data.balance || 0;
+                currentSkin = data.currentSkin || 'default';
+                ownedSkins = data.ownedSkins || { default: true };
+                autoTap = data.autoTap || 0;
+                ownedBoosters = data.ownedBoosters || { 1: false, 2: false };
+                tokenCount.textContent = `${balance} токенов`;
+                updateSkin();
+              }
+            });
+        }
+      }
     }
 
     function handleTap() {
@@ -183,7 +240,11 @@
         balance -= price;
         ownedSkins[skinId] = true;
         currentSkin = skinId;
+      } else {
+        alert('Недостаточно токенов!');
+        return;
       }
+      updateSkin();
       tokenCount.textContent = `${balance} токенов`;
       saveProgress();
     }
@@ -202,15 +263,15 @@
 
       boosterItems.forEach((item, index) => {
         const increment = index + 1;
-        const div = item.querySelector('div');
+        const infoDiv = item.querySelector('.booster-info');
         const button = item.querySelector('button');
 
         if (ownedBoosters[increment]) {
-          div.textContent = `Авто-Тап +${increment} (куплено)`;
+          infoDiv.textContent = `Авто-Тап +${increment} (куплено)`;
           button.disabled = true;
         } else {
           const price = increment * 50;
-          div.textContent = `Авто-Тап +${increment} (${price} токенов)`;
+          infoDiv.textContent = `Авто-Тап +${increment} (${price} токенов)`;
           button.disabled = false;
         }
       });
@@ -241,8 +302,19 @@
       }, 1000);
     }
 
-    tokenCount.textContent = `${balance} токенов`;
-    startAutoTap();
+    window.addEventListener('DOMContentLoaded', () => {
+      if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
+        Telegram.WebApp.ready();
+        const endBtn = document.getElementById('endButton');
+        if (endBtn) {
+          endBtn.style.display = 'inline-block';
+        }
+      }
+      loadProgressFromServer();
+      tokenCount.textContent = `${balance} токенов`;
+      updateSkin();
+      startAutoTap();
+    });
   </script>
 </body>
 </html>
