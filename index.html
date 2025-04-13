@@ -217,6 +217,39 @@
   z-index: 9999;
   transition: all 0.5s ease-out;
 }
+
+.tab-screen {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: calc(100vh - 60px);
+  padding: 20px;
+}
+.tab-screen.active-tab {
+  display: flex;
+}
+.tab-bar {
+  height: 60px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background: #f0f0f0;
+  border-top: 2px solid #ccc;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+}
+.tab-bar button {
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+}
+.shop-section {
+  margin: 10px 0;
+  text-align: center;
+}
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&amp;display=swap" rel="stylesheet"/></head>
 <body>
@@ -237,46 +270,9 @@
 </div>
 </div>
 </div>
-<div class="game-container" id="gameContainer" style="display:none">
-<div class="balance" id="tokenCount">0 токенов</div>
-<img alt="Shark" class="tap-image" id="tapImage" onclick="handleTap()" src=""/>
-<div class="menu-buttons">
-<button class="shop-button" onclick="openShop()">Магазин</button>
-<button class="shop-button" onclick="openBoosters()">Бустеры</button>
-</div>
-<button class="shop-button" onclick="openLeaderboard()">Лидерборд</button>
-<button class="shop-button" id="endButton" onclick="Telegram.WebApp.close()" style="display: none;">Завершить</button>
-</div>
-<div class="shop-modal" id="shop-modal">
-<div class="shop-item">
-<img src="shark.png?v=1"/>
-<button onclick="buySkin('default', 0)">Выбрать</button>
-</div>
-<div class="shop-item">
-<img src="shark_skin2.png?v=1"/>
-<button onclick="buySkin('skin2', 1000)">Купить / Выбрать</button>
-</div>
-<div class="shop-item">
-<img src="shark_skin1.png?v=1"/>
-<button onclick="buySkin('skin3', 500)">Купить / Выбрать</button>
-</div>
-<button onclick="closeShop()">Закрыть</button>
-</div>
-<div class="booster-modal" id="booster-modal">
-<div class="booster-item">
-<div class="booster-info">Авто-Тап +1 (50 токенов)</div>
-<button onclick="buyBooster(50, 1)">Купить</button>
-</div>
-<div class="booster-item">
-<div class="booster-info">Авто-Тап +2 (100 токенов)</div>
-<button onclick="buyBooster(100, 2)">Купить</button>
-</div>
-<div class="booster-item">
-<div class="booster-info">Авто-Тап +3 (1000 токенов)</div>
-<button onclick="buyBooster(1000, 3)">Купить</button>
-</div>
-<button onclick="closeBoosters()">Закрыть</button>
-</div>
+
+
+
 <script>
     const dbUrl = 'https://tralalero-fec07-default-rtdb.firebaseio.com';
     let currentSkin = 'default';
@@ -525,11 +521,61 @@ function showClickEffect(x, y) {
   }, 10);
   setTimeout(() => spark.remove(), 500);
 }
+
+function switchTab(tabId) {
+  document.querySelectorAll('.tab-screen').forEach(tab => {
+    tab.classList.remove('active-tab');
+  });
+  document.getElementById(tabId).classList.add('active-tab');
+}
 </script>
 <div class="booster-modal" id="leaderboard-modal">
 <h2>Топ игроков</h2>
 <ul id="leaderboardList"></ul>
 <button onclick="closeLeaderboard()">Закрыть</button>
+</div>
+
+<div id="app-container">
+<div class="tab-screen active-tab" id="screen-game">
+<div class="balance" id="tokenCount">0 токенов</div>
+<img alt="Shark" class="tap-image" id="tapImage" onclick="handleTap()" src="default.png"/>
+</div>
+<div class="tab-screen" id="screen-shop">
+<h2>Магазин</h2>
+<div class="shop-section">
+<h3>Скины</h3>
+<div>
+<img onclick="buySkin('s1')" src="s1.png"/>
+<button onclick="buySkin('s1')">Купить за 100</button>
+</div>
+<div>
+<img onclick="buySkin('s2')" src="s2.png"/>
+<button onclick="buySkin('s2')">Купить за 200</button>
+</div>
+</div>
+<div class="shop-section">
+<h3>Бустеры</h3>
+<div><button onclick="buyBooster(1)">+1/сек за 50</button></div>
+<div><button onclick="buyBooster(2)">+2/сек за 100</button></div>
+<div><button onclick="buyBooster(3)">+5/сек за 300</button></div>
+</div>
+</div>
+<div class="tab-screen" id="screen-leaderboard">
+<h3>Топ игроков</h3>
+<ul id="leaderboardList"></ul>
+</div>
+<div class="tab-screen" id="screen-profile">
+<h2>Профиль</h2>
+<p>ID: <span id="profileId"></span></p>
+<p>Уровень: <span id="profileLevel">1</span></p>
+<button onclick="Telegram.WebApp.close()">Выйти</button>
+</div>
+<div class="tab-bar">
+<button onclick="switchTab('screen-game')">🏠</button>
+<button onclick="switchTab('screen-shop')">🛒</button>
+<button onclick="switchTab('screen-leaderboard')">🏆</button>
+<button onclick="switchTab('screen-profile')">⚙️</button>
+</div>
 </div>
 </body>
 </html>
