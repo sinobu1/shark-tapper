@@ -8,134 +8,78 @@
   <meta http-equiv="Expires" content="0" />
   <title>Shark Tapper</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body {
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
+      width: 100%; height: 100%; overflow: hidden;
       background: linear-gradient(160deg, #e8ecef, #cfd8dc);
       font-family: 'Segoe UI', sans-serif;
       touch-action: manipulation;
     }
     .loading-screen {
-      position: fixed;
-      width: 100%;
-      height: 100%;
-      background: #fff;
-      z-index: 9999;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
+      position: fixed; width: 100%; height: 100%; background: #fff; z-index: 9999;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
     }
-    .loading-screen img {
-      max-width: 80%;
-    }
-    .loading-screen span {
-      font-size: 20px;
-      margin-top: 12px;
-      color: #333;
-    }
+    .loading-screen img { max-width: 80%; }
+    .loading-screen span { font-size: 20px; margin-top: 12px; color: #333; }
     .game-container {
-      position: absolute;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      width: 90vw;
-      max-width: 400px;
-      height: 90vh;
-      max-height: 700px;
-      background: #ffffff;
-      border: 4px solid #d0d0d0;
-      border-radius: 24px;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: space-between;
+      position: absolute; left: 50%; top: 45%; transform: translate(-50%, -50%);
+      width: 90vw; max-width: 400px; height: 80vh; max-height: 600px;
+      background: #ffffff; border: 4px solid #d0d0d0; border-radius: 24px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1); padding: 20px;
+      display: flex; flex-direction: column; align-items: center; justify-content: space-between;
     }
     .balance {
-      color: #111;
-      font-size: 22px;
-      font-weight: bold;
+      color: #111; font-size: 22px; font-weight: bold;
     }
     .tap-image {
-      max-width: 100%;
-      cursor: pointer;
-      transition: transform 0.1s;
-      border-radius: 16px;
+      max-width: 100%; cursor: pointer; transition: transform 0.1s; border-radius: 16px;
     }
-    .tap-animation {
-      animation: tapPulse 0.2s ease;
-    }
+    .tap-animation { animation: tapPulse 0.2s ease; }
     @keyframes tapPulse {
       0% { transform: scale(1); }
       50% { transform: scale(0.9); }
       100% { transform: scale(1); }
     }
     .floating-text {
-      position: absolute;
-      font-size: 18px;
-      color: #3cba54;
-      font-weight: 700;
-      animation: floatUp 1s ease-out forwards;
-      pointer-events: none;
+      position: absolute; font-size: 18px; color: #3cba54; font-weight: 700;
+      animation: floatUp 1s ease-out forwards; pointer-events: none;
       text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
     }
     @keyframes floatUp {
       0% { opacity: 1; transform: translateY(0); }
       100% { opacity: 0; transform: translateY(-50px); }
     }
-    .menu-buttons {
-      display: flex;
-      gap: 12px;
-    }
+    .menu-buttons { display: flex; gap: 12px; }
     .shop-button {
-      background: #3cba54;
-      color: white;
-      border: none;
-      padding: 10px 16px;
-      border-radius: 10px;
-      cursor: pointer;
-      font-size: 16px;
+      background: #3cba54; color: white; border: none; padding: 10px 16px;
+      border-radius: 10px; cursor: pointer; font-size: 16px;
     }
     .shop-modal, .booster-modal {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(255, 255, 255, 0.95);
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      z-index: 10;
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(255, 255, 255, 0.95); display: none;
+      flex-direction: column; align-items: center; justify-content: center; padding: 20px; z-index: 10;
     }
-    .shop-item, .booster-item {
-      margin: 10px;
-      text-align: center;
-    }
-    .shop-item img {
-      width: 100px;
-      height: auto;
-      border-radius: 12px;
-    }
+    .shop-item, .booster-item { margin: 10px; text-align: center; }
+    .shop-item img { width: 100px; height: auto; border-radius: 12px; }
     .shop-item button, .booster-item button {
-      margin-top: 5px;
-      padding: 6px 12px;
-      border: none;
-      background: #333;
-      color: white;
-      border-radius: 6px;
-      cursor: pointer;
+      margin-top: 5px; padding: 6px 12px; border: none;
+      background: #333; color: white; border-radius: 6px; cursor: pointer;
+    }
+    .leaderboard {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: #fff; border-top: 2px solid #ccc;
+      padding: 10px; font-size: 14px;
+    }
+    .leaderboard h3 {
+      margin-bottom: 5px; text-align: center;
+    }
+    .leaderboard ul {
+      list-style: none; padding: 0; margin: 0; max-height: 150px; overflow-y: auto;
+    }
+    .leaderboard li {
+      padding: 4px 0; display: flex; justify-content: space-between;
     }
   </style>
 </head>
@@ -187,6 +131,11 @@
     <button onclick="closeBoosters()">Закрыть</button>
   </div>
 
+  <div class="leaderboard" id="leaderboard">
+    <h3>Топ игроков</h3>
+    <ul id="leaderboardList"></ul>
+  </div>
+
   <script>
     const dbUrl = 'https://tralalero-fec07-default-rtdb.firebaseio.com';
     let currentSkin = 'default';
@@ -217,7 +166,7 @@
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ balance, currentSkin, ownedSkins, autoTap, ownedBoosters })
-      });
+      }).then(() => loadLeaderboard());
     }
 
     function loadProgress() {
@@ -234,6 +183,27 @@
             tokenCount.textContent = `${balance} токенов`;
             updateSkin();
             updateBoosterTexts();
+          }
+        });
+    }
+
+    function loadLeaderboard() {
+      fetch(`${dbUrl}/users.json`)
+        .then(res => res.json())
+        .then(data => {
+          if (data) {
+            const sorted = Object.entries(data)
+              .map(([uid, u]) => ({ uid, balance: u.balance || 0 }))
+              .sort((a, b) => b.balance - a.balance)
+              .slice(0, 10);
+
+            const list = document.getElementById('leaderboardList');
+            list.innerHTML = '';
+            sorted.forEach((entry, i) => {
+              const li = document.createElement('li');
+              li.innerHTML = `<span>#${i + 1}</span><span>${entry.balance} токенов</span>`;
+              list.appendChild(li);
+            });
           }
         });
     }
@@ -258,13 +228,8 @@
       saveProgress();
     }
 
-    function openShop() {
-      document.getElementById('shop-modal').style.display = 'flex';
-    }
-
-    function closeShop() {
-      document.getElementById('shop-modal').style.display = 'none';
-    }
+    function openShop() { document.getElementById('shop-modal').style.display = 'flex'; }
+    function closeShop() { document.getElementById('shop-modal').style.display = 'none'; }
 
     function buySkin(skinId, price) {
       if (ownedSkins[skinId]) {
@@ -338,7 +303,7 @@
       setTimeout(() => {
         loadingScreen.style.display = 'none';
         gameContainer.style.display = 'flex';
-      }, 5000);
+      }, 2000);
 
       if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
         Telegram.WebApp.ready();
@@ -353,6 +318,7 @@
         if (userId) {
           loadProgress();
           startAutoTap();
+          loadLeaderboard();
         } else {
           alert("Не удалось получить userId из Telegram Web App.");
         }
