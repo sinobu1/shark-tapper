@@ -620,7 +620,7 @@ function saveProgress() {
     window.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => {
         loadingScreen.style.display = 'none';
-        gameContainer.style.display = 'flex';
+        document.getElementById("app-container").style.display = "block";
       }, 5000);
 
       if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
@@ -870,7 +870,7 @@ function saveProgress() {
     window.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => {
         loadingScreen.style.display = 'none';
-        gameContainer.style.display = 'flex';
+        document.getElementById("app-container").style.display = "block";
       }, 5000);
 
       if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
