@@ -1,13 +1,14 @@
 <!DOCTYPE html>
+
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-  <meta http-equiv="Pragma" content="no-cache" />
-  <meta http-equiv="Expires" content="0" />
-  <title>Shark Tapper</title>
-  <script src="https://telegram.org/js/telegram-web-app.js">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<meta content="no-cache, no-store, must-revalidate" http-equiv="Cache-Control"/>
+<meta content="no-cache" http-equiv="Pragma"/>
+<meta content="0" http-equiv="Expires"/>
+<title>Shark Tapper</title>
+<script src="https://telegram.org/js/telegram-web-app.js">
     function openLeaderboard() {
       document.getElementById('leaderboard-modal').style.display = 'flex';
       loadLeaderboard();
@@ -44,7 +45,7 @@
 
 
 </script>
-  <style>
+<style>
     * {
       box-sizing: border-box;
       margin: 0;
@@ -173,58 +174,75 @@
       border-radius: 6px;
       cursor: pointer;
     }
-  </style>
+  
+.tap-image:active {
+  transform: scale(0.88);
+  filter: brightness(0.95);
+}
+
+.floating-text {
+  font-size: 24px !important;
+  color: #00c853 !important;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.4);
+}
+
+.shop-button {
+  background: linear-gradient(135deg, #43e97b, #38f9d7) !important;
+  transition: all 0.2s ease;
+}
+
+.shop-button:active {
+  transform: scale(0.96);
+  filter: brightness(0.9);
+}
+</style>
 </head>
 <body>
-  <div class="loading-screen" id="loading">
-    <img src="w1.png" alt="Loading..." />
-    <span>Приключение 2025</span>
-  </div>
-
-  <div class="game-container" style="display:none" id="gameContainer">
-    <div class="balance" id="tokenCount">0 токенов</div>
-    <img id="tapImage" class="tap-image" src="" onclick="handleTap()" alt="Shark" />
-    <div class="menu-buttons">
-      <button class="shop-button" onclick="openShop()">Магазин</button>
-      <button class="shop-button" onclick="openBoosters()">Бустеры</button>
-    </div>
-      <button class="shop-button" onclick="openLeaderboard()">Лидерборд</button>
-    <button class="shop-button" id="endButton" onclick="Telegram.WebApp.close()" style="display: none;">Завершить</button>
-  </div>
-
-  <div id="shop-modal" class="shop-modal">
-    <div class="shop-item">
-      <img src="shark.png?v=1" />
-      <button onclick="buySkin('default', 0)">Выбрать</button>
-    </div>
-    <div class="shop-item">
-      <img src="shark_skin2.png?v=1" />
-      <button onclick="buySkin('skin2', 1000)">Купить / Выбрать</button>
-    </div>
-    <div class="shop-item">
-      <img src="shark_skin1.png?v=1" />
-      <button onclick="buySkin('skin3', 500)">Купить / Выбрать</button>
-    </div>
-    <button onclick="closeShop()">Закрыть</button>
-  </div>
-
-  <div id="booster-modal" class="booster-modal">
-    <div class="booster-item">
-      <div class="booster-info">Авто-Тап +1 (50 токенов)</div>
-      <button onclick="buyBooster(50, 1)">Купить</button>
-    </div>
-    <div class="booster-item">
-      <div class="booster-info">Авто-Тап +2 (100 токенов)</div>
-      <button onclick="buyBooster(100, 2)">Купить</button>
-    </div>
-    <div class="booster-item">
-      <div class="booster-info">Авто-Тап +3 (1000 токенов)</div>
-      <button onclick="buyBooster(1000, 3)">Купить</button>
-    </div>
-    <button onclick="closeBoosters()">Закрыть</button>
-  </div>
-
-  <script>
+<div class="loading-screen" id="loading">
+<img alt="Loading..." src="w1.png"/>
+<span>Приключение 2025</span>
+</div>
+<div class="game-container" id="gameContainer" style="display:none">
+<div class="balance" id="tokenCount">0 токенов</div>
+<img alt="Shark" class="tap-image" id="tapImage" onclick="handleTap()" src=""/>
+<div class="menu-buttons">
+<button class="shop-button" onclick="openShop()">Магазин</button>
+<button class="shop-button" onclick="openBoosters()">Бустеры</button>
+</div>
+<button class="shop-button" onclick="openLeaderboard()">Лидерборд</button>
+<button class="shop-button" id="endButton" onclick="Telegram.WebApp.close()" style="display: none;">Завершить</button>
+</div>
+<div class="shop-modal" id="shop-modal">
+<div class="shop-item">
+<img src="shark.png?v=1"/>
+<button onclick="buySkin('default', 0)">Выбрать</button>
+</div>
+<div class="shop-item">
+<img src="shark_skin2.png?v=1"/>
+<button onclick="buySkin('skin2', 1000)">Купить / Выбрать</button>
+</div>
+<div class="shop-item">
+<img src="shark_skin1.png?v=1"/>
+<button onclick="buySkin('skin3', 500)">Купить / Выбрать</button>
+</div>
+<button onclick="closeShop()">Закрыть</button>
+</div>
+<div class="booster-modal" id="booster-modal">
+<div class="booster-item">
+<div class="booster-info">Авто-Тап +1 (50 токенов)</div>
+<button onclick="buyBooster(50, 1)">Купить</button>
+</div>
+<div class="booster-item">
+<div class="booster-info">Авто-Тап +2 (100 токенов)</div>
+<button onclick="buyBooster(100, 2)">Купить</button>
+</div>
+<div class="booster-item">
+<div class="booster-info">Авто-Тап +3 (1000 токенов)</div>
+<button onclick="buyBooster(1000, 3)">Купить</button>
+</div>
+<button onclick="closeBoosters()">Закрыть</button>
+</div>
+<script>
     const dbUrl = 'https://tralalero-fec07-default-rtdb.firebaseio.com';
     let currentSkin = 'default';
     let balance = 0;
@@ -305,6 +323,7 @@ function saveProgress() {
 
     function handleTap() {
       balance++;
+      if (window.navigator.vibrate) navigator.vibrate(30);
       tokenCount.textContent = `${balance} токенов`;
       showFloatingText("+1");
       tapImage.classList.add("tap-animation");
@@ -449,11 +468,10 @@ function saveProgress() {
 
 
 </script>
-
-  <div id="leaderboard-modal" class="booster-modal">
-    <h2>Топ игроков</h2>
-    <ul id="leaderboardList"></ul>
-    <button onclick="closeLeaderboard()">Закрыть</button>
-  </div>
+<div class="booster-modal" id="leaderboard-modal">
+<h2>Топ игроков</h2>
+<ul id="leaderboardList"></ul>
+<button onclick="closeLeaderboard()">Закрыть</button>
+</div>
 </body>
 </html>
