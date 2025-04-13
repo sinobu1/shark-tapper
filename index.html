@@ -200,16 +200,29 @@
   0% { width: 0%; }
   100% { width: 100%; }
 }
+
+@keyframes loadProgress {
+  0% { width: 0%; }
+  100% { width: 100%; }
+}
 </style>
-</head>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&amp;display=swap" rel="stylesheet"/></head>
 <body>
 <div class="loading-screen" id="loading">
 <img alt="Loading..." src="w1.png" style="position:absolute; width:100%; height:100%; object-fit:cover; z-index:-1;"/>
-<div style="font-family: 'Comic Sans MS', cursive, sans-serif; font-size: 28px; color: #fff; text-shadow: 2px 2px 8px rgba(0,0,0,0.8); margin-bottom: 20px;">
-        Приключение года 2025
-      </div>
-<div style="width: 80%; height: 12px; background: #ccc; border-radius: 6px; overflow: hidden;">
-<div id="progress-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #00c6ff, #0072ff); animation: loadProgress 5s linear forwards;"></div>
+<div style="position:absolute; bottom:80px; width:100%; text-align:center;">
+<div style="font-family: 'Orbitron', sans-serif; font-size: 28px; color: #fff; text-shadow: 2px 2px 8px rgba(0,0,0,0.8); margin-bottom: 16px;">
+          Приключение года 2025
+        </div>
+<div style="width: 80%; height: 14px; background: #1a1a1a; border-radius: 8px; overflow: hidden; margin: 0 auto;">
+<div id="progress-bar" style="
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #00ffcc, #0072ff);
+            animation: loadProgress 5s linear forwards;
+            box-shadow: 0 0 12px #00f5ff;
+          "></div>
+</div>
 </div>
 </div>
 <div class="game-container" id="gameContainer" style="display:none">
