@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Shark Tapper</title>
   <style>
     * {
@@ -79,14 +79,8 @@
       text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
     }
     @keyframes floatUp {
-      0% {
-        opacity: 1;
-        transform: translateY(0);
-      }
-      100% {
-        opacity: 0;
-        transform: translateY(-50px);
-      }
+      0% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-50px); }
     }
     .shop-button {
       background: #3cba54;
@@ -95,9 +89,9 @@
       padding: 10px 16px;
       border-radius: 10px;
       cursor: pointer;
-      margin-top: 10px;
+      margin: 6px;
     }
-    .shop-modal {
+    .shop-modal, .booster-modal {
       position: absolute;
       top: 0;
       left: 0;
@@ -111,7 +105,7 @@
       padding: 20px;
       z-index: 10;
     }
-    .shop-item {
+    .shop-item, .booster-item {
       margin: 10px;
       text-align: center;
     }
@@ -120,37 +114,11 @@
       height: auto;
       border-radius: 12px;
     }
-    .shop-item button {
+    .shop-item button, .booster-item button {
       margin-top: 5px;
       padding: 6px 12px;
       border: none;
       background: #333;
-      color: white;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    .booster-modal {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(255, 255, 255, 0.95);
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      z-index: 10;
-    }
-    .booster-item {
-      margin: 10px;
-      text-align: center;
-    }
-    .booster-item button {
-      padding: 6px 12px;
-      border: none;
-      background: #3cba54;
       color: white;
       border-radius: 6px;
       cursor: pointer;
@@ -162,8 +130,10 @@
     <div class="balance">Токены: <span id="token-count">0</span></div>
     <div class="progress"><div class="progress-bar" id="progress-bar"></div></div>
     <img src="original.png" class="tap-image" id="tap-area" alt="shark">
-    <button class="shop-button" onclick="openShop()">Магазин</button>
-    <button class="shop-button" onclick="openBoosters()">Бустеры</button>
+    <div style="display: flex; justify-content: center; gap: 10px;">
+      <button class="shop-button" onclick="openShop()">Магазин</button>
+      <button class="shop-button" onclick="openBoosters()">Бустеры</button>
+    </div>
     <div class="shop-modal" id="shop-modal">
       <div class="shop-item">
         <img src="original.png" alt="Оригинальный">
@@ -195,10 +165,17 @@
     </div>
   </div>
   <script>
-    let currentSkin = 'default';
-    let balance = 0;
-    let ownedSkins = { default: true };
-    let autoTap = 0;
+    let currentSkin = localStorage.getItem('currentSkin') || 'default';
+    let balance = parseInt(localStorage.getItem('balance')) || 0;
+    let ownedSkins = JSON.parse(localStorage.getItem('ownedSkins')) || { default: true };
+    let autoTap = parseInt(localStorage.getItem('autoTap')) || 0;
+
+    function saveProgress() {
+      localStorage.setItem('balance', balance);
+      localStorage.setItem('ownedSkins', JSON.stringify(ownedSkins));
+      localStorage.setItem('currentSkin', currentSkin);
+      localStorage.setItem('autoTap', autoTap);
+    }
 
     function openShop() {
       document.getElementById('shop-modal').style.display = 'flex';
@@ -216,6 +193,7 @@
     function updateSkinTexts() {
       ['default', 'leopard', 'gold'].forEach(skin => {
         const skinText = document.getElementById(`skin-${skin}-text`);
+        if (!skinText) return;
         if (currentSkin === skin) {
           skinText.textContent = skinText.textContent.replace(/\(.*?\)/, '(установлено)');
         } else if (ownedSkins[skin]) {
@@ -232,14 +210,15 @@
       currentSkin = skin;
       updateSkin();
       updateSkinTexts();
-      alert(`Скин '${skin}' выбран!`);
+      saveProgress();
     }
     function buySkin(skin, price) {
       if (balance >= price) {
         balance -= price;
-        document.getElementById('token-count').textContent = balance;
         ownedSkins[skin] = true;
         selectSkin(skin);
+        tokenCount.textContent = balance;
+        saveProgress();
       } else {
         alert('Недостаточно токенов!');
       }
@@ -248,7 +227,8 @@
       if (balance >= price) {
         balance -= price;
         autoTap += increment;
-        document.getElementById('token-count').textContent = balance;
+        tokenCount.textContent = balance;
+        saveProgress();
       } else {
         alert('Недостаточно токенов!');
       }
@@ -268,13 +248,6 @@
     const tokenCount = document.getElementById('token-count');
     const progressBar = document.getElementById('progress-bar');
 
-    tapArea.addEventListener('click', (e) => {
-      balance++;
-      tokenCount.textContent = balance;
-      showFloatingText('+1', e.clientX, e.clientY);
-      progressBar.style.width = (balance % 100) + '%';
-    });
-
     function showFloatingText(text, x, y) {
       const floatText = document.createElement('div');
       floatText.className = 'floating-text';
@@ -285,13 +258,27 @@
       setTimeout(() => document.body.removeChild(floatText), 1000);
     }
 
+    tapArea.addEventListener('click', (e) => {
+      balance++;
+      tokenCount.textContent = balance;
+      showFloatingText('+1', e.clientX, e.clientY);
+      progressBar.style.width = (balance % 100) + '%';
+      saveProgress();
+    });
+
     setInterval(() => {
       if (autoTap > 0) {
         balance += autoTap;
         tokenCount.textContent = balance;
         progressBar.style.width = (balance % 100) + '%';
+        saveProgress();
       }
     }, 1000);
+
+    updateSkin();
+    updateSkinTexts();
+    tokenCount.textContent = balance;
+    progressBar.style.width = (balance % 100) + '%';
   </script>
 </body>
 </html>
