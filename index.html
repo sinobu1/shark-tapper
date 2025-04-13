@@ -44,33 +44,6 @@
     }
 
 
-
-function switchTab(tabId) {
-  const screens = document.querySelectorAll('[id^="screen-"]');
-  screens.forEach(s => s.style.display = 'none');
-  const target = document.getElementById(tabId);
-  if (target) target.style.display = 'block';
-
-  // Удалим активные классы с кнопок и добавим на текущую
-  document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-  const clicked = Array.from(document.querySelectorAll('.tab-button')).find(b => b.onclick.toString().includes(tabId));
-  if (clicked) clicked.classList.add('active');
-
-  // Вибрация на мобильных
-  if (window.navigator.vibrate) {
-    window.navigator.vibrate(30);
-  }
-}
-
-function switchTab(tabId) {
-  document.querySelectorAll('[id^="screen-"]').forEach(div => div.style.display = 'none');
-  const active = document.getElementById(tabId);
-  if (active) active.style.display = 'block';
-  document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-  const clicked = Array.from(document.querySelectorAll('.tab-button')).find(b => b.onclick.toString().includes(tabId));
-  if (clicked) clicked.classList.add('active');
-  if (window.navigator.vibrate) window.navigator.vibrate(30);
-}
 </script>
 <style>
     * {
@@ -232,149 +205,6 @@ function switchTab(tabId) {
   0% { width: 0%; }
   100% { width: 100%; }
 }
-
-.spark {
-  position: absolute;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: radial-gradient(circle, #00ffcc, transparent);
-  opacity: 1;
-  pointer-events: none;
-  z-index: 9999;
-  transition: all 0.5s ease-out;
-}
-
-  .tab-screen { display: none; }
-  .tab-screen.active-tab { display: flex !important; flex-direction: column; }
-  .tab-btn { font-size: 20px; background: none; border: none; cursor: pointer; }
-
-#bottom-nav {
-  transition: opacity 0.5s ease;
-  opacity: 0;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background: #fff;
-  display: flex;
-  justify-content: space-around;
-  padding: 10px 0;
-  border-top: 2px solid #ccc;
-  z-index: 999;
-}
-#bottom-nav.show {
-  opacity: 1;
-}
-.tab-btn {
-  background: linear-gradient(to right, #4caf50, #81c784);
-  color: white;
-  border: none;
-  padding: 10px 14px;
-  border-radius: 8px;
-  font-size: 18px;
-}
-.tab-btn:active {
-  transform: scale(0.95);
-}
-
-.game-container { padding-bottom: 80px; }
-
-/* Нижняя панель */
-.tab-bar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  display: flex;
-  width: 100%;
-  justify-content: space-around;
-  background: linear-gradient(90deg, #0d47a1, #1976d2);
-  padding: 10px 0;
-  z-index: 10000;
-  border-top: 2px solid #fff3;
-}
-.tab-button {
-  flex: 1;
-  background: transparent;
-  border: none;
-  color: #fff;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: transform 0.2s;
-}
-.tab-button:active {
-  transform: scale(0.95);
-}
-/* Активная вкладка */
-.tab-button.active {
-  color: #ffeb3b;
-  text-shadow: 0 0 5px #fff;
-}
-
-/* Единая нижняя панель */
-.tab-bar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  display: flex;
-  width: 100%;
-  justify-content: space-around;
-  background: linear-gradient(90deg, #0d47a1, #1976d2);
-  padding: 10px 0;
-  z-index: 10000;
-  border-top: 2px solid #fff3;
-}
-.tab-button {
-  flex: 1;
-  background: transparent;
-  border: none;
-  color: #fff;
-  font-size: 15px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: transform 0.2s;
-}
-.tab-button:active {
-  transform: scale(0.95);
-}
-.tab-button.active {
-  color: #ffeb3b;
-  text-shadow: 0 0 5px #fff;
-}
-/* Экран */
-.screen {
-  padding: 20px;
-}
-
-/* Нижняя панель вкладок */
-.tab-bar {
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  display: flex;
-  background: linear-gradient(90deg, #1a237e, #3949ab);
-  border-top: 2px solid #fff3;
-  z-index: 1000;
-}
-.tab-button {
-  flex: 1;
-  padding: 10px;
-  font-size: 14px;
-  background: none;
-  border: none;
-  color: white;
-  font-weight: bold;
-}
-.tab-button.active {
-  background: rgba(255,255,255,0.2);
-  color: #ffeb3b;
-}
-.screen {
-  display: none;
-  padding: 20px;
-  padding-bottom: 60px;
-}
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&amp;display=swap" rel="stylesheet"/></head>
 <body>
@@ -395,17 +225,17 @@ function switchTab(tabId) {
 </div>
 </div>
 </div>
-<div class="screen" id="screen-game" style="display:none">
-<div style="text-align:center; margin-bottom:10px;">
-<div style="font-size:18px; font-weight:bold;">Уровень <span id="playerLevel">1</span></div>
-<div style="width:100%; background:#ccc; border-radius:8px; height:10px; margin-top:4px;">
-<div id="xpBar" style="height:10px; width:0%; background:linear-gradient(to right, #00c6ff, #0072ff); border-radius:8px;"></div>
-</div>
-</div>
+<div class="game-container" id="gameContainer" style="display:none">
 <div class="balance" id="tokenCount">0 токенов</div>
 <img alt="Shark" class="tap-image" id="tapImage" onclick="handleTap()" src=""/>
+<div class="menu-buttons">
+<button class="shop-button" onclick="openShop()">Магазин</button>
+<button class="shop-button" onclick="openBoosters()">Бустеры</button>
 </div>
-<div class="screen" id="screen-shop" style="display:none">
+<button class="shop-button" onclick="openLeaderboard()">Лидерборд</button>
+<button class="shop-button" id="endButton" onclick="Telegram.WebApp.close()" style="display: none;">Завершить</button>
+</div>
+<div class="shop-modal" id="shop-modal">
 <div class="shop-item">
 <img src="shark.png?v=1"/>
 <button onclick="buySkin('default', 0)">Выбрать</button>
@@ -420,7 +250,7 @@ function switchTab(tabId) {
 </div>
 <button onclick="closeShop()">Закрыть</button>
 </div>
-<div class="screen" id="screen-boosters" style="display:none">
+<div class="booster-modal" id="booster-modal">
 <div class="booster-item">
 <div class="booster-info">Авто-Тап +1 (50 токенов)</div>
 <button onclick="buyBooster(50, 1)">Купить</button>
@@ -446,7 +276,7 @@ function switchTab(tabId) {
 
     const tokenCount = document.getElementById('tokenCount');
     const tapImage = document.getElementById('tapImage');
-    const gameContainer = document.getElementById('screen-game');
+    const gameContainer = document.getElementById('gameContainer');
     const loadingScreen = document.getElementById('loading');
 
     const skinPaths = {
@@ -515,16 +345,8 @@ function saveProgress() {
     }
 
     function handleTap() {
-      const rect = tapImage.getBoundingClientRect();
-      const x = rect.left + rect.width / 2;
-      const y = rect.top + rect.height / 2;
-      showClickEffect(x, y);
       balance++;
-      if (window.navigator.vibrate) {
-        navigator.vibrate(30);
-      } else if (Telegram.WebApp.HapticFeedback) {
-        Telegram.WebApp.HapticFeedback.impactOccurred("medium");
-      }
+      if (window.navigator.vibrate) navigator.vibrate(30);
       tokenCount.textContent = `${balance} токенов`;
       showFloatingText("+1");
       tapImage.classList.add("tap-animation");
@@ -611,16 +433,7 @@ function saveProgress() {
     window.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => {
         loadingScreen.style.display = 'none';
-        
-    
-    gameContainer.style.display = 'flex';
-    
-    const nav = document.getElementById('bottom-nav');
-    if (nav) nav.style.display = 'flex';
-    
-    
-    document.getElementById('bottom-nav').style.display = 'flex';
-    
+        gameContainer.style.display = 'flex';
       }, 5000);
 
       if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
@@ -677,77 +490,11 @@ function saveProgress() {
     }
 
 
-
-
-
-function showClickEffect(x, y) {
-  const spark = document.createElement("div");
-  spark.className = "spark";
-  spark.style.left = `${x}px`;
-  spark.style.top = `${y}px`;
-  document.body.appendChild(spark);
-  setTimeout(() => {
-    spark.style.transform = "scale(2)";
-    spark.style.opacity = "0";
-  }, 10);
-  setTimeout(() => spark.remove(), 500);
-}
-
-function switchTab(tabId) {
-  document.querySelectorAll('.tab-screen').forEach(tab => tab.classList.remove('active-tab'));
-  document.getElementById(tabId).classList.add('active-tab');
-  if (tabId === 'screen-leaderboard') loadLeaderboard();
-}
-
-let xp = 0;
-let level = 1;
-const xpToNextLevel = () => 20 + (level - 1) * 10;
-
-function updateXP(amount) {
-  xp += amount;
-  let need = xpToNextLevel();
-  if (xp >= need) {
-    xp -= need;
-    level++;
-    document.getElementById('playerLevel').textContent = level;
-  }
-  const percent = Math.floor((xp / xpToNextLevel()) * 100);
-  document.getElementById('xpBar').style.width = percent + '%';
-}
-
-// Вызываем при каждом тапе
-const originalHandleTap = handleTap;
-handleTap = function () {
-  originalHandleTap();
-  updateXP(1);
-}
-
-function shareGame() {
-  if (Telegram.WebApp && Telegram.WebApp.shareGame) {
-    Telegram.WebApp.shareGame();
-    updateXP(10); // Награда XP за приглашение
-    alert("Спасибо за приглашение! Получено 10 XP!");
-  } else {
-    alert("Поделиться можно только внутри Telegram WebApp.");
-  }
-}
-
-setTimeout(() => {
-  const nav = document.getElementById('bottom-nav');
-  if (nav) nav.classList.add('show');
-}, 100);
 </script>
 <div class="booster-modal" id="leaderboard-modal">
 <h2>Топ игроков</h2>
 <ul id="leaderboardList"></ul>
 <button onclick="closeLeaderboard()">Закрыть</button>
 </div>
-<div class="screen" id="screen-quests" style="display:none">
-<h2>📜 Задания</h2>
-<div style="margin-top:10px;">
-<p>👥 Пригласи друга и получи 🎁</p>
-<button class="shop-button" onclick="shareGame()">Пригласить через Telegram</button>
-</div>
-</div>
-<div class="screen" id="screen-leaderboard" style="display:none"><h2>🏆 Топ игроков</h2></div><div class="screen" id="screen-profile" style="display:none"><h2>👤 Профиль игрока</h2></div><div class="tab-bar"><button class="tab-button" onclick="switchTab('screen-game')">🦈 Игра</button><button class="tab-button" onclick="switchTab('screen-quests')">🎯 Задания</button><button class="tab-button" onclick="switchTab('screen-leaderboard')">🏆 Олимп</button><button class="tab-button" onclick="switchTab('screen-shop')">🛒 Магазин</button><button class="tab-button" onclick="switchTab('screen-profile')">👤 Профиль</button></div></body>
+</body>
 </html>
