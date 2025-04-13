@@ -13,14 +13,14 @@
     body {
       background: linear-gradient(160deg, #e8ecef, #cfd8dc);
       font-family: 'Segoe UI', sans-serif;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       height: 100vh;
       overflow: hidden;
     }
     .game-container {
-      position: relative;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
       width: 90vw;
       max-width: 400px;
       height: 90vh;
@@ -88,25 +88,6 @@
         transform: translateY(-50px);
       }
     }
-    .achievements {
-      margin-top: 10px;
-      color: #333;
-      text-align: center;
-      font-size: 14px;
-    }
-    .achievement-icon {
-      display: inline-block;
-      margin: 4px;
-      width: 28px;
-      height: 28px;
-      background-image: url('https://cdn-icons-png.flaticon.com/512/616/616408.png');
-      background-size: cover;
-    }
-    #achievement-icons {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
     .shop-button {
       background: #3cba54;
       color: white;
@@ -148,6 +129,32 @@
       border-radius: 6px;
       cursor: pointer;
     }
+    .booster-modal {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.95);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 10;
+    }
+    .booster-item {
+      margin: 10px;
+      text-align: center;
+    }
+    .booster-item button {
+      padding: 6px 12px;
+      border: none;
+      background: #3cba54;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
@@ -155,31 +162,43 @@
     <div class="balance">Токены: <span id="token-count">0</span></div>
     <div class="progress"><div class="progress-bar" id="progress-bar"></div></div>
     <img src="original.png" class="tap-image" id="tap-area" alt="shark">
-    <div class="achievements" id="achievements">Достижения: 0</div>
-    <div id="achievement-icons"></div>
     <button class="shop-button" onclick="openShop()">Магазин</button>
+    <button class="shop-button" onclick="openBoosters()">Бустеры</button>
     <div class="shop-modal" id="shop-modal">
       <div class="shop-item">
         <img src="original.png" alt="Оригинальный">
-        <div>Оригинальный (установлено)</div>
+        <div id="skin-default-text">Оригинальный (установлено)</div>
         <button onclick="selectSkin('default')">Выбрать</button>
       </div>
       <div class="shop-item">
         <img src="leopard.png" alt="Leopard">
-        <div>Скин Леопард (5)</div>
+        <div id="skin-leopard-text">Скин Леопард (5)</div>
         <button onclick="buySkin('leopard', 5)">Купить</button>
       </div>
       <div class="shop-item">
         <img src="gold.png" alt="Gold">
-        <div>Скин Голд (5)</div>
+        <div id="skin-gold-text">Скин Голд (5)</div>
         <button onclick="buySkin('gold', 5)">Купить</button>
       </div>
       <button class="shop-button" onclick="closeShop()">Закрыть</button>
+    </div>
+    <div class="booster-modal" id="booster-modal">
+      <div class="booster-item">
+        <div>Авто-Тап +1 (50 токенов)</div>
+        <button onclick="buyBooster(50, 1)">Купить</button>
+      </div>
+      <div class="booster-item">
+        <div>Авто-Тап +2 (100 токенов)</div>
+        <button onclick="buyBooster(100, 2)">Купить</button>
+      </div>
+      <button class="shop-button" onclick="closeBoosters()">Закрыть</button>
     </div>
   </div>
   <script>
     let currentSkin = 'default';
     let balance = 0;
+    let ownedSkins = { default: true };
+    let autoTap = 0;
 
     function openShop() {
       document.getElementById('shop-modal').style.display = 'flex';
@@ -187,17 +206,49 @@
     function closeShop() {
       document.getElementById('shop-modal').style.display = 'none';
     }
+    function openBoosters() {
+      document.getElementById('booster-modal').style.display = 'flex';
+    }
+    function closeBoosters() {
+      document.getElementById('booster-modal').style.display = 'none';
+    }
+
+    function updateSkinTexts() {
+      ['default', 'leopard', 'gold'].forEach(skin => {
+        const skinText = document.getElementById(`skin-${skin}-text`);
+        if (currentSkin === skin) {
+          skinText.textContent = skinText.textContent.replace(/\(.*?\)/, '(установлено)');
+        } else if (ownedSkins[skin]) {
+          skinText.textContent = skinText.textContent.replace(/\(.*?\)/, '(куплено)');
+        } else {
+          if (skin === 'leopard' || skin === 'gold') {
+            skinText.textContent = `Скин ${skin.charAt(0).toUpperCase() + skin.slice(1)} (5)`;
+          }
+        }
+      });
+    }
     function selectSkin(skin) {
+      if (!ownedSkins[skin]) return;
       currentSkin = skin;
       updateSkin();
+      updateSkinTexts();
       alert(`Скин '${skin}' выбран!`);
     }
     function buySkin(skin, price) {
       if (balance >= price) {
         balance -= price;
         document.getElementById('token-count').textContent = balance;
+        ownedSkins[skin] = true;
         selectSkin(skin);
-        alert(`Скин '${skin}' куплен за ${price} токенов!`);
+      } else {
+        alert('Недостаточно токенов!');
+      }
+    }
+    function buyBooster(price, increment) {
+      if (balance >= price) {
+        balance -= price;
+        autoTap += increment;
+        document.getElementById('token-count').textContent = balance;
       } else {
         alert('Недостаточно токенов!');
       }
@@ -233,6 +284,14 @@
       document.body.appendChild(floatText);
       setTimeout(() => document.body.removeChild(floatText), 1000);
     }
+
+    setInterval(() => {
+      if (autoTap > 0) {
+        balance += autoTap;
+        tokenCount.textContent = balance;
+        progressBar.style.width = (balance % 100) + '%';
+      }
+    }, 1000);
   </script>
 </body>
 </html>
