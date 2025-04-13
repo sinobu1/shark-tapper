@@ -49,28 +49,31 @@
 html, body {
   margin: 0;
   padding: 0;
+  width: 100%;
+  height: 100%;
   background: #f2f2f7;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   overflow-x: hidden;
-  width: 100%;
-  height: 100%;
+}
+
+.wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 40px 16px;
 }
 
 .game-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  padding: 140px 20px 60px;
-  max-width: 420px;
-  width: 100%;
-  margin: 0 auto;
+  position: relative;
   background: white;
   border-radius: 28px;
   box-shadow: 0 8px 24px rgba(0,0,0,0.08);
-  min-height: 100vh;
-  position: relative;
+  width: 100%;
+  max-width: 420px;
+  padding: 140px 20px 40px;
   box-sizing: border-box;
+  text-align: center;
 }
 
 .avatar-wrapper {
@@ -81,8 +84,8 @@ html, body {
   width: 200px;
   height: 200px;
   border-radius: 50%;
-  box-shadow: 0 12px 24px rgba(0,0,0,0.15);
   background: linear-gradient(135deg, #ffffff, #f0f0f0);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.15);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -138,7 +141,9 @@ html, body {
 }
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&amp;display=swap" rel="stylesheet"/></head>
-<body>
+<body><div class="wrapper"><div class="game-container" id="gameContainer">
+<div class="balance" id="tokenCount">0 токенов</div><div class="avatar-wrapper"><img alt="Shark" class="tap-image" id="tapImage" onclick="handleTap()" src=""/></div>
+<div class="in-game-nav"><button class="tab-button" onclick="openShop()">🛒 Магазин</button><button class="tab-button" onclick="openBoosters()">🚀 Бустеры</button><button class="tab-button" onclick="openLeaderboard()">🏆 Лидерборд</button><button class="tab-button" onclick="Telegram.WebApp.close()">❌ Завершить</button></div></div></div>
 <div class="loading-screen" id="loading">
 <img alt="Loading..." src="w1.png" style="position:absolute; width:100%; height:100%; object-fit:cover; z-index:-1;"/>
 <div style="position:absolute; bottom:80px; width:100%; text-align:center;">
@@ -156,9 +161,7 @@ html, body {
 </div>
 </div>
 </div>
-<div class="game-container" id="gameContainer">
-<div class="balance" id="tokenCount">0 токенов</div><div class="avatar-wrapper"><img alt="Shark" class="tap-image" id="tapImage" onclick="handleTap()" src=""/></div>
-<div class="in-game-nav"><button class="tab-button" onclick="openShop()">🛒 Магазин</button><button class="tab-button" onclick="openBoosters()">🚀 Бустеры</button><button class="tab-button" onclick="openLeaderboard()">🏆 Лидерборд</button><button class="tab-button" onclick="Telegram.WebApp.close()">❌ Завершить</button></div></div>
+
 <div class="shop-modal" id="shop-modal">
 <div class="shop-item">
 <img src="shark.png?v=1"/>
