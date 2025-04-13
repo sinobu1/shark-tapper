@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 
 <html lang="ru">
-<head>
+<head><meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
 <meta content="no-cache, no-store, must-revalidate" http-equiv="Cache-Control"/>
@@ -394,6 +394,54 @@ button:active, .shop-button:active {
   min-height: 100vh;
   padding-bottom: 80px; /* чтобы контент не прятался за нижней панелью */
 }
+
+/* Кнопка "Магазин предметов" и нижняя панель одинаковые */
+.shop-button, .in-game-nav {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 24px;
+  backdrop-filter: blur(16px);
+  padding: 12px 24px;
+  margin: 20px auto;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  font-weight: 600;
+  max-width: 90%;
+}
+
+/* Центрированный блок */
+.centered-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+}
+
+/* Кнопки в нижнем меню */
+.tab-button {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 20px;
+  backdrop-filter: blur(16px);
+  padding: 10px 16px;
+  font-weight: 600;
+  font-size: 14px;
+  color: #000;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  flex: 1 1 auto;
+  text-align: center;
+}
+
+/* Центрированный аватар */
+#shark-image {
+  width: 120px !important;
+  height: 120px !important;
+  border-radius: 50% !important;
+  border: 4px solid white;
+  object-fit: cover;
+  display: block;
+  margin: 0 auto;
+  margin-top: 20px;
+  cursor: pointer;
+}
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&amp;display=swap" rel="stylesheet"/></head>
 <body>
@@ -686,46 +734,42 @@ function saveProgress() {
 <ul id="leaderboardList"></ul>
 <button onclick="closeLeaderboard()">Закрыть</button>
 </div>
-
 <!-- iOS-Style Bottom Navigation -->
 <div class="bottom-nav">
-  <div class="nav-item active">
-    <span class="icon">📅</span><br>Сегодня
+<div class="nav-item active">
+<span class="icon">📅</span><br/>Сегодня
   </div>
-  <div class="nav-item">
-    <span class="icon">🎮</span><br>Игры
+<div class="nav-item">
+<span class="icon">🎮</span><br/>Игры
   </div>
-  <div class="nav-item">
-    <span class="icon">📦</span><br>Приложения
+<div class="nav-item">
+<span class="icon">📦</span><br/>Приложения
   </div>
-  <div class="nav-item">
-    <span class="icon">🕹️</span><br>Arcade
+<div class="nav-item">
+<span class="icon">🕹️</span><br/>Arcade
   </div>
-  <div class="nav-item">
-    <span class="icon">🔍</span><br>Поиск
+<div class="nav-item">
+<span class="icon">🔍</span><br/>Поиск
   </div>
 </div>
-
 <!-- Вкладки контента -->
-<div id="shop-content" class="tab-content active">
-  <div class="card">🛒 Магазин предметов</div>
+<div class="tab-content active" id="shop-content">
+<div class="card">🛒 Магазин предметов</div>
 </div>
-<div id="boosters-content" class="tab-content">
-  <div class="card">⚡ Активируй бустеры для ускорения</div>
+<div class="tab-content" id="boosters-content">
+<div class="card">⚡ Активируй бустеры для ускорения</div>
 </div>
-<div id="leaderboard-content" class="tab-content">
-  <div class="card">🏆 Лидеры по тапам</div>
+<div class="tab-content" id="leaderboard-content">
+<div class="card">🏆 Лидеры по тапам</div>
 </div>
-<div id="exit-content" class="tab-content">
-  <div class="card">🚪 Выйти из игры</div>
+<div class="tab-content" id="exit-content">
+<div class="card">🚪 Выйти из игры</div>
 </div>
-
 <!-- Встроенная внутриигровая iOS-панель -->
-<div class="tab-button" onclick="switchTab('boosters')">⚡<br>Бустеры</div>
-  <div class="tab-button" onclick="switchTab('leaderboard')">🏆<br>Лидерборд</div>
-  <div class="tab-button" onclick="switchTab('exit')">🚪<br>Выйти</div>
+<div class="tab-button" onclick="switchTab('boosters')">⚡<br/>Бустеры</div>
+<div class="tab-button" onclick="switchTab('leaderboard')">🏆<br/>Лидерборд</div>
+<div class="tab-button" onclick="switchTab('exit')">🚪<br/>Выйти</div>
 </div>
-
 <script>
 function switchTab(tab) {
   const buttons = document.querySelectorAll('.tab-button');
@@ -738,15 +782,7 @@ function switchTab(tab) {
   if (tabEl) tabEl.classList.add('active');
 }
 </script>
-
 <!-- Обновлённая внутриигровая панель -->
-<div class="in-game-nav">
-  <div class="tab-button active" onclick="switchTab('shop')">🛒<br>Магазин</div>
-  <div class="tab-button" onclick="switchTab('boosters')">⚡<br>Бустеры</div>
-  <div class="tab-button" onclick="switchTab('leaderboard')">🏆<br>Лидерборд</div>
-  <div class="tab-button" onclick="switchTab('exit')">🚪<br>Выйти</div>
-</div>
-
-</div>
+<div class="in-game-nav" style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; width: 90%; z-index: 1000;"><div class="tab-button">🛒 Магазин</div><div class="tab-button">🚀 Бустеры</div><div class="tab-button">🏆 Лидерборд</div><div class="tab-button">❌ Завершить</div></div>
 </body>
 </html>
