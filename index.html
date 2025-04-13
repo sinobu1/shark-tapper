@@ -205,6 +205,18 @@
   0% { width: 0%; }
   100% { width: 100%; }
 }
+
+.spark {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #00ffcc, transparent);
+  opacity: 1;
+  pointer-events: none;
+  z-index: 9999;
+  transition: all 0.5s ease-out;
+}
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&amp;display=swap" rel="stylesheet"/></head>
 <body>
@@ -345,8 +357,16 @@ function saveProgress() {
     }
 
     function handleTap() {
+      const rect = tapImage.getBoundingClientRect();
+      const x = rect.left + rect.width / 2;
+      const y = rect.top + rect.height / 2;
+      showClickEffect(x, y);
       balance++;
-      if (window.navigator.vibrate) navigator.vibrate(30);
+      if (window.navigator.vibrate) {
+        navigator.vibrate(30);
+      } else if (Telegram.WebApp.HapticFeedback) {
+        Telegram.WebApp.HapticFeedback.impactOccurred("medium");
+      }
       tokenCount.textContent = `${balance} токенов`;
       showFloatingText("+1");
       tapImage.classList.add("tap-animation");
@@ -490,6 +510,21 @@ function saveProgress() {
     }
 
 
+
+
+
+function showClickEffect(x, y) {
+  const spark = document.createElement("div");
+  spark.className = "spark";
+  spark.style.left = `${x}px`;
+  spark.style.top = `${y}px`;
+  document.body.appendChild(spark);
+  setTimeout(() => {
+    spark.style.transform = "scale(2)";
+    spark.style.opacity = "0";
+  }, 10);
+  setTimeout(() => spark.remove(), 500);
+}
 </script>
 <div class="booster-modal" id="leaderboard-modal">
 <h2>Топ игроков</h2>
