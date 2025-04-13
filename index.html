@@ -129,7 +129,6 @@
 &lt;!-- 🦈 GPT: Start of game container with shark tap button --&gt;
 <div class="game-container" id="gameContainer">
 <div class="balance" id="tokenCount">0 токенов</div>
-
 <button id="tapButton" onclick="handleTap()" style="background:none;border:none;padding:0;margin:0;cursor:pointer;"><img alt="Shark Tap" class="tap-image" id="tapImage" onclick="handleTap()" src="shark.png?v=1" style="width:180px;height:180px;border-radius:50%;border:6px solid white;object-fit:cover;"/></button><div class="menu-buttons">
 <button class="shop-button" onclick="openShop()">🛒 Магазин</button>
 <button class="shop-button" onclick="openBoosters()">🚀 Бустеры</button>
@@ -339,21 +338,36 @@ function loadLeaderboard() {
     });
 }
 
+
 window.addEventListener('DOMContentLoaded', () => {
   setTimeout(() => {
     loadingScreen.style.display = 'none';
     gameContainer.style.display = 'block';
   }, 5000);
+
   if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
     Telegram.WebApp.ready();
     Telegram.WebApp.expand();
+
+    // GPT: Telegram Web App цветовая тема
+    if (Telegram.WebApp.colorScheme === 'dark') {
+      document.body.style.background = '#1e1e1e';
+      gameContainer.style.background = '#2c2c2e';
+      document.querySelectorAll('.balance, .shop-button').forEach(el => {
+        el.style.color = '#fff';
+      });
+    }
+
     userId = Telegram.WebApp.initDataUnsafe?.user?.id?.toString();
     if (userId) {
       loadProgress();
       startAutoTap();
+    } else {
+      alert("Не удалось получить userId из Telegram Web App.");
     }
   }
 });
+
 function handleTap() {
   balance++;
   if (navigator.vibrate) {
