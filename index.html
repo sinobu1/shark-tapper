@@ -287,6 +287,32 @@ body {
   flex-wrap: wrap;
   justify-content: space-between;
 }
+
+.game-container {
+  margin: 40px auto;
+  align-self: center;
+}
+
+.avatar-wrapper {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  margin: 20px auto;
+  border-radius: 50%;
+  box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+  background: linear-gradient(135deg, #ffffff, #f0f0f0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#tapImage {
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  border: 6px solid white;
+  object-fit: cover;
+  z-index: 2;
+}
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&amp;display=swap" rel="stylesheet"/></head>
 <body>
@@ -307,10 +333,9 @@ body {
 </div>
 </div>
 </div>
-<div class="game-container" id="gameContainer" style="display:none">
-<div class="balance" id="tokenCount">0 токенов</div>
-<img alt="Shark" class="tap-image" id="tapImage" onclick="handleTap()" src="" style="width: 200px; height: 200px; border-radius: 50%; border: 6px solid white; object-fit: cover; display: block; margin: 0 auto 24px auto; box-shadow: 0 4px 16px rgba(0,0,0,0.15); transition: transform 0.2s ease;"/>
-<div class="in-game-nav"><button class="tab-button" onclick="openShop()">🛒 Магазин</button><button class="tab-button" onclick="openBoosters()">🚀 Бустеры</button><button class="tab-button" onclick="openLeaderboard()">🏆 Лидерборд</button><button class="tab-button" onclick="Telegram.WebApp.close()">❌ Завершить</button></div></div>
+<div class="game-container" id="gameContainer" style="margin: 60px auto; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 24px; max-width: 420px; width: 92vw; background: white; border-radius: 28px; box-shadow: 0 8px 24px rgba(0,0,0,0.08); box-sizing: border-box;">
+<div class="balance" id="tokenCount">0 токенов</div><div class="avatar-wrapper" style="position: relative; width: 200px; height: 200px; margin: 20px auto; border-radius: 50%; box-shadow: 0 12px 24px rgba(0,0,0,0.15); background: linear-gradient(135deg, #ffffff, #f0f0f0); display: flex; align-items: center; justify-content: center;"><img alt="Shark" class="tap-image" id="tapImage" onclick="handleTap()" src="" style="width: 180px; height: 180px; border-radius: 50%; border: 6px solid white; object-fit: cover; z-index: 2;"/></div>
+<div class="in-game-nav" style="margin-top: 32px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; background: rgba(255,255,255,0.9); padding: 14px; border-radius: 20px; backdrop-filter: blur(16px); box-shadow: 0 2px 6px rgba(0,0,0,0.1); width: 100%;"><button class="tab-button" onclick="openShop()">🛒 Магазин</button><button class="tab-button" onclick="openBoosters()">🚀 Бустеры</button><button class="tab-button" onclick="openLeaderboard()">🏆 Лидерборд</button><button class="tab-button" onclick="Telegram.WebApp.close()">❌ Завершить</button></div></div>
 <div class="shop-modal" id="shop-modal">
 <div class="shop-item">
 <img src="shark.png?v=1"/>
