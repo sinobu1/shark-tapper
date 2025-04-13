@@ -199,7 +199,6 @@
     }
 
     function loadProgress() {
-      if (!userId) return;
       db.ref('users/' + userId).once('value').then(snapshot => {
         const data = snapshot.val();
         if (data) {
@@ -216,9 +215,21 @@
       });
     }
 
+    function showFloatingText(text) {
+      const floatText = document.createElement("div");
+      floatText.className = "floating-text";
+      floatText.textContent = text;
+      const rect = tapImage.getBoundingClientRect();
+      floatText.style.left = rect.left + rect.width / 2 + "px";
+      floatText.style.top = rect.top + rect.height / 2 + "px";
+      document.body.appendChild(floatText);
+      setTimeout(() => floatText.remove(), 1000);
+    }
+
     function handleTap() {
       balance++;
       tokenCount.textContent = `${balance} токенов`;
+      showFloatingText("+1");
       saveProgress();
     }
 
@@ -308,12 +319,11 @@
           endBtn.style.display = 'inline-block';
         }
 
-        userId = Telegram.WebApp.initDataUnsafe.user?.id;
+        userId = Telegram.WebApp.initDataUnsafe?.user?.id?.toString();
         if (userId) {
+          updateSkin();
           loadProgress();
           startAutoTap();
-          updateSkin();
-          tokenCount.textContent = `${balance} токенов`;
         } else {
           alert("Не удалось получить userId из Telegram Web App.");
         }
