@@ -8,6 +8,9 @@
   <meta http-equiv="Expires" content="0" />
   <title>Shark Tapper</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-analytics-compat.js"></script>
   <style>
     * {
       box-sizing: border-box;
@@ -151,11 +154,25 @@
   </div>
 
   <script>
-    let currentSkin = localStorage.getItem('currentSkin') || 'default';
-    let balance = parseInt(localStorage.getItem('balance')) || 0;
-    let ownedSkins = JSON.parse(localStorage.getItem('ownedSkins')) || { default: true };
-    let autoTap = parseInt(localStorage.getItem('autoTap')) || 0;
-    let ownedBoosters = JSON.parse(localStorage.getItem('ownedBoosters')) || { 1: false, 2: false };
+    firebase.initializeApp({
+      apiKey: "AIzaSyDgi8vq_3Wpky7o_bzWbVuKRtOShGjd5o4",
+      authDomain: "tralalero-fec07.firebaseapp.com",
+      databaseURL: "https://tralalero-fec07-default-rtdb.firebaseio.com",
+      projectId: "tralalero-fec07",
+      storageBucket: "tralalero-fec07.firebasestorage.app",
+      messagingSenderId: "322571108862",
+      appId: "1:322571108862:web:14f4fe3a8168abab19c0af",
+      measurementId: "G-CB7BFKYSEZ"
+    });
+    const analytics = firebase.analytics();
+    const db = firebase.database();
+
+    let currentSkin = 'default';
+    let balance = 0;
+    let ownedSkins = { default: true };
+    let autoTap = 0;
+    let ownedBoosters = { 1: false, 2: false };
+    let userId = null;
 
     const tokenCount = document.getElementById('tokenCount');
     const tapImage = document.getElementById('tapImage');
@@ -171,52 +188,32 @@
     }
 
     function saveProgress() {
-      localStorage.setItem('balance', balance);
-      localStorage.setItem('ownedSkins', JSON.stringify(ownedSkins));
-      localStorage.setItem('currentSkin', currentSkin);
-      localStorage.setItem('autoTap', autoTap);
-      localStorage.setItem('ownedBoosters', JSON.stringify(ownedBoosters));
-
-      if (window.Telegram && Telegram.WebApp.initDataUnsafe) {
-        const userId = Telegram.WebApp.initDataUnsafe.user?.id;
-        if (userId) {
-          fetch('https://your-server.com/api/save-progress', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              userId,
-              balance,
-              currentSkin,
-              ownedSkins,
-              autoTap,
-              ownedBoosters
-            })
-          });
-        }
-      }
+      if (!userId) return;
+      db.ref('users/' + userId).set({
+        balance,
+        currentSkin,
+        ownedSkins,
+        autoTap,
+        ownedBoosters
+      });
     }
 
-    function loadProgressFromServer() {
-      if (window.Telegram && Telegram.WebApp.initDataUnsafe) {
-        const userId = Telegram.WebApp.initDataUnsafe.user?.id;
-        if (userId) {
-          fetch(`https://your-server.com/api/load-progress?userId=${userId}`)
-            .then(res => res.json())
-            .then(data => {
-              if (data) {
-                balance = data.balance || 0;
-                currentSkin = data.currentSkin || 'default';
-                ownedSkins = data.ownedSkins || { default: true };
-                autoTap = data.autoTap || 0;
-                ownedBoosters = data.ownedBoosters || { 1: false, 2: false };
-                tokenCount.textContent = `${balance} токенов`;
-                updateSkin();
-              }
-            });
+    function loadProgress() {
+      if (!userId) return;
+      db.ref('users/' + userId).once('value').then(snapshot => {
+        const data = snapshot.val();
+        if (data) {
+          balance = data.balance || 0;
+          currentSkin = data.currentSkin || 'default';
+          ownedSkins = data.ownedSkins || { default: true };
+          autoTap = data.autoTap || 0;
+          ownedBoosters = data.ownedBoosters || { 1: false, 2: false };
+
+          tokenCount.textContent = `${balance} токенов`;
+          updateSkin();
+          updateBoosterTexts();
         }
-      }
+      });
     }
 
     function handleTap() {
@@ -260,7 +257,6 @@
 
     function updateBoosterTexts() {
       const boosterItems = document.querySelectorAll('.booster-item');
-
       boosterItems.forEach((item, index) => {
         const increment = index + 1;
         const infoDiv = item.querySelector('.booster-info');
@@ -305,15 +301,23 @@
     window.addEventListener('DOMContentLoaded', () => {
       if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
         Telegram.WebApp.ready();
+        Telegram.WebApp.expand();
+
         const endBtn = document.getElementById('endButton');
         if (endBtn) {
           endBtn.style.display = 'inline-block';
         }
+
+        userId = Telegram.WebApp.initDataUnsafe.user?.id;
+        if (userId) {
+          loadProgress();
+          startAutoTap();
+          updateSkin();
+          tokenCount.textContent = `${balance} токенов`;
+        } else {
+          alert("Не удалось получить userId из Telegram Web App.");
+        }
       }
-      loadProgressFromServer();
-      tokenCount.textContent = `${balance} токенов`;
-      updateSkin();
-      startAutoTap();
     });
   </script>
 </body>
