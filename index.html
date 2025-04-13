@@ -218,6 +218,180 @@
   transition: all 0.5s ease-out;
 }
 
+
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: linear-gradient(160deg, #e8ecef, #cfd8dc);
+      font-family: 'Segoe UI', sans-serif;
+      touch-action: manipulation;
+    }
+    .loading-screen {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      background: #fff;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .loading-screen img {
+      max-width: 80%;
+    }
+    .loading-screen span {
+      font-size: 20px;
+      margin-top: 12px;
+      color: #333;
+    }
+    .game-container {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 90vw;
+      max-width: 400px;
+      height: 90vh;
+      max-height: 700px;
+      background: #ffffff;
+      border: 4px solid #d0d0d0;
+      border-radius: 24px;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .balance {
+      color: #111;
+      font-size: 22px;
+      font-weight: bold;
+    }
+    .tap-image {
+      max-width: 100%;
+      cursor: pointer;
+      transition: transform 0.1s;
+      border-radius: 16px;
+    }
+    .tap-animation {
+      animation: tapPulse 0.2s ease;
+    }
+    @keyframes tapPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(0.9); }
+      100% { transform: scale(1); }
+    }
+    .floating-text {
+      position: absolute;
+      font-size: 18px;
+      color: #3cba54;
+      font-weight: 700;
+      animation: floatUp 1s ease-out forwards;
+      pointer-events: none;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+    }
+    @keyframes floatUp {
+      0% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-50px); }
+    }
+    .menu-buttons {
+      display: flex;
+      gap: 12px;
+    }
+    .shop-button {
+      background: #3cba54;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .shop-modal, .booster-modal {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.95);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 10;
+    }
+    .shop-item, .booster-item {
+      margin: 10px;
+      text-align: center;
+    }
+    .shop-item img {
+      width: 100px;
+      height: auto;
+      border-radius: 12px;
+    }
+    .shop-item button, .booster-item button {
+      margin-top: 5px;
+      padding: 6px 12px;
+      border: none;
+      background: #333;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+  
+.tap-image:active {
+  transform: scale(0.88);
+  filter: brightness(0.95);
+}
+
+.floating-text {
+  font-size: 24px !important;
+  color: #00c853 !important;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.4);
+}
+
+.shop-button {
+  background: linear-gradient(135deg, #43e97b, #38f9d7) !important;
+  transition: all 0.2s ease;
+}
+
+.shop-button:active {
+  transform: scale(0.96);
+  filter: brightness(0.9);
+}
+
+@keyframes loadProgress {
+  0% { width: 0%; }
+  100% { width: 100%; }
+}
+
+@keyframes loadProgress {
+  0% { width: 0%; }
+  100% { width: 100%; }
+}
+
+.spark {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #00ffcc, transparent);
+  opacity: 1;
+  pointer-events: none;
+  z-index: 9999;
+  transition: all 0.5s ease-out;
+}
+
 .tab-screen {
   display: none;
   flex-direction: column;
@@ -270,10 +444,257 @@
 </div>
 </div>
 </div>
-
-
-
 <script>
+    const dbUrl = 'https://tralalero-fec07-default-rtdb.firebaseio.com';
+    let currentSkin = 'default';
+    let balance = 0;
+    let ownedSkins = { default: true };
+    let autoTap = 0;
+    let ownedBoosters = { 1: false, 2: false, 3: false };
+    let userId = null;
+
+    const tokenCount = document.getElementById('tokenCount');
+    const tapImage = document.getElementById('tapImage');
+    const gameContainer = document.getElementById('gameContainer');
+    const loadingScreen = document.getElementById('loading');
+
+    const skinPaths = {
+      default: 'shark.png?v=1',
+      skin2: 'shark_skin2.png?v=1',
+      skin3: 'shark_skin1.png?v=1'
+    };
+
+    function updateSkin() {
+      tapImage.src = skinPaths[currentSkin] || skinPaths.default;
+    }
+
+    
+function saveProgress() {
+  if (!userId) return;
+
+  const user = Telegram.WebApp.initDataUnsafe?.user || {};
+
+  const userData = {
+    balance,
+    currentSkin,
+    ownedSkins,
+    autoTap,
+    ownedBoosters,
+    first_name: user.first_name || "",
+    last_name: user.last_name || "",
+    username: user.username || "",
+    photo_url: user.photo_url || ""
+  };
+
+  fetch(`${dbUrl}/users/${userId}.json`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(userData)
+  });
+}
+
+
+    function loadProgress() {
+      if (!userId) return;
+      fetch(`${dbUrl}/users/${userId}.json`)
+        .then(res => res.json())
+        .then(data => {
+          if (data) {
+            balance = data.balance || 0;
+            currentSkin = data.currentSkin || 'default';
+            ownedSkins = data.ownedSkins || { default: true };
+            autoTap = data.autoTap || 0;
+            ownedBoosters = data.ownedBoosters || { 1: false, 2: false, 3: false };
+            tokenCount.textContent = `${balance} токенов`;
+            updateSkin();
+            updateBoosterTexts();
+          }
+        });
+    }
+
+    function showFloatingText(text) {
+      const floatText = document.createElement("div");
+      floatText.className = "floating-text";
+      floatText.textContent = text;
+      const rect = tapImage.getBoundingClientRect();
+      floatText.style.left = rect.left + rect.width / 2 + "px";
+      floatText.style.top = rect.top + rect.height / 2 + "px";
+      document.body.appendChild(floatText);
+      setTimeout(() => floatText.remove(), 1000);
+    }
+
+    function handleTap() {
+      const rect = tapImage.getBoundingClientRect();
+      const x = rect.left + rect.width / 2;
+      const y = rect.top + rect.height / 2;
+      showClickEffect(x, y);
+      balance++;
+      if (window.navigator.vibrate) {
+        navigator.vibrate(30);
+      } else if (Telegram.WebApp.HapticFeedback) {
+        Telegram.WebApp.HapticFeedback.impactOccurred("medium");
+      }
+      tokenCount.textContent = `${balance} токенов`;
+      showFloatingText("+1");
+      tapImage.classList.add("tap-animation");
+      setTimeout(() => tapImage.classList.remove("tap-animation"), 200);
+      saveProgress();
+    }
+
+    function openShop() {
+      document.getElementById('shop-modal').style.display = 'flex';
+    }
+
+    function closeShop() {
+      document.getElementById('shop-modal').style.display = 'none';
+    }
+
+    function buySkin(skinId, price) {
+      if (ownedSkins[skinId]) {
+        currentSkin = skinId;
+      } else if (balance >= price) {
+        balance -= price;
+        ownedSkins[skinId] = true;
+        currentSkin = skinId;
+      } else {
+        alert('Недостаточно токенов!');
+        return;
+      }
+      updateSkin();
+      tokenCount.textContent = `${balance} токенов`;
+      saveProgress();
+    }
+
+    function openBoosters() {
+      document.getElementById('booster-modal').style.display = 'flex';
+      updateBoosterTexts();
+    }
+
+    function closeBoosters() {
+      document.getElementById('booster-modal').style.display = 'none';
+    }
+
+    function updateBoosterTexts() {
+      const boosterItems = document.querySelectorAll('.booster-item');
+      boosterItems.forEach((item, index) => {
+        const increment = index + 1;
+        const infoDiv = item.querySelector('.booster-info');
+        const button = item.querySelector('button');
+
+        if (ownedBoosters[increment]) {
+          infoDiv.textContent = `Авто-Тап +${increment} (куплено)`;
+          button.disabled = true;
+        } else {
+          const price = increment === 3 ? 1000 : increment * 50;
+          infoDiv.textContent = `Авто-Тап +${increment} (${price} токенов)`;
+          button.disabled = false;
+        }
+      });
+    }
+
+    function buyBooster(price, increment) {
+      if (balance >= price && !ownedBoosters[increment]) {
+        balance -= price;
+        autoTap += increment;
+        ownedBoosters[increment] = true;
+        tokenCount.textContent = `${balance} токенов`;
+        updateBoosterTexts();
+        saveProgress();
+      } else if (ownedBoosters[increment]) {
+        alert('Бустер уже куплен!');
+      } else {
+        alert('Недостаточно токенов!');
+      }
+    }
+
+    function startAutoTap() {
+      setInterval(() => {
+        if (autoTap > 0) {
+          balance += autoTap;
+          tokenCount.textContent = `${balance} токенов`;
+          saveProgress();
+        }
+      }, 1000);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+        loadingScreen.style.display = 'none';
+        gameContainer.style.display = 'flex';
+      }, 5000);
+
+      if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
+        Telegram.WebApp.ready();
+        Telegram.WebApp.expand();
+
+        const endBtn = document.getElementById('endButton');
+        if (endBtn) {
+          endBtn.style.display = 'inline-block';
+        }
+
+        userId = Telegram.WebApp.initDataUnsafe?.user?.id?.toString();
+        if (userId) {
+          loadProgress();
+          startAutoTap();
+        } else {
+          alert("Не удалось получить userId из Telegram Web App.");
+        }
+      }
+    });
+  
+    function openLeaderboard() {
+      document.getElementById('leaderboard-modal').style.display = 'flex';
+      loadLeaderboard();
+    }
+
+    function closeLeaderboard() {
+      document.getElementById('leaderboard-modal').style.display = 'none';
+    }
+
+    
+    function loadLeaderboard() {
+      fetch(`${dbUrl}/users.json`)
+        .then(response => response.json())
+        .then(data => {
+          const users = Object.entries(data || {}).map(([id, info]) => ({
+            id,
+            balance: info.balance || 0,
+            first_name: info.first_name,
+            username: info.username,
+            photo_url: info.photo_url
+          }));
+          users.sort((a, b) => b.balance - a.balance);
+          const leaderboard = document.getElementById('leaderboardList');
+          leaderboard.innerHTML = '';
+          users.slice(0, 10).forEach(user => {
+            const name = user.first_name || `ID ${user.id.slice(-4)}`;
+            const avatar = user.photo_url ? `<img src="${user.photo_url}" style="width:24px;height:24px;border-radius:50%;margin-right:6px;">` : "";
+            const li = document.createElement('li');
+            li.innerHTML = `${avatar}<strong>${name}</strong>: ${user.balance}`;
+            leaderboard.appendChild(li);
+          });
+        });
+    }
+
+
+
+
+
+function showClickEffect(x, y) {
+  const spark = document.createElement("div");
+  spark.className = "spark";
+  spark.style.left = `${x}px`;
+  spark.style.top = `${y}px`;
+  document.body.appendChild(spark);
+  setTimeout(() => {
+    spark.style.transform = "scale(2)";
+    spark.style.opacity = "0";
+  }, 10);
+  setTimeout(() => spark.remove(), 500);
+}
+
+
+
     const dbUrl = 'https://tralalero-fec07-default-rtdb.firebaseio.com';
     let currentSkin = 'default';
     let balance = 0;
@@ -534,11 +955,10 @@ function switchTab(tabId) {
 <ul id="leaderboardList"></ul>
 <button onclick="closeLeaderboard()">Закрыть</button>
 </div>
-
 <div id="app-container">
 <div class="tab-screen active-tab" id="screen-game">
 <div class="balance" id="tokenCount">0 токенов</div>
-<img alt="Shark" class="tap-image" id="tapImage" onclick="handleTap()" src="default.png"/>
+<img alt="Shark" class="tap-image" id="tapImage" onclick="handleTap()" src="shark.png?v=1"/>
 </div>
 <div class="tab-screen" id="screen-shop">
 <h2>Магазин</h2>
