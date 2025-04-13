@@ -44,6 +44,37 @@
     }
 
 
+
+let level = 1;
+let xp = 0;
+let xpToNext = 100;
+
+function addXP(amount) {
+  xp += amount;
+  if (xp >= xpToNext) {
+    xp -= xpToNext;
+    level++;
+    document.getElementById('levelInfo').innerText = "Уровень " + level;
+  }
+  const percent = (xp / xpToNext) * 100;
+  document.getElementById('xpBar').style.width = percent + "%";
+}
+
+function showTab(name) {
+  document.querySelectorAll('.tab-screen').forEach(tab => tab.style.display = 'none');
+  if (name === 'game') {
+    document.getElementById('gameContainer').style.display = 'flex';
+  } else {
+    document.getElementById('gameContainer').style.display = 'none';
+    document.getElementById('screen-' + name).style.display = 'block';
+  }
+}
+
+function vibrate(ms = 50) {
+  if (navigator.vibrate) navigator.vibrate(ms);
+}
+
+// Пример вызова: addXP(10); при выполнении квеста
 </script>
 <style>
     * {
@@ -205,9 +236,59 @@
   0% { width: 0%; }
   100% { width: 100%; }
 }
+
+body, .balance, button, .shop-button, .menu-buttons {
+  font-family: 'Orbitron', sans-serif;
+}
+
+/* Уровень и XP */
+.level-info {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.xp-bar-container {
+  width: 80%;
+  height: 10px;
+  background: #ccc;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  overflow: hidden;
+}
+
+.xp-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #00c853, #00e676);
+  width: 0%;
+  transition: width 0.5s ease-in-out;
+}
+
+/* Нижнее меню вкладок */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+  background: #ffffff;
+  border-top: 2px solid #ccc;
+  padding: 10px 0;
+  z-index: 999;
+}
+
+.bottom-nav button {
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: #333;
+  cursor: pointer;
+}
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&amp;display=swap" rel="stylesheet"/>
-</head>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&amp;display=swap" rel="stylesheet"/></head>
 <body>
 <div class="loading-screen" id="loading">
 <img alt="Loading..." src="w1.png" style="position:absolute; width:100%; height:100%; object-fit:cover; z-index:-1;"/>
@@ -227,15 +308,33 @@
 </div>
 </div>
 <div class="game-container" id="gameContainer" style="display:none">
+
+<div class="level-info" id="levelInfo">Уровень 1</div>
+<div class="xp-bar-container">
+<div class="xp-bar" id="xpBar"></div>
+</div>
 <div class="balance" id="tokenCount">0 токенов</div>
 <img alt="Shark" class="tap-image" id="tapImage" onclick="handleTap()" src=""/>
 <div class="menu-buttons">
-
-
+</div>
+</div>
+<div class="tab-screen" id="screen-quests" style="display: none;">
+<h2>Задания</h2>
+<p>👥 Пригласить друга (получи 100 XP)</p>
+</div>
+<div class="tab-screen" id="screen-leaderboard" style="display: none;">
+<h2>Лидерборд</h2>
+<ul id="leaderboardList"></ul>
+</div>
+<div class="tab-screen" id="screen-shop" style="display: none;">
+<h2>Магазин</h2>
+<p>Скоро тут можно будет что-то купить</p>
+</div>
+<div class="tab-screen" id="screen-profile" style="display: none;">
+<h2>Профиль</h2>
+<p>Профиль пользователя Telegram</p>
 </div>
 
-
-</div>
 <div class="shop-modal" id="shop-modal">
 <div class="shop-item">
 <img src="shark.png?v=1"/>
@@ -497,7 +596,6 @@ function saveProgress() {
 <ul id="leaderboardList"></ul>
 <button onclick="closeLeaderboard()">Закрыть</button>
 </div>
-
 <div class="tab-bar"><button class="tab-button" onclick="switchTab('screen-game')">🦈 Игра</button><button class="tab-button" onclick="switchTab('screen-quests')">🎯 Задания</button><button class="tab-button" onclick="switchTab('screen-leaderboard')">🏆 Олимп</button><button class="tab-button" onclick="switchTab('screen-shop')">🛒 Магазин</button><button class="tab-button" onclick="switchTab('screen-profile')">👤 Профиль</button></div>
 <script>
     const dbUrl = 'https://tralalero-fec07-default-rtdb.firebaseio.com';
@@ -801,5 +899,13 @@ setTimeout(() => {
   if (nav) nav.classList.add('show');
 }, 100);
 </script>
+
+<div class="bottom-nav" id="bottomNav">
+<button onclick="showTab('game')">🎮</button>
+<button onclick="showTab('quests')">📋</button>
+<button onclick="showTab('leaderboard')">🏆</button>
+<button onclick="showTab('shop')">🛒</button>
+<button onclick="showTab('profile')">👤</button>
+</div>
 </body>
 </html>
