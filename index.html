@@ -1,160 +1,199 @@
 <!--
-  Shark Tapper: версия с расширенными функциями
-  🔹 Стиль: iOS / Telegram Web App
-  🔹 Поддержка Telegram, Firebase, загрузки, скинов, бустеров, лидерборда
+  Tralalero Combat — Финальная сборка
+  🔹 Полный index.html с: игра, магазин, бустеры, лидерборд, профиль
+  🔹 Стиль: iOS / App Store / Telegram Web App
+  🔹 Комментарии на русском для всех компонентов
 -->
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Shark Tapper</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Tralalero Combat</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     :root {
       --bg: #f2f2f7;
       --card-bg: #ffffff;
-      --accent: #007aff;
+      --accent: #ffb300;
       --text: #1c1c1e;
       --border: #d1d1d6;
+      --gold: #ffcc00;
     }
-    * {
-      box-sizing: border-box;
-      font-family: 'Inter', sans-serif;
-      margin: 0;
-      padding: 0;
+    * { box-sizing: border-box; font-family: 'Inter', sans-serif; margin: 0; padding: 0; }
+    html, body { height: 100%; background: var(--bg); color: var(--text); overflow-x: hidden; }
+    .app { max-width: 420px; margin: 0 auto; padding-bottom: 90px; }
+    .header { text-align: center; padding: 16px; font-weight: 700; font-size: 22px; color: var(--accent); text-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+    .balance { font-size: 20px; font-weight: 600; margin: 12px auto; color: var(--gold); text-align: center; }
+    .tap-button {
+      width: 160px; height: 160px; border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #ffd700, #ffb300);
+      border: 4px solid #fff2cc;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+      margin: 0 auto;
+      display: flex; align-items: center; justify-content: center;
+      transition: transform 0.1s ease-in-out; cursor: pointer;
     }
-    body, html {
-      height: 100%;
-      background: var(--bg);
-      color: var(--text);
+    .tap-button:active { transform: scale(0.95); }
+    .tap-button img { width: 100px; height: 100px; pointer-events: none; }
+    .xp-bar-container {
+      width: 90%; background: #e0e0e0; border-radius: 10px;
+      height: 10px; margin: 10px auto; overflow: hidden;
     }
-    .app { max-width: 420px; margin: 0 auto; padding-bottom: 80px; }
-    .header { text-align: center; padding: 16px; font-weight: 700; font-size: 20px; color: var(--accent); }
-    .card { background: var(--card-bg); border-radius: 20px; margin: 16px; padding: 16px; box-shadow: 0 1px 5px rgba(0,0,0,0.05); }
-    .btn { background: var(--accent); color: white; border: none; padding: 12px; border-radius: 12px; width: 100%; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.2s; }
-    .btn:active { opacity: 0.85; transform: scale(0.97); }
-    .xp-bar-container { width: 100%; background: #e0e0e0; border-radius: 10px; height: 8px; margin-top: 8px; overflow: hidden; }
-    .xp-bar { height: 100%; background: linear-gradient(90deg, #34c759, #30d158); width: 0%; transition: width 0.3s ease-in-out; }
-    .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; display: flex; justify-content: space-around; background: white; border-top: 1px solid var(--border); padding: 10px 0; z-index: 10; }
-    .bottom-nav button { background: none; border: none; font-size: 18px; color: var(--accent); cursor: pointer; }
-    @keyframes floatUp { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-20px); opacity: 0; } }
-    .floating-text { position: absolute; font-size: 18px; font-weight: bold; color: #30d158; animation: floatUp 0.8s ease forwards; pointer-events: none; }
-    .loading-screen { position: fixed; width: 100%; height: 100%; background: #fff; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-    #progress-bar { width: 0%; height: 100%; background: linear-gradient(90deg, #00ffcc, #0072ff); animation: loadProgress 5s linear forwards; box-shadow: 0 0 12px #00f5ff; }
-    @keyframes loadProgress { 0% { width: 0%; } 100% { width: 100%; } }
+    .xp-bar {
+      height: 100%; background: linear-gradient(90deg, #34c759, #30d158);
+      width: 0%; transition: width 0.3s ease-in-out;
+    }
+    .floating-text {
+      position: absolute; font-size: 22px; font-weight: bold; color: var(--gold);
+      animation: floatUp 0.8s ease forwards; pointer-events: none;
+      text-shadow: 0 0 4px rgba(0,0,0,0.2);
+    }
+    @keyframes floatUp {
+      0% { transform: translateY(0); opacity: 1; }
+      100% { transform: translateY(-30px); opacity: 0; }
+    }
+    .tab-content { display: none; padding: 16px; }
+    .tab-content.active { display: block; }
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 0; width: 100%; display: flex;
+      justify-content: space-around; background: white;
+      border-top: 1px solid var(--border); padding: 10px 0; z-index: 10;
+    }
+    .bottom-nav button {
+      background: none; border: none; font-size: 18px;
+      color: var(--accent); cursor: pointer;
+    }
+    h2 { text-align: center; color: var(--accent); margin-bottom: 12px; }
+    .shop-item, .booster-item {
+      text-align: center; margin: 10px auto;
+    }
+    .shop-item img { width: 100px; height: auto; border-radius: 12px; }
+    .shop-item button, .booster-item button {
+      margin-top: 8px; padding: 6px 12px; font-size: 15px;
+      border: none; border-radius: 8px; background: var(--accent);
+      color: white; cursor: pointer;
+    }
   </style>
 </head>
 <body>
-  <div class="loading-screen" id="loading">
-    <img src="w1.png" style="position:absolute; width:100%; height:100%; object-fit:cover; z-index:-1;" />
-    <div style="position:absolute; bottom:80px; width:100%; text-align:center;">
-      <div style="font-family: 'Inter', sans-serif; font-size: 24px; color: #fff; text-shadow: 2px 2px 8px rgba(0,0,0,0.8); margin-bottom: 16px;">
-        Приключение года 2025
-      </div>
-      <div style="width: 80%; height: 14px; background: #1a1a1a; border-radius: 8px; overflow: hidden; margin: 0 auto;">
-        <div id="progress-bar"></div>
+  <div class="app">
+    <div class="header">Tralalero Combat</div>
+
+    <div id="tab-game" class="tab-content active">
+      <div style="text-align:center;"><strong id="levelText">Уровень 1</strong></div>
+      <div class="xp-bar-container"><div class="xp-bar" id="xpBar"></div></div>
+      <div class="balance"><span id="balance">0</span> 🪙</div>
+      <div class="tap-button" onclick="handleTap()">
+        <img src="coin.png" alt="Монетка" id="tapImage" />
       </div>
     </div>
-  </div>
-  <div class="app" id="game" style="display:none">
-    <div class="header">Shark Tapper</div>
-    <div class="card" id="gameCard">
-      <div><strong id="levelText">Уровень 1</strong></div>
-      <div class="xp-bar-container"><div class="xp-bar" id="xpBar"></div></div>
-      <div style="margin: 16px 0; font-size: 18px;"><span id="balance">0</span> 🪙 токенов</div>
-      <img id="tapImage" src="shark.png?v=1" style="width: 100%; border-radius: 12px; cursor: pointer;" onclick="handleTap()"/>
-      <div style="margin-top: 16px;"><button class="btn" onclick="openShop()">Магазин</button></div>
-      <div style="margin-top: 12px;"><button class="btn" onclick="openBoosters()">Бустеры</button></div>
+
+    <div id="tab-shop" class="tab-content">
+      <h2>Магазин скинов</h2>
+      <div class="shop-item">
+        <img src="shark.png?v=1" />
+        <button onclick="buySkin('default', 0)">Выбрать</button>
+      </div>
+      <div class="shop-item">
+        <img src="shark_skin1.png?v=1" />
+        <button onclick="buySkin('skin1', 500)">Купить за 500</button>
+      </div>
+    </div>
+
+    <div id="tab-boosters" class="tab-content">
+      <h2>Бустеры</h2>
+      <div class="booster-item">
+        <div>+1 авто-тап (50 🪙)</div>
+        <button onclick="buyBooster(50, 1)">Купить</button>
+      </div>
+      <div class="booster-item">
+        <div>+2 авто-тап (150 🪙)</div>
+        <button onclick="buyBooster(150, 2)">Купить</button>
+      </div>
+    </div>
+
+    <div id="tab-leaderboard" class="tab-content">
+      <h2>🏆 Топ игроков</h2>
+      <ul id="leaderboard"></ul>
+    </div>
+
+    <div id="tab-profile" class="tab-content">
+      <h2>👤 Профиль</h2>
+      <div id="profileInfo">Telegram профиль загружается...</div>
     </div>
   </div>
   <div class="bottom-nav">
-    <button onclick="openLeaderboard()">🏆</button>
-    <button onclick="Telegram.WebApp.close()">🚪</button>
+    <button onclick="switchTab('game')">🎮</button>
+    <button onclick="switchTab('shop')">🛍️</button>
+    <button onclick="switchTab('boosters')">⚡</button>
+    <button onclick="switchTab('leaderboard')">🏆</button>
+    <button onclick="switchTab('profile')">👤</button>
   </div>
 
   <script>
-    const dbUrl = 'https://tralalero-fec07-default-rtdb.firebaseio.com';
-    let currentSkin = 'default';
+    let userId = null;
     let balance = 0;
     let xp = 0;
     let level = 1;
     let autoTap = 0;
     let ownedSkins = { default: true };
-    let ownedBoosters = { 1: false, 2: false, 3: false };
-    let userId = null;
+    let ownedBoosters = {};
+    const dbUrl = 'https://tralalero-fec07-default-rtdb.firebaseio.com';
 
     function xpToNext() { return 20 + (level - 1) * 10; }
-
     function updateXP() {
-      let need = xpToNext();
-      if (xp >= need) {
-        xp -= need;
-        level++;
+      if (xp >= xpToNext()) {
+        xp -= xpToNext(); level++;
         document.getElementById('levelText').textContent = 'Уровень ' + level;
       }
-      const percent = Math.floor((xp / xpToNext()) * 100);
-      document.getElementById('xpBar').style.width = percent + '%';
+      document.getElementById('xpBar').style.width = Math.floor((xp / xpToNext()) * 100) + '%';
     }
+    function updateBalance() { document.getElementById('balance').textContent = balance; }
 
     function handleTap() {
-      balance++;
-      xp++;
-      updateBalance();
-      updateXP();
+      balance++; xp++;
+      updateBalance(); updateXP();
       showFloatingText('+1');
+      if (navigator.vibrate) navigator.vibrate(30);
       saveProgress();
-    }
-
-    function updateBalance() {
-      document.getElementById('balance').textContent = balance;
     }
 
     function showFloatingText(text) {
       const el = document.createElement('div');
       el.className = 'floating-text';
       el.innerText = text;
-      document.body.appendChild(el);
-      const img = document.getElementById('tapImage');
-      const rect = img.getBoundingClientRect();
+      const rect = document.getElementById('tapImage').getBoundingClientRect();
       el.style.left = rect.left + rect.width / 2 + 'px';
       el.style.top = rect.top + 'px';
+      document.body.appendChild(el);
       setTimeout(() => el.remove(), 800);
     }
 
-    function openShop() { alert('Магазин будет реализован позже'); }
-    function openBoosters() { alert('Бустеры скоро будут'); }
-    function openLeaderboard() { alert('Топ игроков скоро появится'); }
-
-    function saveProgress() {
-      if (!userId) return;
-      const user = Telegram.WebApp.initDataUnsafe?.user || {};
-      const userData = {
-        balance, currentSkin, ownedSkins, autoTap, ownedBoosters,
-        first_name: user.first_name || "", last_name: user.last_name || "",
-        username: user.username || "", photo_url: user.photo_url || ""
-      };
-      fetch(`${dbUrl}/users/${userId}.json`, {
-        method: 'PUT', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(userData)
-      });
+    function switchTab(name) {
+      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+      document.getElementById('tab-' + name).classList.add('active');
+      if (name === 'leaderboard') loadLeaderboard();
     }
 
-    function loadProgress() {
-      if (!userId) return;
-      fetch(`${dbUrl}/users/${userId}.json`)
-        .then(res => res.json())
-        .then(data => {
-          if (data) {
-            balance = data.balance || 0;
-            currentSkin = data.currentSkin || 'default';
-            ownedSkins = data.ownedSkins || { default: true };
-            autoTap = data.autoTap || 0;
-            ownedBoosters = data.ownedBoosters || { 1: false, 2: false, 3: false };
-            updateBalance();
-          }
-        });
+    function buySkin(skinId, price) {
+      if (ownedSkins[skinId]) return;
+      if (balance >= price) {
+        balance -= price; ownedSkins[skinId] = true;
+        updateBalance(); saveProgress();
+        alert('Скин куплен!');
+      } else alert('Недостаточно монет!');
+    }
+
+    function buyBooster(price, power) {
+      if (ownedBoosters[power]) return alert('Уже куплено!');
+      if (balance >= price) {
+        balance -= price;
+        autoTap += power;
+        ownedBoosters[power] = true;
+        updateBalance(); saveProgress();
+      } else alert('Недостаточно монет');
     }
 
     function startAutoTap() {
@@ -167,22 +206,50 @@
       }, 1000);
     }
 
-    window.addEventListener('DOMContentLoaded', () => {
-      setTimeout(() => {
-        document.getElementById('loading').style.display = 'none';
-        document.getElementById('game').style.display = 'block';
-      }, 5000);
+    function saveProgress() {
+      if (!userId) return;
+      fetch(`${dbUrl}/users/${userId}.json`, {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ balance, xp, level, autoTap, ownedSkins, ownedBoosters })
+      });
+    }
 
-      if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
-        Telegram.WebApp.ready();
-        Telegram.WebApp.expand();
-        userId = Telegram.WebApp.initDataUnsafe?.user?.id?.toString();
-        if (userId) {
-          loadProgress();
-          startAutoTap();
-        } else {
-          alert("Не удалось получить userId из Telegram Web App.");
-        }
+    function loadProgress() {
+      fetch(`${dbUrl}/users/${userId}.json`)
+        .then(res => res.json())
+        .then(data => {
+          if (!data) return;
+          balance = data.balance || 0;
+          xp = data.xp || 0;
+          level = data.level || 1;
+          autoTap = data.autoTap || 0;
+          ownedSkins = data.ownedSkins || { default: true };
+          ownedBoosters = data.ownedBoosters || {};
+          updateBalance(); updateXP();
+        });
+    }
+
+    function loadLeaderboard() {
+      fetch(`${dbUrl}/users.json`).then(r => r.json()).then(data => {
+        const list = Object.entries(data || {}).sort((a,b)=>b[1].balance-a[1].balance).slice(0, 10);
+        const el = document.getElementById('leaderboard');
+        el.innerHTML = '';
+        list.forEach(([id, user]) => {
+          const li = document.createElement('li');
+          li.textContent = `${user.first_name || 'Игрок'}: ${user.balance} 🪙`;
+          el.appendChild(li);
+        });
+      });
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      if (Telegram.WebApp) {
+        Telegram.WebApp.ready(); Telegram.WebApp.expand();
+        const user = Telegram.WebApp.initDataUnsafe?.user;
+        if (!user) return alert("Telegram WebApp user недоступен");
+        userId = user.id;
+        document.getElementById('profileInfo').innerHTML = `👤 ${user.first_name}<br/>@${user.username}`;
+        loadProgress(); startAutoTap();
       }
     });
   </script>
