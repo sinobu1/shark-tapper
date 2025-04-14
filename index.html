@@ -410,7 +410,10 @@
             function handleTap(event) {
                 // Vibrate on tap if supported
                 if (canVibrate) {
-                    navigator.vibrate(10);
+                    // Попробуем увеличить продолжительность
+                    navigator.vibrate(50);
+                    // Или попробуем шаблон вибрации (закомментируйте предыдущую строку, чтобы использовать эту)
+                    // navigator.vibrate([50]);
                 }
 
                 // Animation
