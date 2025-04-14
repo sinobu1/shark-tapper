@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Leaderboard</title>
+  <style>
+    :root {
+      --primary: #2f80ed;
+      --accent: #56ccf2;
+      --bg: #f2f5f9;
+      --card-bg: #ffffff;
+      --text: #0d1b2a;
+      --subtext: #6c7787;
+      --border: #e0e6ed;
+    }
+    .leaderboard-item {
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem;
+      border-radius: 12px;
+      background: transparent;
+      transition: all 0.2s ease;
+    }
+    .leaderboard-item.current-user {
+      background: rgba(47, 128, 237, 0.1);
+      box-shadow: 0 0 0 2px var(--accent);
+    }
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255,255,255,0.9);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Press Start 2P', cursive;
+      z-index: 1000;
+      transition: opacity 0.3s ease;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .loading-overlay.active {
+      display: flex;
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="tab-page" id="leaderboard">
+    <div style="padding: 1rem;">
+      <h2 style="text-align:center; font-family: 'Rubik Mono One', sans-serif; margin-bottom: 1rem;">TOP PLAYERS</h2>
+      <div style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 1rem;">
+        <button id="dailyLeaderboard" style="background: var(--primary); color: white; border: none; padding: 0.5rem 1rem; border-radius: 999px; font-family: 'Press Start 2P', cursive; font-size: 0.6rem;">Daily</button>
+        <button id="alltimeLeaderboard" style="background: var(--border); color: var(--text); border: none; padding: 0.5rem 1rem; border-radius: 999px; font-family: 'Press Start 2P', cursive; font-size: 0.6rem;">All Time</button>
+      </div>
+      <ul id="leaderboardList" style="list-style: none; padding: 0; margin: 0;">
+        <li style="text-align:center; color: var(--subtext);">Loading...</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="loading-overlay" id="loader">LOADING...</div>
+
+  <script>
+    const dbUrl = "https://tralalero-fec07-default-rtdb.firebaseio.com";
+    let userId = null;
+    let leaderboardType = 'daily';
+    
+    document.addEventListener("DOMContentLoaded", function() {
+      // Загрузка Telegram пользователя
+      try {
+        const tgUser = Telegram.WebApp.initDataUnsafe?.user;
+        if (tgUser) userId = tgUser.id.toString();
+      } catch (e) {
+        console.log('Telegram context not available');
+      }
+      
+      // Настройка кнопок лидерборда
+      document.getElementById('dailyLeaderboard').addEventListener('click', () => {
+        leaderboardType = 'daily';
+        updateLeaderboardTabs();
+        loadLeaderboard();
+      });
+      
+      document.getElementById('alltimeLeaderboard').addEventListener('click', () => {
+        leaderboardType = 'alltime';
+        updateLeaderboardTabs();
+        loadLeaderboard();
+      });
+      
+      updateLeaderboardTabs();
+      loadLeaderboard();
+    });
+    
+    function updateLeaderboardTabs() {
+      const dailyBtn = document.getElementById('dailyLeaderboard');
+      const alltimeBtn = document.getElementById('alltimeLeaderboard');
+      
+      dailyBtn.style.background = leaderboardType === 'daily' ? 'var(--primary)' : 'var(--border)';
+      dailyBtn.style.color = leaderboardType === 'daily' ? 'white' : 'var(--text)';
+      alltimeBtn.style.background = leaderboardType === 'alltime' ? 'var(--primary)' : 'var(--border)';
+      alltimeBtn.style.color = leaderboardType === 'alltime' ? 'white' : 'var(--text)';
+    }
+    
+    async function loadLeaderboard() {
+      showLoader();
+      try {
+        const orderBy = leaderboardType === 'daily' ? 'daily_taps' : 'balance';
+        const response = await fetch(`${dbUrl}/users.json?orderBy="${orderBy}"&limitToLast=50`);
+        const data = await response.json();
+        
+        const sorted = Object.entries(data)
+          .sort((a, b) => (b[1]?.[orderBy] || 0) - (a[1]?.[orderBy] || 0))
+          .slice(0, 10);
+        
+        renderLeaderboard(sorted, orderBy);
+      } catch(err) {
+        console.error('Leaderboard error:', err);
+        document.getElementById("leaderboardList").innerHTML = 
+          '<li style="text-align:center; color: var(--subtext);">Failed to load leaderboard</li>';
+      } finally {
+        hideLoader();
+      }
+    }
+    
+    function renderLeaderboard(data, orderBy) {
+      const list = document.getElementById("leaderboardList");
+      list.innerHTML = data.map(([id, user], i) => {
+        const isCurrentUser = id === userId?.toString();
+        const value = user[orderBy] || 0;
+        
+        return `
+          <li class="leaderboard-item ${isCurrentUser ? 'current-user' : ''}">
+            <span style="font-weight: bold; color: var(--primary); width: 24px; text-align: center;">#${i + 1}</span>
+            <img src="${user.photo_url || 'https://placehold.co/32x32'}" 
+                 style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--accent); object-fit: cover;">
+            <span style="flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+              ${user.first_name || 'Player'}
+            </span>
+            <span style="color: var(--subtext); font-family: 'Press Start 2P', cursive; font-size: 0.7rem;">
+              ${value.toLocaleString()} ${orderBy === 'daily_taps' ? '👆' : '💰'}
+            </span>
+          </li>`;
+      }).join("");
+    }
+    
+    function showLoader() {
+      document.getElementById('loader').classList.add('active');
+    }
+    
+    function hideLoader() {
+      document.getElementById('loader').classList.remove('active');
+    }
+  </script>
+</body>
+</html>
