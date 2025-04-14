@@ -3,12 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="mobile-web-app-capable" content="yes" />
   <title>Shark Tapper</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Press+Start+2P&family=Rubik+Mono+One&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700&family=Press+Start+2P&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
     :root {
@@ -28,17 +26,13 @@
       -webkit-user-select: none;
       user-select: none;
     }
-    html, body {
+    body {
       width: 100%;
       height: 100%;
       overflow: hidden;
-      touch-action: manipulation;
-    }
-    body {
-      font-family: 'Bungee', cursive;
+      font-family: 'Rubik', sans-serif;
       background: linear-gradient(180deg, #dbeafe 0%, #f0f4f8 100%);
       color: var(--text);
-      -webkit-font-smoothing: antialiased;
       position: fixed;
     }
     #app-container {
@@ -46,17 +40,14 @@
       height: 100%;
       display: flex;
       flex-direction: column;
-      overflow: hidden;
     }
     header {
-      background: none;
-      color: var(--primary);
       padding: 1rem;
       text-align: center;
-      font-size: 2rem;
-      font-family: 'Rubik Mono One', sans-serif;
-      text-shadow: -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff, 2px 2px 0 #fff;
-      flex-shrink: 0;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--primary);
+      text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;
     }
     .main-content {
       flex: 1;
@@ -64,59 +55,49 @@
       display: flex;
       flex-direction: column;
     }
-    .tab-content {
-      flex: 1;
+    .tab-page {
+      display: none;
+      height: 100%;
+      flex-direction: column;
       overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
-      padding-bottom: 60px;
+    }
+    .tab-page.active {
+      display: flex;
     }
     .token-counter {
-      margin: 0 auto;
-      font-size: 0.8rem;
-      color: var(--primary);
-      background: var(--card-bg);
+      margin: 0.5rem auto;
       padding: 0.5rem 1rem;
-      border-radius: 999px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      display: inline-flex;
+      background: white;
+      border-radius: 20px;
+      font-family: 'Press Start 2P', cursive;
+      font-size: 0.7rem;
+      display: flex;
       align-items: center;
       gap: 0.5rem;
-      font-family: 'Press Start 2P', cursive;
-      line-height: 1.2;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     }
     .shark-wrapper {
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
       padding: 1rem;
-      flex: 1;
-    }
-    .shark-tap-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.5rem;
     }
     .shark-image {
       width: 140px;
       height: 140px;
       border-radius: 50%;
       border: 4px solid var(--accent);
-      background: var(--card-bg);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      background: white;
       object-fit: cover;
       cursor: pointer;
-      transition: transform 0.1s ease;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
     }
     .shark-gallery {
+      display: flex;
+      gap: 0.75rem;
       margin: 1rem 0;
       padding: 0.5rem;
-      display: flex;
-      justify-content: center;
-      gap: 0.75rem;
       overflow-x: auto;
-      width: 100%;
       scrollbar-width: none;
     }
     .shark-gallery::-webkit-scrollbar {
@@ -127,148 +108,100 @@
       height: 48px;
       border-radius: 50%;
       border: 2px solid var(--primary);
-      background: white;
       object-fit: cover;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
       flex-shrink: 0;
-      transition: transform 0.2s ease;
-    }
-    .shark-gallery img:hover {
-      transform: scale(1.1);
     }
     .profile-card {
-      background: var(--card-bg);
-      border-radius: 1.5rem;
+      background: white;
+      border-radius: 16px;
       padding: 1rem;
       margin: 1rem;
-      border: 1px solid var(--border);
-      box-shadow: 0 8px 16px rgba(0,0,0,0.06);
       display: flex;
-      gap: 0.75rem;
       align-items: center;
-    }
-    .profile-card img {
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2px solid var(--accent);
-      flex-shrink: 0;
+      gap: 1rem;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.06);
     }
     .profile-info {
-      display: flex;
-      flex-direction: column;
-      width: 100%;
+      flex: 1;
       min-width: 0;
     }
-    .profile-info .name {
-      font-weight: 600;
-      font-size: 0.85rem;
-      font-family: 'Press Start 2P', cursive;
-      line-height: 1.3;
+    .profile-name {
+      font-weight: 700;
+      font-size: 1rem;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
-    .profile-info .sub {
-      font-size: 0.8rem;
+    .profile-coins {
       color: var(--subtext);
-      font-family: 'Bungee', cursive;
-    }
-    .xp-bar {
-      width: 100%;
-      height: 6px;
-      background: var(--border);
-      border-radius: 999px;
-      overflow: hidden;
-      margin-top: 0.5rem;
-    }
-    .xp-fill {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(to right, var(--primary), var(--accent));
-      transition: width 0.3s ease;
+      font-size: 0.9rem;
+      font-family: 'Press Start 2P', cursive;
     }
     nav {
-      width: 100%;
       display: flex;
-      background: var(--card-bg);
+      background: white;
       border-top: 1px solid var(--border);
       padding: 0.5rem 0;
-      box-shadow: 0 -4px 12px rgba(0,0,0,0.06);
-      backdrop-filter: blur(12px);
-      z-index: 100;
-      flex-shrink: 0;
     }
     nav button {
       flex: 1;
-      background: none;
       border: none;
-      font-size: 0.65rem;
-      color: var(--subtext);
+      background: none;
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 0.25rem;
-      font-family: 'Bungee', cursive;
-    }
-    nav button i {
-      font-size: 1.1rem;
+      font-size: 0.7rem;
     }
     nav button.active {
       color: var(--primary);
       font-weight: 700;
     }
-    .tap-effect {
-      position: absolute;
-      width: 40px;
-      height: 40px;
-      background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%);
-      border-radius: 50%;
-      pointer-events: none;
-      transform: translate(-50%, -50%);
-      animation: tapAnimation 0.6s forwards;
-      z-index: 10;
+    .leaderboard-list {
+      list-style: none;
+      padding: 0 1rem;
     }
-    @keyframes tapAnimation {
-      0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
-      100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
+    .leaderboard-item {
+      padding: 0.75rem;
+      margin-bottom: 0.5rem;
+      background: white;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    }
+    .leaderboard-rank {
+      font-weight: 700;
+      color: var(--primary);
+      width: 24px;
+      text-align: center;
+    }
+    .leaderboard-name {
+      flex: 1;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .leaderboard-score {
+      font-weight: 700;
+      font-family: 'Press Start 2P', cursive;
+      font-size: 0.7rem;
     }
     .coin-popup {
       position: absolute;
       font-family: 'Press Start 2P', cursive;
       color: #f8d030;
-      text-shadow: 1px 1px 0 #b88b00, -1px -1px 0 #b88b00;
-      font-size: 0.9rem;
+      text-shadow: 1px 1px 0 #b88b00;
+      font-size: 0.8rem;
       animation: coinPopup 1s forwards;
       pointer-events: none;
       z-index: 20;
-      white-space: nowrap;
     }
     @keyframes coinPopup {
       0% { transform: translateY(0); opacity: 1; }
       100% { transform: translateY(-50px); opacity: 0; }
-    }
-    .tab-page {
-      display: none;
-      height: 100%;
-      flex-direction: column;
-    }
-    .tab-page.active {
-      display: flex;
-    }
-    .leaderboard-item {
-      margin-bottom: 0.5rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.5rem;
-      border-radius: 12px;
-      background: transparent;
-      transition: background 0.2s ease;
-    }
-    .leaderboard-item.current-user {
-      background: rgba(47, 128, 237, 0.1);
     }
   </style>
 </head>
@@ -277,75 +210,57 @@
     <header>SHARK TAPPER</header>
     
     <div class="main-content">
-      <div class="tab-content">
-        <!-- Home Tab -->
-        <div id="home" class="tab-page active">
-          <div class="shark-wrapper">
-            <div class="shark-tap-container">
-              <div class="token-counter" id="tokenCounter">
-                <img src="https://sinobu1.github.io/shark-tapper/coin_icon_small.png" alt="Coin Icon" class="coin-icon" />
-                <span id="profileTokens">0</span> coins
-              </div>
-              <img src="https://sinobu1.github.io/shark-tapper/shark.png" alt="Tap Shark" class="shark-image" id="tapImage" />
-            </div>
-            <div class="shark-gallery">
-              <img src="https://sinobu1.github.io/shark-tapper/shark.png" alt="Shark 1" data-skin="default" />
-              <img src="https://sinobu1.github.io/shark-tapper/shark_skin1.png" alt="Gold Shark" data-skin="skin3" />
-              <img src="https://sinobu1.github.io/shark-tapper/shark_skin2.png" alt="Leopard Shark" data-skin="skin2" />
-            </div>
+      <!-- Home Tab -->
+      <div id="home" class="tab-page active">
+        <div class="shark-wrapper">
+          <div class="token-counter">
+            <i class="fas fa-coins"></i>
+            <span id="coins-display">0</span> coins
           </div>
-          <div class="profile-card">
-            <img src="https://placehold.co/64x64" alt="Avatar" id="profileAvatar">
-            <div class="profile-info">
-              <span class="name" id="profileName">Player</span>
-              <span class="sub" id="profileLevel">Coins: 0</span>
-              <div class="xp-bar">
-                <div class="xp-fill" id="xpBar"></div>
-              </div>
-            </div>
+          
+          <img src="https://sinobu1.github.io/shark-tapper/shark.png" class="shark-image" id="shark-image">
+          
+          <div class="shark-gallery">
+            <img src="https://sinobu1.github.io/shark-tapper/shark.png" data-skin="default">
+            <img src="https://sinobu1.github.io/shark-tapper/shark_skin1.png" data-skin="gold">
+            <img src="https://sinobu1.github.io/shark-tapper/shark_skin2.png" data-skin="leopard">
           </div>
         </div>
-
-        <!-- Quests Tab -->
-        <div id="quests" class="tab-page">
-          <div style="padding: 1rem; text-align: center; height: 100%; display: flex; flex-direction: column; justify-content: center;">
-            <h2 style="font-family: 'Rubik Mono One', sans-serif; margin-bottom: 1rem;">📝 Quests</h2>
-            <p style="color: var(--subtext);">Exciting quests coming soon!</p>
-          </div>
-        </div>
-
-        <!-- Shop Tab -->
-        <div id="shop" class="tab-page">
-          <div style="padding: 1rem; text-align: center; height: 100%; display: flex; flex-direction: column; justify-content: center;">
-            <h2 style="font-family: 'Rubik Mono One', sans-serif; margin-bottom: 1rem;">🛍 Shop</h2>
-            <p style="color: var(--subtext);">Awesome items coming soon!</p>
-          </div>
-        </div>
-
-        <!-- Leaderboard Tab -->
-        <div id="leaderboard" class="tab-page">
-          <div style="padding: 1rem;">
-            <h2 style="text-align:center; font-family: 'Rubik Mono One', sans-serif; margin-bottom: 1rem;">TOP PLAYERS</h2>
-            <ul id="leaderboardList" style="list-style: none; padding: 0; margin: 0;">
-              <li style="text-align:center; color: var(--subtext);">Loading...</li>
-            </ul>
+        
+        <div class="profile-card">
+          <img src="https://placehold.co/64x64" width="50" height="50" style="border-radius:50%">
+          <div class="profile-info">
+            <div class="profile-name" id="player-name">Player</div>
+            <div class="profile-coins">COINS: <span id="player-coins">0</span></div>
           </div>
         </div>
       </div>
+      
+      <!-- Leaderboard Tab -->
+      <div id="leaderboard" class="tab-page">
+        <h2 style="text-align:center; margin:1rem;">TOP PLAYERS</h2>
+        <ul class="leaderboard-list" id="leaderboard-list">
+          <!-- Filled by JavaScript -->
+        </ul>
+      </div>
     </div>
-
+    
     <nav>
       <button class="active" data-tab="home">
-        <i class="fa-solid fa-gamepad"></i><span>Game</span>
+        <i class="fas fa-gamepad"></i>
+        <span>GAME</span>
       </button>
       <button data-tab="quests">
-        <i class="fa-solid fa-list-check"></i><span>Quests</span>
+        <i class="fas fa-tasks"></i>
+        <span>QUESTS</span>
       </button>
       <button data-tab="shop">
-        <i class="fa-solid fa-store"></i><span>Shop</span>
+        <i class="fas fa-store"></i>
+        <span>SHOP</span>
       </button>
       <button data-tab="leaderboard">
-        <i class="fa-solid fa-ranking-star"></i><span>Top</span>
+        <i class="fas fa-trophy"></i>
+        <span>TOP</span>
       </button>
     </nav>
   </div>
@@ -353,311 +268,110 @@
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script>
     document.addEventListener("DOMContentLoaded", function() {
-      const dbUrl = "https://tralalero-fec07-default-rtdb.firebaseio.com";
-      let userId = null;
-      let userData = {
-        username: "Player",
-        avatar: "https://placehold.co/64x64",
-        tokens: 0,
-        skin: 'default'
+      // Game state
+      const gameState = {
+        coins: 326287,
+        skin: 'default',
+        leaderboard: [
+          { name: "Vigon", coins: 326287 },
+          { name: "mara", coins: 1232 },
+          { name: "PLAVER", coins: 1120 },
+          { name: "MIRANDA", coins: 111 },
+          { name: "PLAVER", coins: 89 },
+          { name: "PLAVER", coins: 1 }
+        ]
       };
-      let lastSave = 0;
-      const SAVE_INTERVAL = 5000;
-      let canVibrate = 'vibrate' in navigator;
 
-      // Initialize app
-      function init() {
-        setupEventListeners();
-        loadTelegram();
-        initLocalStorage();
-        showTab('home');
-      }
+      // DOM elements
+      const sharkImage = document.getElementById('shark-image');
+      const coinsDisplay = document.getElementById('coins-display');
+      const playerCoins = document.getElementById('player-coins');
+      const playerName = document.getElementById('player-name');
+      const leaderboardList = document.getElementById('leaderboard-list');
 
-      // Event listeners setup
-      function setupEventListeners() {
-        // Shark tap
-        const tapImage = document.getElementById('tapImage');
-        tapImage.addEventListener('click', handleTap);
+      // Initialize
+      updateCoinsDisplay();
+      renderLeaderboard();
+      loadTelegramUser();
+
+      // Event listeners
+      sharkImage.addEventListener('click', handleTap);
+      document.querySelectorAll('.shark-gallery img').forEach(img => {
+        img.addEventListener('click', () => setSkin(img.dataset.skin));
+      });
+      document.querySelectorAll('nav button').forEach(btn => {
+        btn.addEventListener('click', () => showTab(btn.dataset.tab));
+      });
+
+      // Functions
+      function handleTap(e) {
+        // Vibrate if supported
+        if (navigator.vibrate) navigator.vibrate(10);
         
-        // Skin selection
-        document.querySelectorAll('.shark-gallery img').forEach(img => {
-          img.addEventListener('click', function() {
-            setSkin(this.dataset.skin);
-          });
-        });
-        
-        // Navigation
-        document.querySelectorAll('nav button').forEach(btn => {
-          btn.addEventListener('click', function() {
-            showTab(this.dataset.tab);
-          });
-        });
-      }
-
-      // Handle tap on shark
-      function handleTap(event) {
-        // Vibrate on tap if supported
-        if (canVibrate) {
-          navigator.vibrate(10);
-        }
+        // Add coin
+        gameState.coins++;
+        updateCoinsDisplay();
         
         // Animation
-        const shark = document.getElementById("tapImage");
-        shark.style.transform = "scale(0.95)";
-        setTimeout(() => shark.style.transform = "scale(1)", 100);
+        sharkImage.style.transform = 'scale(0.95)';
+        setTimeout(() => sharkImage.style.transform = 'scale(1)', 100);
         
-        createTapEffect(event);
-        createCoinPopup(event);
-        
-        // Increment coins
-        userData.tokens++;
-        updateDisplay();
-        
-        // Save progress
-        const now = Date.now();
-        if (now - lastSave > SAVE_INTERVAL) {
-          saveProgress();
-          lastSave = now;
-        } else {
-          saveToLocalStorage();
-        }
-      }
-
-      // Create tap visual effect
-      function createTapEffect(event) {
-        const effect = document.createElement('div');
-        effect.className = 'tap-effect';
-        effect.style.left = `${event.clientX}px`;
-        effect.style.top = `${event.clientY}px`;
-        document.body.appendChild(effect);
-        
-        setTimeout(() => {
-          effect.remove();
-        }, 600);
-      }
-
-      // Create +1 coin popup
-      function createCoinPopup(event) {
+        // Coin popup effect
         const popup = document.createElement('div');
         popup.className = 'coin-popup';
         popup.textContent = '+1';
-        popup.style.left = `${event.clientX}px`;
-        popup.style.top = `${event.clientY - 20}px`;
+        popup.style.left = `${e.clientX}px`;
+        popup.style.top = `${e.clientY - 20}px`;
         document.body.appendChild(popup);
-        
-        setTimeout(() => {
-          popup.remove();
-        }, 1000);
+        setTimeout(() => popup.remove(), 1000);
       }
 
-      // Update UI display
-      function updateDisplay() {
-        const counter = document.getElementById("profileTokens");
-        if (counter) counter.textContent = userData.tokens;
-        
-        const levelEl = document.getElementById("profileLevel");
-        if (levelEl) levelEl.textContent = `Coins: ${userData.tokens}`;
-        
-        const bar = document.getElementById("xpBar");
-        if (bar) {
-          const limits = [0, 100, 500, 1000, 2500, 5000, 10000];
-          let max = limits.find(l => userData.tokens < l) || 10000;
-          let min = limits[limits.indexOf(max) - 1] || 0;
-          let percent = ((userData.tokens - min) / (max - min)) * 100;
-          bar.style.width = `${Math.min(100, Math.max(0, percent))}%`;
-        }
+      function updateCoinsDisplay() {
+        const formatted = gameState.coins.toLocaleString();
+        coinsDisplay.textContent = formatted;
+        playerCoins.textContent = formatted;
       }
 
-      // Show tab content
+      function setSkin(skin) {
+        gameState.skin = skin;
+        const skinMap = {
+          'default': 'https://sinobu1.github.io/shark-tapper/shark.png',
+          'gold': 'https://sinobu1.github.io/shark-tapper/shark_skin1.png',
+          'leopard': 'https://sinobu1.github.io/shark-tapper/shark_skin2.png'
+        };
+        sharkImage.src = skinMap[skin] || skinMap.default;
+      }
+
+      function renderLeaderboard() {
+        leaderboardList.innerHTML = gameState.leaderboard.map((player, i) => `
+          <li class="leaderboard-item">
+            <div class="leaderboard-rank">#${i + 1}</div>
+            <div class="leaderboard-name">${player.name}</div>
+            <div class="leaderboard-score">${player.coins.toLocaleString()}</div>
+          </li>
+        `).join('');
+      }
+
       function showTab(tabId) {
-        // Update nav buttons
-        document.querySelectorAll('nav button').forEach(btn => {
-          btn.classList.toggle('active', btn.dataset.tab === tabId);
-        });
-        
-        // Show selected tab
         document.querySelectorAll('.tab-page').forEach(page => {
           page.classList.toggle('active', page.id === tabId);
         });
-        
-        // Load leaderboard if needed
-        if (tabId === 'leaderboard') {
-          loadLeaderboard();
-        }
-      }
-
-      // Save progress to server and local storage
-      function saveProgress() {
-        if (!userId) {
-          saveToLocalStorage();
-          return;
-        }
-        
-        fetch(`${dbUrl}/users/${userId}.json`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            balance: userData.tokens,
-            first_name: userData.username,
-            photo_url: userData.avatar,
-            skin: userData.skin,
-            last_update: Date.now()
-          })
-        })
-        .then(() => saveToLocalStorage())
-        .catch(err => {
-          console.error('Save error:', err);
-          saveToLocalStorage();
+        document.querySelectorAll('nav button').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.tab === tabId);
         });
       }
 
-      // Load from local storage
-      function initLocalStorage() {
-        const savedData = localStorage.getItem('sharkTapperData');
-        if (savedData) {
-          try {
-            const parsed = JSON.parse(savedData);
-            userData.tokens = parsed.tokens || 0;
-            userData.skin = parsed.skin || 'default';
-            updateDisplay();
-            setSkin(userData.skin, true);
-          } catch (e) {
-            console.error('Error parsing saved data', e);
+      function loadTelegramUser() {
+        if (window.Telegram && Telegram.WebApp) {
+          const tgUser = Telegram.WebApp.initDataUnsafe.user;
+          if (tgUser) {
+            playerName.textContent = tgUser.first_name || "Player";
+            if (tgUser.photo_url) {
+              document.querySelector('.profile-card img').src = tgUser.photo_url;
+            }
           }
         }
       }
-
-      // Save to local storage
-      function saveToLocalStorage() {
-        localStorage.setItem('sharkTapperData', JSON.stringify({
-          tokens: userData.tokens,
-          skin: userData.skin
-        }));
-      }
-
-      // Load progress from server
-      function loadProgress() {
-        if (!userId) return;
-        
-        fetch(`${dbUrl}/users/${userId}.json`)
-          .then(res => {
-            if (!res.ok) throw new Error('Network response was not ok');
-            return res.json();
-          })
-          .then(data => {
-            if (data) {
-              // Use highest value between server and local
-              const serverTokens = data.balance || 0;
-              userData.tokens = Math.max(serverTokens, userData.tokens);
-              
-              // Update user data
-              userData.username = data.first_name || "Player";
-              userData.avatar = data.photo_url || "https://placehold.co/64x64";
-              userData.skin = data.skin || 'default';
-              
-              // Update UI
-              updateDisplay();
-              document.getElementById("profileName").textContent = userData.username;
-              document.getElementById("profileAvatar").src = userData.avatar;
-              setSkin(userData.skin, true);
-              
-              // Save merged data
-              saveToLocalStorage();
-            }
-          })
-          .catch(err => {
-            console.error('Load error:', err);
-          });
-      }
-
-      // Load leaderboard
-      function loadLeaderboard() {
-        fetch(`${dbUrl}/users.json`)
-          .then(res => {
-            if (!res.ok) throw new Error('Network response was not ok');
-            return res.json();
-          })
-          .then(data => {
-            const list = document.getElementById("leaderboardList");
-            if (!data || Object.keys(data).length === 0) {
-              return list.innerHTML = '<li style="text-align:center; color: var(--subtext);">No players yet</li>';
-            }
-            
-            // Sort by balance
-            const sorted = Object.entries(data)
-              .sort((a, b) => (b[1].balance || 0) - (a[1].balance || 0))
-              .slice(0, 10);
-            
-            renderLeaderboard(sorted);
-          })
-          .catch(err => {
-            console.error('Leaderboard error:', err);
-            const list = document.getElementById("leaderboardList");
-            list.innerHTML = '<li style="text-align:center; color: var(--subtext);">Loading error</li>';
-          });
-      }
-
-      // Render leaderboard
-      function renderLeaderboard(data) {
-        const list = document.getElementById("leaderboardList");
-        list.innerHTML = data.map(([id, user], i) => {
-          const isCurrentUser = id === userId?.toString();
-          return `
-            <li class="leaderboard-item ${isCurrentUser ? 'current-user' : ''}">
-              <span style="font-weight: bold; color: var(--primary); width: 24px; text-align: center;">#${i + 1}</span>
-              <img src="${user.photo_url || 'https://placehold.co/32x32'}" 
-                   style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--accent); object-fit: cover;">
-              <span style="flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                ${user.first_name || 'Player'}
-              </span>
-              <span style="color: var(--subtext); font-family: 'Press Start 2P', cursive; font-size: 0.7rem;">
-                ${user.balance || 0} 💰
-              </span>
-            </li>`;
-        }).join("");
-      }
-
-      // Set shark skin
-      function setSkin(skin, silent = false) {
-        const skins = {
-          'default': 'https://sinobu1.github.io/shark-tapper/shark.png',
-          'skin2': 'https://sinobu1.github.io/shark-tapper/shark_skin2.png',
-          'skin3': 'https://sinobu1.github.io/shark-tapper/shark_skin1.png'
-        };
-        
-        if (skins[skin]) {
-          userData.skin = skin;
-          document.getElementById('tapImage').src = skins[skin];
-          if (!silent) saveProgress();
-        }
-      }
-
-      // Load Telegram user data
-      function loadTelegram() {
-        const tgUser = Telegram?.WebApp?.initDataUnsafe?.user;
-        if (tgUser) {
-          userId = tgUser.id?.toString();
-          userData.username = tgUser.first_name || "Player";
-          userData.avatar = tgUser.photo_url || "https://placehold.co/64x64";
-          document.getElementById("profileName").textContent = userData.username;
-          document.getElementById("profileAvatar").src = userData.avatar;
-          loadProgress();
-        } else {
-          document.getElementById("profileName").textContent = "Player";
-          initLocalStorage();
-          updateDisplay();
-        }
-      }
-
-      // Auto-save every 30 seconds
-      setInterval(() => {
-        if (userData.tokens > 0) {
-          saveProgress();
-        }
-      }, 30000);
-
-      // Initialize the app
-      init();
     });
   </script>
 </body>
