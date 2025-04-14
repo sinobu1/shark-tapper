@@ -103,6 +103,7 @@
   <h2 id="profileName">Игрок</h2>
   <p id="profileTokens">Токенов: 0</p>
   <p id="profileLevel">Уровень: 1</p>
+  <p id="profileJoin">Дата регистрации: ...</p>
 </div>
 <div id="leaderboard-modal">
   <h2>🏆 Топ игроков</h2>
@@ -120,7 +121,7 @@
 const dbUrl = "https://tralalero-fec07-default-rtdb.firebaseio.com";
 let userId = null, balance = 0, autoTap = 0, xp = 0, level = 1;
 let ownedSkins = { default: true }, currentSkin = 'default';
-let userFirstName = '', userAvatar = '';
+let userFirstName = '', userAvatar = '', joinDate = '';
 
 const tokenCount = document.getElementById("tokenCount");
 const tapImage = document.getElementById("tapImage");
@@ -168,10 +169,12 @@ function saveProgress() {
   const user = Telegram.WebApp.initDataUnsafe?.user || {};
   userFirstName = user.first_name || "Игрок";
   userAvatar = user.photo_url || "";
+  if (!joinDate) joinDate = new Date().toISOString().split('T')[0];
+
   fetch(`${dbUrl}/users/${userId}.json`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ balance, currentSkin, xp, level, first_name: userFirstName, photo_url: userAvatar })
+    body: JSON.stringify({ balance, currentSkin, xp, level, first_name: userFirstName, photo_url: userAvatar, joinDate })
   });
 }
 
@@ -187,11 +190,14 @@ function loadProgress() {
         level = data.level || 1;
         userFirstName = data.first_name || "Игрок";
         userAvatar = data.photo_url || "";
+        joinDate = data.joinDate || new Date().toISOString().split('T')[0];
+
         updateBalanceDisplay();
         updateXP(0);
         updateSkin(currentSkin);
         document.getElementById("profileName").textContent = userFirstName;
         document.getElementById("profileAvatar").src = userAvatar;
+        document.getElementById("profileJoin").textContent = `Дата регистрации: ${joinDate}`;
       }
     });
 }
