@@ -71,11 +71,21 @@
       background: none; border: none;
       font-size: 18px; cursor: pointer; font-weight: 600;
     }
+    #playerLevel {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 18px; font-weight: bold;
+    }
+    .leaderboard-entry {
+      display: flex; align-items: center; gap: 8px; margin: 4px 0;
+    }
+    .leaderboard-entry img {
+      width: 24px; height: 24px; border-radius: 50%;
+    }
   </style>
 </head>
 <body>
 <div class="balance" id="tokenCount">0 токенов</div>
-<div id="playerLevel">Уровень: 1</div>
+<div id="playerLevel">🏅 Уровень: 1</div>
 <div class="xp-bar-container"><div class="xp-bar" id="xpBar"></div></div>
 <div id="gameContainer" class="game-container">
   <img id="tapImage" class="tap-image" src="shark.png" alt="Shark" onclick="handleTap()" />
@@ -110,7 +120,7 @@ function updateBalanceDisplay() {
 function updateXP(amount) {
   xp += amount;
   const need = 20 + (level - 1) * 10;
-  if (xp >= need) { xp -= need; level++; playerLevel.textContent = `Уровень: ${level}`; }
+  if (xp >= need) { xp -= need; level++; playerLevel.innerHTML = `🏅 Уровень: ${level}`; }
   const percent = Math.floor((xp / (20 + (level - 1) * 10)) * 100);
   xpBar.style.width = percent + '%';
 }
@@ -139,10 +149,11 @@ function handleTap() {
 
 function saveProgress() {
   if (!userId) return;
+  const user = Telegram.WebApp.initDataUnsafe?.user || {};
   fetch(`${dbUrl}/users/${userId}.json`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ balance, currentSkin, xp, level })
+    body: JSON.stringify({ balance, currentSkin, xp, level, first_name: user.first_name || "", photo_url: user.photo_url || "" })
   });
 }
 
@@ -184,9 +195,11 @@ function openLeaderboard() {
     const users = Object.entries(data || {}).map(([id, info]) => ({ id, ...info }))
       .sort((a, b) => b.balance - a.balance).slice(0, 10);
     users.forEach(user => {
-      const li = document.createElement('li');
       const name = user.first_name || `ID ${user.id.slice(-4)}`;
-      li.innerHTML = `<strong>${name}</strong>: ${user.balance}`;
+      const avatar = user.photo_url ? `<img src="${user.photo_url}" alt="avatar">` : '';
+      const li = document.createElement('li');
+      li.className = 'leaderboard-entry';
+      li.innerHTML = `${avatar}<strong>${name}</strong>: ${user.balance}`;
       leaderboard.appendChild(li);
     });
   });
