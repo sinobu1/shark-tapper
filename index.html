@@ -13,7 +13,7 @@
       background: linear-gradient(160deg, #f1f3f5, #dee2e6);
       height: 100vh; display: flex; flex-direction: column; align-items: center;
     }
-    .game-container, #shopContainer, #boosterContainer {
+    .game-container, #shopContainer, #boosterContainer, #profileContainer {
       display: none;
       flex-direction: column;
       align-items: center;
@@ -81,6 +81,12 @@
     .leaderboard-entry img {
       width: 24px; height: 24px; border-radius: 50%;
     }
+    #profileContainer img {
+      width: 72px; height: 72px; border-radius: 50%; margin: 10px 0;
+    }
+    #profileContainer h2 {
+      font-size: 20px;
+    }
   </style>
 </head>
 <body>
@@ -92,6 +98,12 @@
 </div>
 <div id="boosterContainer">...</div>
 <div id="shopContainer">...</div>
+<div id="profileContainer">
+  <img id="profileAvatar" src="" alt="avatar" />
+  <h2 id="profileName">Игрок</h2>
+  <p id="profileTokens">Токенов: 0</p>
+  <p id="profileLevel">Уровень: 1</p>
+</div>
 <div id="leaderboard-modal">
   <h2>🏆 Топ игроков</h2>
   <ul id="leaderboardList"></ul>
@@ -102,11 +114,13 @@
   <button class="tab-button" onclick="toggleTab('boosterContainer')">⚡ Бустеры</button>
   <button class="tab-button" onclick="toggleTab('shopContainer')">🛒 Магазин</button>
   <button class="tab-button" onclick="openLeaderboard()">🏆 Топ</button>
+  <button class="tab-button" onclick="toggleTab('profileContainer')">👤 Профиль</button>
 </div>
 <script>
 const dbUrl = "https://tralalero-fec07-default-rtdb.firebaseio.com";
 let userId = null, balance = 0, autoTap = 0, xp = 0, level = 1;
 let ownedSkins = { default: true }, currentSkin = 'default';
+let userFirstName = '', userAvatar = '';
 
 const tokenCount = document.getElementById("tokenCount");
 const tapImage = document.getElementById("tapImage");
@@ -115,6 +129,7 @@ const playerLevel = document.getElementById("playerLevel");
 
 function updateBalanceDisplay() {
   tokenCount.textContent = `${balance} токенов`;
+  document.getElementById("profileTokens").textContent = `Токенов: ${balance}`;
 }
 
 function updateXP(amount) {
@@ -123,6 +138,7 @@ function updateXP(amount) {
   if (xp >= need) { xp -= need; level++; playerLevel.innerHTML = `🏅 Уровень: ${level}`; }
   const percent = Math.floor((xp / (20 + (level - 1) * 10)) * 100);
   xpBar.style.width = percent + '%';
+  document.getElementById("profileLevel").textContent = `Уровень: ${level}`;
 }
 
 function showFloatingText(text) {
@@ -150,10 +166,12 @@ function handleTap() {
 function saveProgress() {
   if (!userId) return;
   const user = Telegram.WebApp.initDataUnsafe?.user || {};
+  userFirstName = user.first_name || "Игрок";
+  userAvatar = user.photo_url || "";
   fetch(`${dbUrl}/users/${userId}.json`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ balance, currentSkin, xp, level, first_name: user.first_name || "", photo_url: user.photo_url || "" })
+    body: JSON.stringify({ balance, currentSkin, xp, level, first_name: userFirstName, photo_url: userAvatar })
   });
 }
 
@@ -167,15 +185,19 @@ function loadProgress() {
         currentSkin = data.currentSkin || 'default';
         xp = data.xp || 0;
         level = data.level || 1;
+        userFirstName = data.first_name || "Игрок";
+        userAvatar = data.photo_url || "";
         updateBalanceDisplay();
         updateXP(0);
         updateSkin(currentSkin);
+        document.getElementById("profileName").textContent = userFirstName;
+        document.getElementById("profileAvatar").src = userAvatar;
       }
     });
 }
 
 function toggleTab(id) {
-  ['gameContainer', 'shopContainer', 'boosterContainer'].forEach(el =>
+  ['gameContainer', 'shopContainer', 'boosterContainer', 'profileContainer'].forEach(el =>
     document.getElementById(el).style.display = 'none'
   );
   document.getElementById(id).style.display = 'flex';
