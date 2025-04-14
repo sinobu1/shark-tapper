@@ -278,7 +278,14 @@ loadTelegram();
         const levelEl = document.getElementById("profileLevel");
         if (levelEl) levelEl.textContent = `Ур. ${level}`;
         const bar = document.getElementById("xpBar");
-        if (bar) bar.style.width = `${(xp / xpToNext) * 100}%`;
+        if (bar) {
+  const limits = [0, 100, 500, 1000, 2500, 5000, 10000];
+  let max = limits.find(l => userData.tokens < l) || 10000;
+  let min = limits[limits.indexOf(max) - 1] || 0;
+  let percent = ((userData.tokens - min) / (max - min)) * 100;
+  percent = Math.min(100, Math.max(0, percent));
+  bar.style.width = `${percent}%`;
+}
       }
 
       updateXPDisplay();
