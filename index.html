@@ -3,15 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Shark Tapper</title>
+  <title>Shark Tapper Fusion</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=SF+Pro+Display:wght@400;600;700&display=swap" rel="stylesheet" />
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'SF Pro Display', sans-serif;
       background: linear-gradient(160deg, #e3f2fd, #e0f7fa);
-      height: 100vh;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -44,6 +43,13 @@
     .tab-button:active {
       transform: scale(0.98);
     }
+    .game-container {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      margin-top: 20px;
+    }
     .tap-image {
       width: 45vw;
       max-width: 300px;
@@ -62,6 +68,7 @@
   </style>
 </head>
 <body>
+
 <div class="tab-panel">
   <button class="tab-button" onclick="toggleTab('gameContainer')">🦈 Игра</button>
   <button class="tab-button" onclick="toggleTab('boosterContainer')">⚡ Бустеры</button>
@@ -69,17 +76,77 @@
   <button class="tab-button" onclick="toggleTab('profileContainer')">👤 Профиль</button>
 </div>
 
+<div class="balance" id="tokenCount">0 tokens</div>
+
 <div id="gameContainer" class="game-container">
   <img id="tapImage" class="tap-image" src="shark.png" alt="Shark" onclick="handleTap()" />
 </div>
 
+<div id="boosterContainer" class="game-container">
+  <h2>Boosters</h2>
+  <button onclick="buyBooster(50, 1)">Auto-Tap +1 (50)</button>
+  <button onclick="buyBooster(100, 2)">Auto-Tap +2 (100)</button>
+  <button onclick="buyBooster(1000, 3)">Auto-Tap +3 (1000)</button>
+</div>
+
+<div id="shopContainer" class="game-container">
+  <h2>Skins</h2>
+  <button onclick="buySkin('default', 0)">Default (Free)</button>
+  <button onclick="buySkin('gold', 1000)">Gold (1000)</button>
+  <button onclick="buySkin('leopard', 500)">Leopard (500)</button>
+</div>
+
+<div id="profileContainer" class="game-container">
+  <h2>Профиль</h2>
+  <p>Информация о пользователе, токены и скин</p>
+</div>
+
 <script>
 const dbUrl = "https://tralalero-fec07-default-rtdb.firebaseio.com";
-let userId = null, balance = 0, autoTap = 0, xp = 0, level = 1;
-let ownedSkins = { default: true }, currentSkin = 'default';
-let userFirstName = '', userAvatar = '', joinDate = '';
+let userId = null;
+let balance = 0;
+let autoTap = 0;
+let ownedSkins = { default: true };
+let currentSkin = 'default';
 
+const tokenCount = document.getElementById("tokenCount");
 const tapImage = document.getElementById("tapImage");
+
+function updateBalanceDisplay() {
+  tokenCount.textContent = `${balance} tokens`;
+}
+
+function handleTap() {
+  balance++;
+  updateBalanceDisplay();
+  tapImage.classList.add("tap-animation");
+  setTimeout(() => tapImage.classList.remove("tap-animation"), 200);
+  if (navigator.vibrate) navigator.vibrate(30);
+  saveProgress();
+}
+
+function saveProgress() {
+  if (!userId) return;
+  fetch(`${dbUrl}/users/${userId}.json`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ balance, currentSkin })
+  });
+}
+
+function loadProgress() {
+  if (!userId) return;
+  fetch(`${dbUrl}/users/${userId}.json`)
+    .then(res => res.json())
+    .then(data => {
+      if (data) {
+        balance = data.balance || 0;
+        currentSkin = data.currentSkin || 'default';
+        updateBalanceDisplay();
+        updateSkin(currentSkin);
+      }
+    });
+}
 
 function toggleTab(id) {
   ['gameContainer', 'shopContainer', 'boosterContainer', 'profileContainer'].forEach(el => {
@@ -90,12 +157,52 @@ function toggleTab(id) {
   if (selected) selected.style.display = 'flex';
 }
 
-function handleTap() {
-  balance++;
-  tapImage.classList.add("tap-animation");
-  setTimeout(() => tapImage.classList.remove("tap-animation"), 200);
-  if (navigator.vibrate) navigator.vibrate(30);
+function buyBooster(cost, power) {
+  if (balance >= cost) {
+    balance -= cost;
+    autoTap += power;
+    updateBalanceDisplay();
+    saveProgress();
+  }
 }
+
+function buySkin(skin, cost) {
+  if (ownedSkins[skin] || balance >= cost) {
+    if (!ownedSkins[skin]) {
+      balance -= cost;
+      ownedSkins[skin] = true;
+    }
+    currentSkin = skin;
+    updateSkin(skin);
+    updateBalanceDisplay();
+    saveProgress();
+  }
+}
+
+function updateSkin(skin) {
+  if (skin === 'gold') tapImage.src = 'shark_skin1.png';
+  else if (skin === 'leopard') tapImage.src = 'shark_skin2.png';
+  else tapImage.src = 'shark.png';
+}
+
+setInterval(() => {
+  if (autoTap > 0) {
+    balance += autoTap;
+    updateBalanceDisplay();
+    saveProgress();
+  }
+}, 1000);
+
+window.onload = () => {
+  if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
+    Telegram.WebApp.ready();
+    Telegram.WebApp.expand();
+    userId = Telegram.WebApp.initDataUnsafe?.user?.id?.toString();
+    if (userId) loadProgress();
+  }
+  toggleTab('gameContainer');
+};
 </script>
+
 </body>
 </html>
