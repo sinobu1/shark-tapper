@@ -82,7 +82,7 @@
             display: inline-flex;
             align-items: center;
             gap: 0.6rem;
-            font-family: 'Press Start 2P', cursive;
+            font-family: 'Luckiest Guy', cursive; /* Применяем шрифт Luckiest Guy */
             line-height: 1.2;
         }
         .token-counter img {
@@ -410,10 +410,7 @@
             function handleTap(event) {
                 // Vibrate on tap if supported
                 if (canVibrate) {
-                    // Попробуем увеличить продолжительность
-                    navigator.vibrate(50);
-                    // Или попробуем шаблон вибрации (закомментируйте предыдущую строку, чтобы использовать эту)
-                    // navigator.vibrate([50]);
+                    navigator.vibrate(50); // Увеличена продолжительность вибрации
                 }
 
                 // Animation
