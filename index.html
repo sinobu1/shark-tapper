@@ -128,7 +128,7 @@
       height: 100%;
       width: 0%;
       background: linear-gradient(to right, var(--primary), var(--accent));
-      transition: width 0.3s ease;
+      transition: width 0.5s ease-in-out; /* Плавная анимация */
     }
     nav {
       position: fixed;
@@ -152,12 +152,11 @@
       flex-direction: column;
       align-items: center;
       gap: 0.25rem;
-    }
-    nav button i {
-      font-size: 1.3rem;
+      transition: background 0.3s ease;
     }
     nav button.active {
-      color: var(--primary);
+      background: var(--primary);
+      color: white;
       font-weight: 700;
     }
     .app-wrapper {
@@ -316,6 +315,16 @@
       loadTelegram();
       showTab('home');
     });
+
+    function loadTelegram() {
+      const telegramUser = Telegram.WebApp.initDataUnsafe;
+      if (telegramUser) {
+        userData.username = telegramUser.user.first_name || "Игрок";
+        userData.avatar = telegramUser.user.photo_url || "https://placehold.co/64x64";
+        document.getElementById("profileName").textContent = userData.username;
+        document.getElementById("profileAvatar").src = userData.avatar;
+      }
+    }
   </script>
 </body>
 </html>
