@@ -6,7 +6,7 @@
   <title>Shark Tapper</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Press+Start+2P&family=Rubik+Mono+One&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
     :root {
@@ -20,7 +20,7 @@
     }
     body {
       margin: 0;
-      font-family: 'Luckiest Guy', cursive;
+      font-family: 'Bungee', cursive;
       background: linear-gradient(180deg, #dbeafe 0%, #f0f4f8 100%);
       background-size: cover;
       color: var(--text);
@@ -33,7 +33,7 @@
       padding: 1.5rem 1rem 1rem;
       text-align: center;
       font-size: 2.5rem;
-      font-family: 'Luckiest Guy', cursive;
+      font-family: 'Rubik Mono One', sans-serif;
       text-shadow: -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff, 2px 2px 0 #fff;
     }
     .token-counter {
@@ -48,6 +48,7 @@
       display: flex;
       align-items: center;
       gap: 0.5rem;
+      font-family: 'Press Start 2P', cursive;
     }
     .shark-wrapper {
       position: relative;
@@ -112,10 +113,12 @@
     .profile-info .name {
       font-weight: 600;
       font-size: 1.2rem;
+      font-family: 'Press Start 2P', cursive;
     }
     .profile-info .sub {
       font-size: 0.9rem;
       color: var(--subtext);
+      font-family: 'Bungee', cursive;
     }
     .xp-bar {
       width: 100%;
@@ -153,6 +156,7 @@
       flex-direction: column;
       align-items: center;
       gap: 0.25rem;
+      font-family: 'Bungee', cursive;
     }
     nav button i {
       font-size: 1.3rem;
@@ -181,34 +185,11 @@
       0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
       100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
     }
-    .notification {
-      position: fixed;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--primary);
-      color: white;
-      padding: 8px 16px;
-      border-radius: 20px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      z-index: 1000;
-      animation: slideDown 0.3s forwards, fadeOut 0.3s 2s forwards;
-      display: none;
-    }
-    @keyframes slideDown {
-      from { top: -50px; }
-      to { top: 20px; }
-    }
-    @keyframes fadeOut {
-      from { opacity: 1; }
-      to { opacity: 0; }
-    }
   </style>
 </head>
 <body>
   <div class="app-wrapper">
     <header>SHARK TAPPER</header>
-    <div class="notification" id="notification"></div>
     <div id="tabs">
       <div class="shark-wrapper">
         <div class="shark-tap-container">
@@ -227,16 +208,15 @@
       <div class="profile-card">
         <img src="https://placehold.co/64x64" alt="Avatar" id="profileAvatar">
         <div class="profile-info">
-          <span class="name" id="profileName">Игрок</span>
+          <span class="name" id="profileName">Loading...</span>
           <span class="sub" id="profileLevel">Coins: 0</span>
           <div class="xp-bar">
             <div class="xp-fill" id="xpBar"></div>
           </div>
-          <span class="sub" id="profileJoin">С нами с 2025</span>
         </div>
       </div>
       <div id="leaderboard" style="display: none;">
-        <h2 style="text-align:center;">Топ игроков</h2>
+        <h2 style="text-align:center; font-family: 'Rubik Mono One', sans-serif;">Топ игроков</h2>
         <ul id="leaderboardList" style="list-style: none; padding: 0; margin: 0;">
           <li style="text-align:center; color: var(--subtext);">Загрузка...</li>
         </ul>
@@ -257,11 +237,11 @@
       </button>
     </nav>
     <div id="quests" style="display:none; padding: 1rem; text-align: center;">
-      <h2>📝 Задания</h2>
+      <h2 style="font-family: 'Rubik Mono One', sans-serif;">📝 Задания</h2>
       <p style="color: var(--subtext);">Скоро появятся увлекательные задания!</p>
     </div>
     <div id="shop" style="display:none;">
-      <h2>🛍 Магазин</h2>
+      <h2 style="font-family: 'Rubik Mono One', sans-serif; text-align: center;">🛍 Магазин</h2>
       <p style="text-align:center; color: var(--subtext);">Скоро доступно</p>
     </div>
   </div>
@@ -271,18 +251,14 @@
       const dbUrl = "https://tralalero-fec07-default-rtdb.firebaseio.com";
       let userId = null;
       let userData = {
-        username: "Игрок",
+        username: "Loading...",
         avatar: "https://placehold.co/64x64",
         tokens: 0,
         skin: 'default'
       };
       let lastSave = 0;
-      const SAVE_INTERVAL = 5000; // 5 секунд
-      let leaderboardCache = null;
-      let lastLeaderboardUpdate = 0;
-      const LEADERBOARD_CACHE_TIME = 30000; // 30 секунд
+      const SAVE_INTERVAL = 5000;
 
-      // Инициализация локального хранилища
       function initLocalStorage() {
         const savedData = localStorage.getItem('sharkTapperData');
         if (savedData) {
@@ -304,21 +280,16 @@
         }));
       }
 
-      // Обработка тапа
       window.handleTap = function(event) {
-        // Анимация тапа
         const shark = document.getElementById("tapImage");
         shark.style.transform = "scale(0.95)";
         setTimeout(() => shark.style.transform = "scale(1)", 100);
         
-        // Эффект при тапе
         createTapEffect(event);
         
-        // Увеличение счетчика
         userData.tokens++;
         updateDisplay();
         
-        // Автосохранение
         const now = Date.now();
         if (now - lastSave > SAVE_INTERVAL) {
           saveProgress();
@@ -338,16 +309,6 @@
         setTimeout(() => {
           effect.remove();
         }, 600);
-      }
-
-      function showNotification(message) {
-        const notif = document.getElementById('notification');
-        notif.textContent = message;
-        notif.style.display = 'block';
-        
-        setTimeout(() => {
-          notif.style.display = 'none';
-        }, 2300);
       }
 
       function updateDisplay() {
@@ -398,14 +359,10 @@
             last_update: Date.now()
           })
         })
-        .then(() => {
-          saveToLocalStorage();
-          showNotification('Прогресс сохранен!');
-        })
+        .then(() => saveToLocalStorage())
         .catch(err => {
           console.error('Save error:', err);
           saveToLocalStorage();
-          showNotification('Оффлайн-режим: данные сохранены локально');
         });
       }
 
@@ -421,11 +378,10 @@
           })
           .then(data => {
             if (data) {
-              // Используем большее значение между локальным и серверным
               const serverTokens = data.balance || 0;
               userData.tokens = Math.max(serverTokens, userData.tokens);
               
-              userData.username = data.first_name || "Игрок";
+              userData.username = data.first_name || "Player";
               userData.avatar = data.photo_url || "https://placehold.co/64x64";
               userData.skin = data.skin || 'default';
               
@@ -439,17 +395,10 @@
           })
           .catch(err => {
             console.error('Load error:', err);
-            showNotification('Используем локальные данные');
           });
       }
 
       function loadLeaderboard() {
-        const now = Date.now();
-        if (leaderboardCache && now - lastLeaderboardUpdate < LEADERBOARD_CACHE_TIME) {
-          renderLeaderboard(leaderboardCache);
-          return;
-        }
-        
         fetch(`${dbUrl}/users.json`)
           .then(res => {
             if (!res.ok) throw new Error('Network response was not ok');
@@ -465,8 +414,6 @@
               .sort((a, b) => (b[1].balance || 0) - (a[1].balance || 0))
               .slice(0, 10);
             
-            leaderboardCache = sorted;
-            lastLeaderboardUpdate = now;
             renderLeaderboard(sorted);
           })
           .catch(err => {
@@ -482,8 +429,8 @@
           <li style="margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; border-radius: 12px; background: ${id === userId?.toString() ? 'rgba(47, 128, 237, 0.1)' : 'transparent'};">
             <span style="font-weight: bold; color: var(--primary); width: 24px; text-align: center;">#${i + 1}</span>
             <img src="${user.photo_url || 'https://placehold.co/32x32'}" style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--accent); object-fit: cover;">
-            <span style="flex: 1;">${user.first_name || 'Аноним'}</span>
-            <span style="color: var(--subtext);">${user.balance || 0} 💰</span>
+            <span style="flex: 1;">${user.first_name || 'Player'}</span>
+            <span style="color: var(--subtext); font-family: 'Press Start 2P', cursive;">${user.balance || 0} 💰</span>
           </li>`).join("");
       }
 
@@ -497,10 +444,7 @@
         if (skins[skin]) {
           userData.skin = skin;
           document.getElementById('tapImage').src = skins[skin];
-          if (!silent) {
-            showNotification('Скин изменен!');
-            saveProgress();
-          }
+          if (!silent) saveProgress();
         }
       }
 
@@ -508,7 +452,7 @@
         const tgUser = Telegram?.WebApp?.initDataUnsafe?.user;
         if (tgUser) {
           userId = tgUser.id?.toString();
-          userData.username = tgUser.first_name || "Игрок";
+          userData.username = tgUser.first_name || "Player";
           userData.avatar = tgUser.photo_url || "https://placehold.co/64x64";
           document.getElementById("profileName").textContent = userData.username;
           document.getElementById("profileAvatar").src = userData.avatar;
@@ -516,10 +460,10 @@
         } else {
           initLocalStorage();
           updateDisplay();
+          document.getElementById("profileName").textContent = "Player";
         }
       }
 
-      // Автосохранение каждые 30 секунд
       setInterval(() => {
         if (userData.tokens > 0) {
           saveProgress();
@@ -528,9 +472,6 @@
 
       loadTelegram();
       showTab('home');
-      
-      // Показываем текущий год в профиле
-      document.getElementById('profileJoin').textContent = `С нами с ${new Date().getFullYear()}`;
     });
   </script>
 </body>
