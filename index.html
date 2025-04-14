@@ -62,7 +62,7 @@
       border-radius: 50%;
       border: 4px solid var(--accent);
       background: var(--card-bg);
-      box-shadow: 0 12px 32px rgba(0,0,0,0.15);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
       object-fit: cover;
       cursor: pointer;
     }
@@ -140,6 +140,7 @@
       padding: 0.75rem 0;
       box-shadow: 0 -6px 20px rgba(0,0,0,0.06);
       backdrop-filter: blur(12px);
+      z-index: 100;
     }
     nav button {
       flex: 1;
@@ -162,77 +163,77 @@
     .app-wrapper {
       position: relative;
       z-index: 1;
+      padding-bottom: 60px; /* Ensure content doesn't get hidden under the nav */
     }
   </style>
 </head>
 <body>
   <div class="app-wrapper">
-  <header>SHARK TAPPER</header>
+    <header>SHARK TAPPER</header>
 
-  <div id="tabs">
-
-  <div class="shark-wrapper" style="margin-top: 1rem; display: flex; flex-direction: column; align-items: center; gap: 0.75rem;">
-  <div class="shark-tap-container" style="position: relative;">
-    <div class="token-counter" style="position: absolute; top: -18px; left: 50%; transform: translateX(-50%); z-index: 10;">
-      <img src="https://sinobu1.github.io/shark-tapper/coin_icon_small.png" alt="Coin Icon" style="width: 20px; height: 20px;" />
-      <span id="profileTokens">0</span> coins
-    </div>
-    <img src="https://sinobu1.github.io/shark-tapper/shark.png" alt="Tap Shark" class="shark-image" onclick="handleTap()" id="tapImage" style="width: 160px; height: 160px; border-radius: 50%; border: 4px solid var(--accent); background: var(--card-bg); box-shadow: 0 12px 32px rgba(0,0,0,0.15); object-fit: cover; cursor: pointer; display: block; margin: 0 auto;" />
-  </div>
-    <div class="shark-gallery">
-      <img src="https://sinobu1.github.io/shark-tapper/shark.png" alt="Shark 1" onclick="setSkin('default')" />
-      <img src="https://sinobu1.github.io/shark-tapper/shark_skin1.png" alt="Gold Shark" onclick="setSkin('skin3')" />
-      <img src="https://sinobu1.github.io/shark-tapper/shark_skin2.png" alt="Leopard Shark" onclick="setSkin('skin2')" />
-    </div>
-  </div>
-  <div class="profile-card" style="max-width: 90%; width: 100%;">
-    <img src="https://placehold.co/64x64" alt="Avatar" id="profileAvatar">
-    <div class="profile-info">
-      <span class="name" id="profileName">Игрок</span>
-      <span class="sub" id="profileLevel">Coins: 0</span>
-      <div class="xp-bar">
-        <div class="xp-fill" id="xpBar"></div>
+    <div id="tabs">
+      <div class="shark-wrapper">
+        <div class="shark-tap-container">
+          <div class="token-counter" id="tokenCounter">
+            <img src="https://sinobu1.github.io/shark-tapper/coin_icon_small.png" alt="Coin Icon" class="coin-icon" />
+            <span id="profileTokens">0</span> coins
+          </div>
+          <img src="https://sinobu1.github.io/shark-tapper/shark.png" alt="Tap Shark" class="shark-image" id="tapImage" onclick="handleTap()" />
+        </div>
+        <div class="shark-gallery">
+          <img src="https://sinobu1.github.io/shark-tapper/shark.png" alt="Shark 1" onclick="setSkin('default')" />
+          <img src="https://sinobu1.github.io/shark-tapper/shark_skin1.png" alt="Gold Shark" onclick="setSkin('skin3')" />
+          <img src="https://sinobu1.github.io/shark-tapper/shark_skin2.png" alt="Leopard Shark" onclick="setSkin('skin2')" />
+        </div>
       </div>
-      <span class="sub" id="profileJoin">С нами с 2025</span>
+
+      <div class="profile-card">
+        <img src="https://placehold.co/64x64" alt="Avatar" id="profileAvatar">
+        <div class="profile-info">
+          <span class="name" id="profileName">Игрок</span>
+          <span class="sub" id="profileLevel">Coins: 0</span>
+          <div class="xp-bar">
+            <div class="xp-fill" id="xpBar"></div>
+          </div>
+          <span class="sub" id="profileJoin">С нами с 2025</span>
+        </div>
+      </div>
+
+      <div id="leaderboard" style="display: none;">
+        <h2 style="text-align:center;">Топ игроков</h2>
+        <ul id="leaderboardList" style="list-style: none; padding: 0; margin: 0;">
+          <li style="text-align:center; color: var(--subtext);">Загрузка...</li>
+        </ul>
+      </div>
     </div>
-  </div>
-</div>
+
+    <nav>
+      <button class="active" onclick="showTab('home')">
+        <i class="fa-solid fa-gamepad"></i><span>Game</span>
+      </button>
+      <button onclick="showTab('quests')">
+        <i class="fa-solid fa-list-check"></i><span>Задания</span>
+      </button>
+      <button onclick="showTab('shop')">
+        <i class="fa-solid fa-store"></i><span>Магазин</span>
+      </button>
+      <button onclick="showTab('leaderboard')">
+        <i class="fa-solid fa-ranking-star"></i><span>Топ</span>
+      </button>
+    </nav>
+
+    <div id="quests" style="display:none; padding: 1rem; text-align: center;">
+      <h2>📝 Задания</h2>
+      <p style="color: var(--subtext);">Скоро появятся увлекательные задания!</p>
     </div>
-  
 
+    <div id="shop" style="display:none;">
+      <h2>🛍 Магазин</h2>
+      <p style="text-align:center; color: var(--subtext);">Скоро доступно</p>
+    </div>
 
-<nav>
-  <button class="active" onclick="showTab('home')">
-    <i class="fa-solid fa-gamepad"></i><span>Game</span>
-  </button>
-  <button onclick="showTab('quests')">
-    <i class="fa-solid fa-list-check"></i><span>Задания</span>
-  </button>
-  <button onclick="showTab('shop')">
-    <i class="fa-solid fa-store"></i><span>Магазин</span>
-  </button>
-  <button onclick="showTab('leaderboard')">
-    <i class="fa-solid fa-ranking-star"></i><span>Топ</span>
-  </button>
-</nav>
-<div id="quests" style="display:none; padding: 1rem; text-align: center;">
-  <h2>📝 Задания</h2>
-  <p style="color: var(--subtext);">Скоро появятся увлекательные задания!</p>
-</div>
-
-  <div id="shop" style="display:none;">
-    <h2>🛍 Магазин</h2>
-    <p style="text-align:center; color: var(--subtext);">Скоро доступно</p>
   </div>
 
-
- <!-- close #tabs -->
-    <ul id="leaderboardList" style="list-style: none; padding: 0; margin: 0;">
-      <li style="text-align:center; color: var(--subtext);">Загрузка...</li>
-    </ul>
-  
-
-  <!-- Move script to end of body to ensure showTab is defined -->
   <script>
     document.addEventListener("DOMContentLoaded", function() {
       const dbUrl = "https://tralalero-fec07-default-rtdb.firebaseio.com";
@@ -274,6 +275,9 @@
           const el = document.getElementById(id);
           if (el) el.style.display = (id === tabId) ? 'block' : 'none';
         });
+        if (tabId === 'leaderboard') {
+          loadLeaderboard();
+        }
       }
 
       function saveProgress() {
@@ -286,45 +290,7 @@
             first_name: userData.username,
             photo_url: userData.avatar
           })
-        });
-      }
-
-      function loadProgress() {
-        if (!userId) return;
-        fetch(`${dbUrl}/users/${userId}.json`)
-          .then(res => res.json())
-          .then(data => {
-            if (data) {
-              userData.tokens = data.balance || 0;
-              userData.username = data.first_name || userData.username;
-              userData.avatar = data.photo_url || userData.avatar;
-            }
-            updateProfile();
-          });
-      }
-
-      function updateProfile() {
-        document.getElementById("profileName").textContent = userData.username;
-        document.getElementById("profileAvatar").src = userData.avatar;
-        document.getElementById("profileTokens").textContent = userData.tokens;
-        updateXPDisplay();
-      }
-
-      function loadUserData() {
-        loadProgress();
-        updateProfile();
-      }
-
-      function loadTelegram() {
-        if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
-          Telegram.WebApp.ready();
-          Telegram.WebApp.expand();
-          const user = Telegram.WebApp.initDataUnsafe?.user || {};
-          userId = user?.id?.toString();
-          userData.username = user?.first_name || user?.username || 'Игрок';
-          userData.avatar = user?.photo_url || (user?.username ? `https://t.me/i/userpic/320/${user.username}.jpg` : 'https://via.placeholder.com/72');
-          if (userId) loadProgress();
-        }
+        }).catch(error => console.error('Error saving progress:', error));
       }
 
       function loadLeaderboard() {
@@ -343,35 +309,12 @@
                 <span>${user.first_name || 'Аноним'}</span>
                 <span style="margin-left:auto; color: var(--subtext);">${user.balance || 0} 💰</span>
               </li>`).join("");
-          });
-      }
-
-      window.buySkin = function(skinId, price) {
-        if (!userId) return;
-        if (userData.tokens >= price || price === 0) {
-          userData.tokens -= price;
-          userData.selectedSkin = skinId;
-          setSkin(skinId);
-          document.getElementById("profileTokens").textContent = userData.tokens;
-          saveProgress();
-        } else {
-          alert("Недостаточно монет!");
-        }
-      }
-
-      window.setSkin = function(skinId) {
-        const tapImage = document.getElementById("tapImage");
-        if (!tapImage) return;
-        if (skinId === 'skin2') tapImage.src = 'shark_skin2.png';
-        else if (skinId === 'skin3') tapImage.src = 'shark_skin1.png';
-        else tapImage.src = 'shark.png';
-        userData.selectedSkin = skinId;
+          })
+          .catch(error => console.error('Error loading leaderboard:', error));
       }
 
       loadTelegram();
       showTab('home');
-      loadUserData();
-      loadLeaderboard();
     });
   </script>
 </body>
