@@ -247,6 +247,87 @@
   </div>
 
   <script>
+     document.addEventListener("DOMContentLoaded", function() {
+    // Инициализация Telegram
+    try {
+      Telegram.WebApp.ready();
+      const tgUser = Telegram.WebApp.initDataUnsafe?.user;
+      if (tgUser) {
+        userId = tgUser.id;
+        userData.username = tgUser.first_name || "Player";
+        userData.avatar = tgUser.photo_url || "https://placehold.co/64x64";
+        document.getElementById("profileName").textContent = userData.username;
+        document.getElementById("profileAvatar").src = userData.avatar;
+      }
+    } catch (e) {
+      console.log('Telegram context not available');
+    }
+
+    initGame();
+    loadFromFirebase(); // Добавляем загрузку из Firebase
+  });
+
+  // Добавляем функции для работы с Firebase
+  async function loadFromFirebase() {
+    if (!userId) return;
+    
+    try {
+      const response = await fetch(`${dbUrl}/users/${userId}.json`);
+      const data = await response.json();
+      
+      if (data) {
+        userData.tokens = data.balance || 0;
+        userData.skin = data.skin || 'default';
+        userData.taps = data.taps || 0;
+        userData.achievements = data.achievements || [];
+        userData.autoclickers = data.autoclickers || 0;
+        userData.dailyQuests = data.dailyQuests || {
+          taps: { current: 0, target: 100, completed: false },
+          coins: { current: 0, target: 500, completed: false }
+        };
+        userData.lastDailyBonus = data.lastDailyBonus || null;
+        
+        updateDisplay();
+        setSkin(userData.skin, true);
+        updateAutoclicker();
+        updateAchievementBadge();
+        saveToLocalStorage();
+      }
+    } catch(err) {
+      console.error('Firebase load error:', err);
+    }
+  }
+
+  async function saveToFirebase() {
+    if (!userId) return;
+    
+    try {
+      await fetch(`${dbUrl}/users/${userId}.json`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          balance: userData.tokens,
+          first_name: userData.username,
+          photo_url: userData.avatar,
+          skin: userData.skin,
+          taps: userData.taps,
+          achievements: userData.achievements,
+          autoclickers: userData.autoclickers,
+          dailyQuests: userData.dailyQuests,
+          lastDailyBonus: userData.lastDailyBonus,
+          last_update: Date.now()
+        })
+      });
+    } catch(err) {
+      console.error('Firebase save error:', err);
+    }
+  }
+
+  // Обновляем функцию saveToLocalStorage
+  function saveToLocalStorage() {
+    localStorage.setItem('sharkTapperData', JSON.stringify(userData));
+    saveToFirebase(); // Добавляем сохранение в Firebase
+  }
     // Общие данные
     const dbUrl = "https://tralalero-fec07-default-rtdb.firebaseio.com";
     let userId = null;
