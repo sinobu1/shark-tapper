@@ -241,7 +241,7 @@
   </div>
 </div>
 
-    <div id="leaderboard" style="margin: 2rem 1rem; background: var(--card-bg); border-radius: 1.5rem; padding: 1rem; box-shadow: 0 6px 16px rgba(0,0,0,0.08);">
+    <div id="leaderboard" style="display:none;" style="margin: 2rem 1rem; background: var(--card-bg); border-radius: 1.5rem; padding: 1rem; box-shadow: 0 6px 16px rgba(0,0,0,0.08);">
       <h2 style="font-size: 1.2rem; margin-bottom: 1rem; color: var(--primary);">🏆 Лидерборд</h2>
       <ul id="leaderboardList" style="list-style: none; padding: 0; margin: 0;">
         <li style="text-align:center; color: var(--subtext);">Загрузка...</li>
@@ -250,26 +250,14 @@
 
     <script>
       function handleTap() {
-        const counter = document.getElementById("profileTokens");
-        let current = parseInt(counter.textContent);
-        userData.tokens = current + 1;
-        counter.textContent = userData.tokens;
-        saveProgress();
-        addXP(10);
+  const counter = document.getElementById("profileTokens");
+  userData.tokens++;
+  counter.textContent = userData.tokens;
+  updateXPDisplay();
+  saveProgress();
       }
 
-      let xp = 0;
-      let level = 1;
-      let xpToNext = 100;
-
-      function addXP(amount) {
-        xp += amount;
-        if (xp >= xpToNext) {
-          xp -= xpToNext;
-          level++;
-          xpToNext = Math.floor(xpToNext * 1.5);
-        }
-        updateXPDisplay();
+              updateXPDisplay();
 loadTelegram();
         saveProgress();
       }
@@ -300,7 +288,7 @@ loadTelegram();
     if (el) el.style.display = (id === tabId) ? 'block' : 'none';
   });
 }
-showTab('profile');
+showTab('game');
 });
 
 // Telegram WebApp + Firebase
@@ -408,4 +396,3 @@ function buySkin(skinId, price) {
   </div>
 </body>
 </html>
-
