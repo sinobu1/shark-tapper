@@ -253,7 +253,7 @@ body {
 </div>
 <div class="balance" id="tokenCount">0 tokens</div>
 <div class="game-container" id="gameContainer">
-<img alt="Shark" class="tap-image" id="tapImage" onclick="handleTap()" src="shark.png"/>
+<img alt="Shark" class="tap-image" id="tapImage" onclick="handleTap(event)" src="shark.png"/>
 </div>
 <div class="game-container" id="boosterContainer">
 <h2>Boosters</h2>
@@ -600,6 +600,13 @@ function createTapEffect(x, y) {
   const el = document.createElement("div");
   el.className = "tap-effect";
   el.textContent = "+1";
+  const skin = localStorage.getItem("currentSkin") || "default";
+  let color = "#4facfe";
+  if (skin === "gold") color = "#ffd700";
+  else if (skin === "red") color = "#ff4d4d";
+  else if (skin === "green") color = "#00e676";
+  else if (skin === "purple") color = "#bb86fc";
+  el.style.color = color;
   el.style.left = `${x - 10}px`;
   el.style.top = `${y - 20}px`;
   document.getElementById("tapOverlay").appendChild(el);
