@@ -1,444 +1,285 @@
 <!DOCTYPE html>
-
-<html lang="ru">
+<html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
-<title>Shark Tapper Fusion Final</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shark Tapper</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #2f80ed;
+      --accent: #56ccf2;
+      --bg: #f2f5f9;
+      --card-bg: #ffffff;
+      --text: #0d1b2a;
+      --subtext: #6c7787;
+      --border: #e0e6ed;
+    }
 
-<style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body {
-  overflow: hidden;
-  height: 100vh;
-}
-body {
-      font-family: 'SF Pro Display', sans-serif;
-      background: linear-gradient(160deg, #e3f2fd, #e0f7fa);
-      min-height: 100vh;
+    body {
+      margin: 0;
+      font-family: 'Luckiest Guy', cursive;
+      background: linear-gradient(180deg, #dbeafe 0%, #f0f4f8 100%);
+      background-size: cover;
+      color: var(--text);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    header {
+      background: none;
+      color: var(--primary);
+      padding: 1.5rem 1rem 1rem;
+      text-align: center;
+      font-size: 2.5rem;
+      font-family: 'Luckiest Guy', cursive;
+      text-shadow: -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff, 2px 2px 0 #fff;
+    }
+
+    .token-counter {
+      margin-top: 8px;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--primary);
+      background: var(--card-bg);
+      padding: 0.5rem 1rem;
+      border-radius: 999px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .shark-wrapper {
+      position: relative;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: flex-start;
-      padding: 10px;
+      z-index: 2;
     }
-    .tab-panel {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: rgba(255,255,255,0.9);
-  padding: 6px 8px;
-  box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
-  z-index: 1000;
+
+    .shark-image {
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      border: 4px solid var(--accent);
+      background: var(--card-bg);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.15);
+      object-fit: cover;
+      cursor: pointer;
+    }
+
+    .shark-gallery {
+      margin: 1rem auto;
+      padding: 0 1rem;
       display: flex;
       justify-content: center;
-      flex-wrap: nowrap;
-      margin: 10px auto;
-      width: 100%;
-      max-width: 500px;
-      gap: 4px;
+      overflow-x: auto;
+      gap: 0.75rem;
+      scroll-snap-type: x mandatory;
     }
-    .tab-button {
-  background: linear-gradient(145deg, #00bfa5, #00c8a8);
-  border-radius: 12px;
-  margin: 0 4px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 
-      flex: 1;
-      padding: 8px 0;
-      font-size: 14px;
-      border-radius: 0;
-      border: none;
-      background: #00bfa5;
-      color: white;
+    .shark-gallery img {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      border: 2px solid var(--primary);
+      background: white;
+      object-fit: cover;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      flex-shrink: 0;
+    }
+
+    .profile-card {
+      background: var(--card-bg);
+      border-radius: 2rem;
+      padding: 1.25rem;
+      margin: 1.5rem 1rem;
+      border: 1px solid var(--border);
+      box-shadow: 0 12px 24px rgba(0,0,0,0.06);
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .profile-card img {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--accent);
+    }
+
+    .profile-info {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+    }
+
+    .profile-info .name {
       font-weight: 600;
-      transition: background 0.2s;
+      font-size: 1.2rem;
     }
-    .tab-button:hover {
-      background: #009e85;
+
+    .profile-info .sub {
+      font-size: 0.9rem;
+      color: var(--subtext);
     }
-    .tab-button:active {
-      transform: scale(0.98);
+
+    .xp-bar {
+      width: 100%;
+      height: 8px;
+      background: var(--border);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 0.25rem;
     }
-    .game-container {
-      display: none;
+
+    .xp-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(to right, var(--primary), var(--accent));
+      transition: width 0.3s ease;
+    }
+
+    nav {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      display: flex;
+      background: var(--card-bg);
+      border-top: 1px solid var(--border);
+      padding: 0.75rem 0;
+      box-shadow: 0 -6px 20px rgba(0,0,0,0.06);
+      backdrop-filter: blur(12px);
+    }
+
+    nav button {
+      flex: 1;
+      background: none;
+      border: none;
+      font-size: 0.8rem;
+      color: var(--subtext);
+      display: flex;
       flex-direction: column;
       align-items: center;
-      width: 100%;
-      margin-top: 20px;
+      gap: 0.25rem;
     }
-    .tap-image {
-      width: 45vw;
-      max-width: 300px;
-      border-radius: 16px;
-      cursor: pointer;
-      transition: transform 0.1s;
+
+    nav button i {
+      font-size: 1.3rem;
     }
-    .tap-animation {
-      animation: tapPulse 0.2s ease;
+
+    nav button.active {
+      color: var(--primary);
+      font-weight: 700;
     }
-    @keyframes tapPulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(0.9); }
-      100% { transform: scale(1); }
+
+    .app-wrapper {
+      position: relative;
+      z-index: 1;
     }
-  
-html, body {
-  overflow: hidden;
-  height: 100vh;
-}
-body {
-  transition: background-color 0.4s ease, color 0.4s ease;
-}
-.light-theme {
-  background: linear-gradient(160deg, #e3f2fd, #e0f7fa);
-  color: #000;
-}
-.dark-theme {
-  background: linear-gradient(160deg, #121212, #1e1e1e);
-  color: #fff;
-}
-.tab-button {
-  background: linear-gradient(145deg, #00bfa5, #00c8a8);
-  border-radius: 12px;
-  margin: 0 4px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-
-  transition: background 0.3s ease;
-}
-.dark-theme .tab-button {
-  background: linear-gradient(145deg, #00bfa5, #00c8a8);
-  border-radius: 12px;
-  margin: 0 4px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-
-  background: #333;
-  color: #fff;
-}
-.light-theme .tab-button {
-  background: linear-gradient(145deg, #00bfa5, #00c8a8);
-  border-radius: 12px;
-  margin: 0 4px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-
-  background: #00bfa5;
-  color: white;
-}
-
-
-
-/* Telegram-style clean UI */
-body {
-  background-color: #0d0d0d;
-  color: #eee;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
-
-.button, button {
-  background: linear-gradient(135deg, #7b2ff7, #4facfe);
-  border-radius: 14px;
-  border: none;
-  padding: 10px 16px;
-  color: white;
-  font-weight: bold;
-  font-size: 16px;
-  transition: all 0.3s ease;
-}
-.button:active, button:active {
-  transform: scale(0.97);
-  opacity: 0.9;
-}
-
-.header {
-  position: fixed;
-  top: 0;
-  left: 0; right: 0;
-  background: rgba(20, 20, 20, 0.85);
-  backdrop-filter: blur(10px);
-  padding: 10px 16px;
-  z-index: 999;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.footer {
-  position: fixed;
-  bottom: 0;
-  left: 0; right: 0;
-  display: flex;
-  justify-content: space-around;
-  padding: 10px 0;
-  background: rgba(20, 20, 20, 0.85);
-  backdrop-filter: blur(10px);
-  border-top: 1px solid #333;
-  z-index: 999;
-}
-
-#themeToggle {
-  font-size: 22px;
-  background: none;
-  border: none;
-  color: white;
-  cursor: pointer;
-}
-
-
-
-/* Floating tap effect */
-.tap-effect {
-  position: absolute;
-  font-size: 32px;
-  font-weight: bold;
-  color: red;
-  background: yellow;
-  padding: 4px 8px;
-  border-radius: 6px;
-  border: 2px solid red;
-  z-index: 99999;
-
-  position: absolute;
-  color: #4facfe;
-  font-size: 22px;
-  font-weight: bold;
-  animation: floatUp 0.6s ease-out forwards;
-  pointer-events: none;
-  user-select: none;
-}
-
-
-.fixed-plus {
-  position: fixed;
-  top: 40%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: black;
-  color: red;
-  font-size: 36px;
-  font-weight: bold;
-  padding: 10px 20px;
-  border: 3px solid red;
-  border-radius: 12px;
-  z-index: 10000;
-}
-
-
-.tap-effect {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 28px;
-  font-weight: bold;
-  color: #4facfe;
-  z-index: 10000;
-  animation: floatUp 0.6s ease-out forwards;
-  pointer-events: none;
-}
-
-@keyframes floatUp {
-  0% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-  100% { transform: translate(-50%, -100%) scale(1.2); opacity: 0; }
-}
-</style>
+  </style>
 </head>
-<body><div id="tapOverlay" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:9999;"></div>
-<div style="position: absolute; top: 10px; right: 12px; z-index: 1001;">
-<button id="themeToggle" onclick="toggleTheme()" style="font-size: 22px; background: none; border: none; cursor: pointer;">🌗</button>
-</div>
-<div class="tab-panel">
-<button class="tab-button" onclick="toggleTab('gameContainer')">🦈 Игра</button>
-<button class="tab-button" onclick="toggleTab('boosterContainer')">⚡ Бустеры</button>
-<button class="tab-button" onclick="toggleTab('shopContainer')">🛒 Магазин</button>
-<button class="tab-button" onclick="toggleTab('profileContainer')">👤 Профиль</button>
-<button class="tab-button" onclick="openLeaderboard()">🏆 Топ</button>
-</div>
-<div class="balance" id="tokenCount">0 tokens</div>
-<div class="game-container" id="gameContainer">
-<img alt="Shark" class="tap-image" id="tapImage" onclick="handleTap(event)" src="shark.png"/>
-</div>
-<div class="game-container" id="boosterContainer">
-<h2>Boosters</h2>
-<button onclick="buyBooster(50, 1)">Auto-Tap +1 (50)</button>
-<button onclick="buyBooster(100, 2)">Auto-Tap +2 (100)</button>
-<button onclick="buyBooster(1000, 3)">Auto-Tap +3 (1000)</button>
-</div>
-<div class="game-container" id="shopContainer">
-<h2>Skins</h2>
-<button onclick="buySkin('default', 0)">Default (Free)</button>
-<button onclick="buySkin('gold', 1000)">Gold (1000)</button>
-<button onclick="buySkin('leopard', 500)">Leopard (500)</button>
-</div>
-<div class="game-container" id="profileContainer">
-<h2>Профиль</h2>
-<img alt="avatar" id="profileAvatar" src="" style="width:72px;height:72px;border-radius:50%;margin:10px 0;"/>
-<h3 id="profileName">Игрок</h3>
-<p id="profileTokens">Токенов: 0</p>
-<p id="profileLevel">Уровень: 1</p>
-<p id="profileJoin">Дата регистрации: —</p>
-</div>
-<div id="leaderboard-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,0.95);z-index:1000;flex-direction:column;align-items:center;justify-content:center;">
-<h2>🏆 Топ игроков</h2>
-<ul id="leaderboardList"></ul>
-<button onclick="document.getElementById('leaderboard-modal').style.display='none'">Закрыть</button>
-</div>
+<body>
+  <div class="app-wrapper">
+    <header>SHARK TAPPER</header>
 
-<script>
-const dbUrl = "https://tralalero-fec07-default-rtdb.firebaseio.com";
-let userId = null, balance = 0, autoTap = 0, level = 1, currentSkin = 'default';
-let userFirstName = '', userAvatar = '', joinDate = '', ownedSkins = { default: true };
+    <div class="shark-wrapper">
+      <img src="shark.png" alt="Tap Shark" class="shark-image" onclick="handleTap()" id="tapImage" />
+      <div class="token-counter">
+        <img src="coin_icon_small.png" alt="Coin Icon" />
+        <span id="profileTokens">0</span> монеток
+      </div>
+    </div>
 
-function updateBalanceDisplay() {
-  document.getElementById("tokenCount").textContent = `${balance} tokens`;
-  document.getElementById("profileTokens").textContent = `Токенов: ${balance}`;
-}
+    <div class="shark-gallery">
+      <img src="shark.png" alt="Shark 1" />
+      <img src="shark_skin1.png" alt="Shark 2" />
+      <img src="shark_skin2.png" alt="Shark 3" />
+      <img src="shark_skin2.png" alt="Shark 4" />
+      <img src="shark_skin2.png" alt="Shark 5" />
+    </div>
 
-function updateProfileInfo() {
-  document.getElementById("profileName").textContent = userFirstName;
-  document.getElementById("profileAvatar").src = userAvatar;
-  document.getElementById("profileJoin").textContent = `Дата регистрации: ${joinDate}`;
-  document.getElementById("profileLevel").textContent = `Уровень: ${level}`;
-}
+    <div class="profile-card">
+      <img src="https://placehold.co/64x64" alt="Avatar" id="profileAvatar">
+      <div class="profile-info">
+        <span class="name" id="profileName">Имя игрока</span>
+        <span class="sub" id="profileLevel">Ур. 1</span>
+        <div class="xp-bar">
+          <div class="xp-fill" id="xpBar"></div>
+        </div>
+        <span class="sub" id="profileJoin">С нами с 2025</span>
+      </div>
+    </div>
 
-function toggleTab(id) {
-  ['gameContainer','boosterContainer','shopContainer','profileContainer'].forEach(el => {
-    const e = document.getElementById(el);
-    if (e) e.style.display = 'none';
+    <nav>
+      <button class="active"><i class="fa-solid fa-user"></i><span>Профиль</span></button>
+      <button><i class="fa-solid fa-gamepad"></i><span>Игра</span></button>
+      <button><i class="fa-solid fa-store"></i><span>Магазин</span></button>
+      <button><i class="fa-solid fa-list-check"></i><span>Задания</span></button>
+    </nav>
+
+    <script>
+      function handleTap() {
+        const counter = document.getElementById("profileTokens");
+        let current = parseInt(counter.textContent);
+        counter.textContent = current + 1;
+        addXP(10);
+      }
+
+      let xp = 0;
+      let level = 1;
+      let xpToNext = 100;
+
+      function addXP(amount) {
+        xp += amount;
+        if (xp >= xpToNext) {
+          xp -= xpToNext;
+          level++;
+          xpToNext = Math.floor(xpToNext * 1.5);
+        }
+        updateXPDisplay();
+      }
+
+      function updateXPDisplay() {
+        const levelEl = document.getElementById("profileLevel");
+        if (levelEl) levelEl.textContent = `Ур. ${level}`;
+        const bar = document.getElementById("xpBar");
+        if (bar) bar.style.width = `${(xp / xpToNext) * 100}%`;
+      }
+
+      updateXPDisplay();
+    document.querySelectorAll('nav button').forEach(button => {
+  button.addEventListener('click', () => {
+    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+    button.classList.add('active');
   });
-  const show = document.getElementById(id);
-  if (show) show.style.display = 'flex';
-}
-
-function handleTap() {
-  balance++;
-  updateBalanceDisplay();
-  const img = document.getElementById("tapImage");
-  if (img) {
-    img.classList.add("tap-animation");
-    setTimeout(() => img.classList.remove("tap-animation"), 200);
-  }
-  triggerVibration(30);
-  saveProgress();
-}
-
-function triggerVibration(ms = 30) {
-  try {
-    if (Telegram?.WebApp?.HapticFeedback) Telegram.WebApp.HapticFeedback.impactOccurred("light");
-    if (navigator.vibrate) navigator.vibrate(ms);
-  } catch(e) { console.warn(e); }
-}
-
-function buyBooster(cost, power) {
-  if (balance >= cost) {
-    balance -= cost;
-    autoTap += power;
-    updateBalanceDisplay();
-    saveProgress();
-  }
-}
-
-function buySkin(skin, cost) {
-  if (ownedSkins[skin] || balance >= cost) {
-    if (!ownedSkins[skin]) {
-      balance -= cost;
-      ownedSkins[skin] = true;
-    }
-    currentSkin = skin;
-    updateSkin(skin);
-    updateBalanceDisplay();
-    saveProgress();
-  }
-}
-
-function updateSkin(skin) {
-  const img = document.getElementById("tapImage");
-  if (!img) return;
-  img.src = skin === "gold" ? "shark_skin1.png" : skin === "leopard" ? "shark_skin2.png" : "shark.png";
-}
-
-function openLeaderboard() {
-  const modal = document.getElementById("leaderboard-modal");
-  if (modal) modal.style.display = "flex";
-  fetch(`${dbUrl}/users.json`)
-    .then(r => r.json())
-    .then(data => {
-      const list = document.getElementById("leaderboardList");
-      if (!list) return;
-      list.innerHTML = "";
-      const users = Object.entries(data || {}).map(([id, u]) => ({ id, ...u }))
-        .sort((a, b) => b.balance - a.balance).slice(0, 10);
-      users.forEach(user => {
-        const name = user.first_name || "User";
-        const photo = user.photo_url || "https://t.me/i/userpic/320/" + (user.username || "unknown") + ".jpg";
-        const li = document.createElement("li");
-        li.innerHTML = `<img src="${photo}" style="width:24px;height:24px;border-radius:50%;margin-right:6px;" /><strong>${name}</strong>: ${user.balance}`;
-        list.appendChild(li);
-      });
-    });
-}
-
-function saveProgress() {
-  if (!userId) return;
-  fetch(`${dbUrl}/users/${userId}.json`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ balance, currentSkin, first_name: userFirstName, photo_url: userAvatar, joinDate })
-  });
-}
-
-function loadProgress() {
-  fetch(`${dbUrl}/users/${userId}.json`)
-    .then(res => res.json())
-    .then(data => {
-      if (!data) return;
-      balance = data.balance || 0;
-      currentSkin = data.currentSkin || 'default';
-      userFirstName = data.first_name || 'Игрок';
-      userAvatar = data.photo_url || '';
-      joinDate = data.joinDate || new Date().toISOString().split('T')[0];
-      updateBalanceDisplay();
-      updateSkin(currentSkin);
-      updateProfileInfo();
-    });
-}
-
-function toggleTheme() {
-  const body = document.body;
-  const isDark = body.classList.contains("dark-theme");
-  body.classList.toggle("dark-theme", !isDark);
-  body.classList.toggle("light-theme", isDark);
-  localStorage.setItem("theme", isDark ? "light" : "dark");
-  const btn = document.getElementById("themeToggle");
-  if (btn) btn.textContent = isDark ? "🌗" : "🌞";
-}
-
-window.addEventListener("DOMContentLoaded", () => {
-  const stored = localStorage.getItem("theme") || "light";
-  document.body.classList.add(stored + "-theme");
-  const btn = document.getElementById("themeToggle");
-  if (btn) btn.textContent = stored === "dark" ? "🌗" : "🌞";
-  toggleTab("gameContainer");
-  updateBalanceDisplay();
-
-  if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
-    Telegram.WebApp.ready();
-    Telegram.WebApp.expand();
-    const user = Telegram.WebApp.initDataUnsafe?.user || {};
-    userId = user?.id?.toString();
-    userFirstName = user?.first_name || user?.username || "Игрок";
-    userAvatar = user?.photo_url || (user?.username ? `https://t.me/i/userpic/320/${user.username}.jpg` : "https://via.placeholder.com/72");
-    joinDate = new Date().toISOString().split("T")[0];
-    updateProfileInfo();
-    loadProgress();
-  }
-
-  setInterval(() => {
-    if (autoTap > 0) {
-      balance += autoTap;
-      updateBalanceDisplay();
-      saveProgress();
-    }
-  }, 1000);
 });
-</script></body>
+
+// Заглушки для будущего функционала
+const userData = {
+  id: "123456",
+  username: "Игрок",
+  avatar: "https://placehold.co/64x64",
+  tokens: 0,
+  level: 1,
+  xp: 0,
+  xpToNext: 100
+};
+
+function loadUserData() {
+  document.getElementById("profileName").textContent = userData.username;
+  document.getElementById("profileAvatar").src = userData.avatar;
+  document.getElementById("profileTokens").textContent = userData.tokens;
+  updateXPDisplay();
+}
+
+loadUserData();
+</script>
+  </div>
+</body>
 </html>
