@@ -165,6 +165,18 @@ body {
   color: white;
 }
 
+
+
+/* Fade transition for tab panels */
+.tab-panel {
+  display: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.tab-panel.active {
+  display: flex !important;
+  opacity: 1;
+}
 </style>
 </head>
 <body>
@@ -407,7 +419,24 @@ function updateSkin(skin) {
   else tapImage.src = 'shark.png';
 }
 
+
 function toggleTab(id) {
+  const all = ['gameContainer','shopContainer','boosterContainer','profileContainer'];
+  all.forEach(el => {
+    const e = document.getElementById(el);
+    if (e) {
+      e.classList.remove('active');
+      e.style.display = 'none';
+    }
+  });
+  const active = document.getElementById(id);
+  if (active) {
+    active.classList.add('active');
+    active.style.display = 'flex';
+  }
+  localStorage.setItem('activeTab', id);
+}
+
   ['gameContainer', 'shopContainer', 'boosterContainer', 'profileContainer'].forEach(el => {
     const e = document.getElementById(el);
     if (e) e.style.display = 'none';
@@ -506,7 +535,10 @@ window.addEventListener("DOMContentLoaded", () => {
   const themeBtn = document.getElementById("themeToggle");
   if (themeBtn) themeBtn.textContent = theme === "dark" ? "🌗" : "🌞";
 
-  toggleTab('gameContainer');
+  
+const savedTab = localStorage.getItem('activeTab') || 'gameContainer';
+toggleTab(savedTab);
+
   updateBalanceDisplay();
 
   if (typeof Telegram !== "undefined" && Telegram.WebApp) {
