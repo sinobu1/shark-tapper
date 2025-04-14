@@ -202,7 +202,7 @@ body {
 <p id="profileLevel">Уровень: 1</p>
 <p id="profileJoin">Дата регистрации: —</p>
 </div>
-<div id="leaderboard-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,0.95);z-index:1000;flex-direction:column;align-items:center;justify-content:center;">
+<div id="leaderboard-modal" style="display: none;">
 <h2>🏆 Топ игроков</h2>
 <ul id="leaderboardList"></ul>
 <button onclick="document.getElementById('leaderboard-modal').style.display='none'">Закрыть</button>
@@ -412,6 +412,8 @@ function toggleTab(id) {
     const e = document.getElementById(el);
     if (e) e.style.display = 'none';
   });
+  const lb = document.getElementById("leaderboard-modal");
+  if (lb) lb.style.display = "none";
   const active = document.getElementById(id);
   if (active) active.style.display = 'flex';
 }
@@ -487,6 +489,89 @@ function openLeaderboard() {
     .then(data => {
       const list = document.getElementById("leaderboardList");
       if (!list) return;
+      if (!data) {
+        console.warn("⚠ No leaderboard data found");
+        return;
+      }
+      list.innerHTML = "";
+      const users = Object.entries(data).map(([id, u]) => ({ id, ...u }))
+        .sort((a, b) => b.balance - a.balance).slice(0, 10);
+      users.forEach(user => {
+        const name = user.first_name?.trim() || user.username || "User";
+        let photo = user.photo_url;
+        if (!photo && user.username) {
+          photo = `https://t.me/i/userpic/320/${user.username}.jpg`;
+        }
+        if (!photo) {
+          photo = "https://upload.wikimedia.org/wikipedia/commons/thumb/8/89/Portrait_Placeholder.png/240px-Portrait_Placeholder.png";
+        }
+        const li = document.createElement('li');
+        li.innerHTML = `<img src="${photo}" style="width:24px;height:24px;border-radius:50%;margin-right:6px;" /><strong>${name}</strong>: ${user.balance}`;
+        list.appendChild(li);
+      });
+    })
+    .catch(err => {
+      console.warn("⚠ Failed to load leaderboard", err);
+    });
+} {
+  const modal = document.getElementById("leaderboard-modal");
+  if (modal) modal.style.display = "flex";
+  fetch(`${dbUrl}/users.json`)
+    .then(r => r.json())
+    .then(data => {
+      const list = document.getElementById("leaderboardList");
+      if (!list) return;
+      list.innerHTML = "";
+      const users = Object.entries(data || {}).map(([id, u]) => ({ id, ...u }))
+        .sort((a, b) => b.balance - a.balance).slice(0, 10);
+      users.forEach(user => {
+        const name = user.first_name?.trim() || user.username || "User";
+        let photo = user.photo_url;
+        if (!photo && user.username) {
+          photo = `https://t.me/i/userpic/320/${user.username}.jpg`;
+        }
+        if (!photo || photo.includes("question")) {
+          // Используем emoji 👤 как data-URL SVG
+          photo = "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24'><text x='0' y='18'>👤</text></svg>";
+        }
+        const li = document.createElement('li');
+        li.innerHTML = `<img src="${photo}" style="width:24px;height:24px;border-radius:50%;margin-right:6px;" /><strong>${name}</strong>: ${user.balance}`;
+        list.appendChild(li);
+      });
+    });
+} {
+  const modal = document.getElementById("leaderboard-modal");
+  if (modal) modal.style.display = "flex";
+  fetch(`${dbUrl}/users.json`)
+    .then(r => r.json())
+    .then(data => {
+      const list = document.getElementById("leaderboardList");
+      if (!list) return;
+      list.innerHTML = "";
+      const users = Object.entries(data || {}).map(([id, u]) => ({ id, ...u }))
+        .sort((a, b) => b.balance - a.balance).slice(0, 10);
+      users.forEach(user => {
+        const name = user.first_name?.trim() || user.username || "User";
+        let photo = user.photo_url;
+        if (!photo && user.username) {
+          photo = `https://t.me/i/userpic/320/${user.username}.jpg`;
+        }
+        if (!photo || photo.includes("question")) {
+          photo = "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24'><text x='0' y='18'>🧑‍💻</text></svg>";
+        }
+        const li = document.createElement('li');
+        li.innerHTML = `<img src="${photo}" style="width:24px;height:24px;border-radius:50%;margin-right:6px;" /><strong>${name}</strong>: ${user.balance}`;
+        list.appendChild(li);
+      });
+    });
+} {
+  const modal = document.getElementById("leaderboard-modal");
+  if (modal) modal.style.display = "flex";
+  fetch(`${dbUrl}/users.json`)
+    .then(r => r.json())
+    .then(data => {
+      const list = document.getElementById("leaderboardList");
+      if (!list) return;
       list.innerHTML = "";
       const users = Object.entries(data || {}).map(([id, u]) => ({ id, ...u }))
         .sort((a, b) => b.balance - a.balance).slice(0, 10);
@@ -539,12 +624,17 @@ window.addEventListener("DOMContentLoaded", () => {
     Telegram.WebApp.expand();
     const user = Telegram.WebApp.initDataUnsafe?.user || {};
     userId = user.id?.toString();
-    userFirstName = user.first_name || user.username || "Игрок";
+    userFirstName = (user.first_name && user.first_name.trim()) || user.username || "Игрок";
     userAvatar = user.photo_url || (user.username ? `https://t.me/i/userpic/320/${user.username}.jpg` : "https://via.placeholder.com/72");
     joinDate = new Date().toISOString().split("T")[0];
     updateProfileInfo();
     loadProgress();
   }
 });
+
+function closeLeaderboard() {
+  const modal = document.getElementById("leaderboard-modal");
+  if (modal) modal.style.display = "none";
+}
 </script></body>
 </html>
