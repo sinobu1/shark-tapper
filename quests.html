@@ -247,6 +247,48 @@
   </div>
 
   <script>
+     let userData = {};
+
+  document.addEventListener("DOMContentLoaded", function() {
+    // Инициализация Telegram
+    try {
+      const tgUser = Telegram.WebApp.initDataUnsafe?.user;
+      if (tgUser) {
+        userData.userId = tgUser.id;
+      }
+    } catch (e) {
+      console.log('Telegram context not available');
+    }
+
+    loadFromFirebase();
+  });
+
+  async function loadFromFirebase() {
+    if (!userData.userId) {
+      loadFromLocalStorage();
+      return;
+    }
+    
+    try {
+      const response = await fetch(`https://tralalero-fec07-default-rtdb.firebaseio.com/users/${userData.userId}.json`);
+      const data = await response.json();
+      
+      if (data) {
+        userData.tokens = data.balance || 0;
+        userData.taps = data.taps || 0;
+        userData.dailyQuests = data.dailyQuests || {
+          taps: { current: 0, target: 100, completed: false },
+          coins: { current: 0, target: 500, completed: false }
+        };
+        
+        updateQuestsDisplay();
+        saveToLocalStorage();
+      }
+    } catch(err) {
+      console.error('Firebase load error:', err);
+      loadFromLocalStorage();
+    }
+  }
     // Общие данные
     const dbUrl = "https://tralalero-fec07-default-rtdb.firebaseio.com";
     let userId = null;
