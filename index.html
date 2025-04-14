@@ -140,7 +140,7 @@ body {
 <button class="tab-button" onclick="openLeaderboard()">🏆 Топ</button>
 </div>
 <div class="balance" id="tokenCount">0 tokens</div>
-<div class="game-container" id="gameContainer" style="display:flex; flex-direction:column; align-items:center; width:100%; margin-top:20px;">
+<div class="game-container" id="gameContainer">
 <img alt="Shark" class="tap-image" id="tapImage" onclick="handleTap()" src="shark.png"/>
 </div>
 <div class="game-container" id="boosterContainer">
@@ -168,347 +168,568 @@ body {
 <ul id="leaderboardList"></ul>
 <button onclick="document.getElementById('leaderboard-modal').style.display='none'">Закрыть</button>
 </div>
-<script>
-const dbUrl = "https://tralalero-fec07-default-rtdb.firebaseio.com";
-let userId = null;
-let balance = 0, autoTap = 0, level = 1, xp = 0;
-let ownedSkins = { default: true };
-let currentSkin = 'default';
-let userFirstName = '', userAvatar = '', joinDate = '';
 
-const tokenCount = document.getElementById("tokenCount");
-const tapImage = document.getElementById("tapImage");
+<script src="https://telegram.org/js/telegram-web-app.js">
+    function openLeaderboard() {
+      document.getElementById('leaderboard-modal').style.display = 'flex';
+      loadLeaderboard();
+    }
 
-function updateBalanceDisplay() {
-  tokenCount.textContent = `${balance} tokens`;
-  document.getElementById("profileTokens").textContent = `Токенов: ${balance}`;
-}
+    function closeLeaderboard() {
+      document.getElementById('leaderboard-modal').style.display = 'none';
+    }
 
-function updateProfileInfo() {
-  document.getElementById("profileName").textContent = userFirstName;
-  document.getElementById("profileAvatar").src = userAvatar;
-  document.getElementById("profileJoin").textContent = `Дата регистрации: ${joinDate}`;
-  document.getElementById("profileLevel").textContent = `Уровень: ${level}`;
-}
+    
+    function loadLeaderboard() {
+      fetch(`${dbUrl}/users.json`)
+        .then(response => response.json())
+        .then(data => {
+          const users = Object.entries(data || {}).map(([id, info]) => ({
+            id,
+            balance: info.balance || 0,
+            first_name: info.first_name,
+            username: info.username,
+            photo_url: info.photo_url
+          }));
+          users.sort((a, b) => b.balance - a.balance);
+          const leaderboard = document.getElementById('leaderboardList');
+          leaderboard.innerHTML = '';
+          users.slice(0, 10).forEach(user => {
+            const name = user.first_name || `ID ${user.id.slice(-4)}`;
+            const avatar = user.photo_url ? `<img src="${user.photo_url}" style="width:24px;height:24px;border-radius:50%;margin-right:6px;">` : "";
+            const li = document.createElement('li');
+            li.innerHTML = `${avatar}<strong>${name}</strong>: ${user.balance}`;
+            leaderboard.appendChild(li);
+          });
+        });
+    }
 
-function handleTap() {
-  balance++;
-  updateBalanceDisplay();
-  tapImage.classList.add("tap-animation");
-  setTimeout(() => tapImage.classList.remove("tap-animation"), 200);
-  if (navigator.vibrate) triggerVibration(30);
-  saveProgress();
-}
 
+</script><script>
+    const dbUrl = 'https://tralalero-fec07-default-rtdb.firebaseio.com';
+    let currentSkin = 'default';
+    let balance = 0;
+    let ownedSkins = { default: true };
+    let autoTap = 0;
+    let ownedBoosters = { 1: false, 2: false, 3: false };
+    let userId = null;
+
+    const tokenCount = document.getElementById('tokenCount');
+    const tapImage = document.getElementById('tapImage');
+    const gameContainer = document.getElementById('gameContainer');
+    const loadingScreen = document.getElementById('loading');
+
+    const skinPaths = {
+      default: 'shark.png?v=1',
+      skin2: 'shark_skin2.png?v=1',
+      skin3: 'shark_skin1.png?v=1'
+    };
+
+    function updateSkin() {
+      tapImage.src = skinPaths[currentSkin] || skinPaths.default;
+    }
+
+    
 function saveProgress() {
   if (!userId) return;
+
+  const user = Telegram.WebApp.initDataUnsafe?.user || {};
+
+  const userData = {
+    balance,
+    currentSkin,
+    ownedSkins,
+    autoTap,
+    ownedBoosters,
+    first_name: user.first_name || "",
+    last_name: user.last_name || "",
+    username: user.username || "",
+    photo_url: user.photo_url || ""
+  };
+
   fetch(`${dbUrl}/users/${userId}.json`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ balance, currentSkin, first_name: userFirstName, photo_url: userAvatar, joinDate })
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(userData)
   });
 }
 
-function loadProgress() {
-  if (!userId) return;
-  fetch(`${dbUrl}/users/${userId}.json`)
-    .then(res => res.json())
-    .then(data => {
-      if (data) {
-        balance = data.balance || 0;
-        currentSkin = data.currentSkin || 'default';
-        userFirstName = data.first_name || 'Игрок';
-        userAvatar = data.photo_url || '';
-        joinDate = data.joinDate || new Date().toISOString().split('T')[0];
-        updateBalanceDisplay();
-        updateSkin(currentSkin);
-        updateProfileInfo();
+
+    function loadProgress() {
+      if (!userId) return;
+      fetch(`${dbUrl}/users/${userId}.json`)
+        .then(res => res.json())
+        .then(data => {
+          if (data) {
+            balance = data.balance || 0;
+            currentSkin = data.currentSkin || 'default';
+            ownedSkins = data.ownedSkins || { default: true };
+            autoTap = data.autoTap || 0;
+            ownedBoosters = data.ownedBoosters || { 1: false, 2: false, 3: false };
+            tokenCount.textContent = `${balance} токенов`;
+            updateSkin();
+            updateBoosterTexts();
+          }
+        });
+    }
+
+    function showFloatingText(text) {
+      const floatText = document.createElement("div");
+      floatText.className = "floating-text";
+      floatText.textContent = text;
+      const rect = tapImage.getBoundingClientRect();
+      floatText.style.left = rect.left + rect.width / 2 + "px";
+      floatText.style.top = rect.top + rect.height / 2 + "px";
+      document.body.appendChild(floatText);
+      setTimeout(() => floatText.remove(), 1000);
+    }
+
+    function handleTap() {
+      balance++;
+      if (window.navigator.vibrate) navigator.vibrate(30);
+      tokenCount.textContent = `${balance} токенов`;
+      showFloatingText("+1");
+      tapImage.classList.add("tap-animation");
+      setTimeout(() => tapImage.classList.remove("tap-animation"), 200);
+      saveProgress();
+    }
+
+    function openShop() {
+      document.getElementById('shop-modal').style.display = 'flex';
+    }
+
+    function closeShop() {
+      document.getElementById('shop-modal').style.display = 'none';
+    }
+
+    function buySkin(skinId, price) {
+      if (ownedSkins[skinId]) {
+        currentSkin = skinId;
+      } else if (balance >= price) {
+        balance -= price;
+        ownedSkins[skinId] = true;
+        currentSkin = skinId;
+      } else {
+        alert('Недостаточно токенов!');
+        return;
       }
-    });
-}
-
-function toggleTab(id) {
-  ['gameContainer', 'shopContainer', 'boosterContainer', 'profileContainer'].forEach(el => {
-    const element = document.getElementById(el);
-    if (element) element.style.display = 'none';
-  });
-  const selected = document.getElementById(id);
-  if (selected) selected.style.display = 'flex';
-}
-
-function buyBooster(cost, power) {
-  if (balance >= cost) {
-    balance -= cost;
-    autoTap += power;
-    updateBalanceDisplay();
-    saveProgress();
-  }
-}
-
-function buySkin(skin, cost) {
-  if (ownedSkins[skin] || balance >= cost) {
-    if (!ownedSkins[skin]) {
-      balance -= cost;
-      ownedSkins[skin] = true;
+      updateSkin();
+      tokenCount.textContent = `${balance} токенов`;
+      saveProgress();
     }
-    currentSkin = skin;
-    updateSkin(skin);
-    updateBalanceDisplay();
-    saveProgress();
-  }
-}
 
-function updateSkin(skin) {
-  if (skin === 'gold') tapImage.src = 'shark_skin1.png';
-  else if (skin === 'leopard') tapImage.src = 'shark_skin2.png';
-  else tapImage.src = 'shark.png';
-}
-
-function openLeaderboard() {
-  document.getElementById('leaderboard-modal').style.display = 'flex';
-  fetch(`${dbUrl}/users.json`)
-    .then(res => res.json())
-    .then(data => {
-      const leaderboard = document.getElementById('leaderboardList');
-      leaderboard.innerHTML = '';
-      const users = Object.entries(data || {}).map(([id, info]) => ({ id, ...info }))
-        .sort((a, b) => b.balance - a.balance).slice(0, 10);
-      users.forEach(user => {
-        const name = user.first_name || `ID ${user.id.slice(-4)}`;
-        const avatar = user.photo_url ? `<img src="${user.photo_url}" style="width:20px;height:20px;border-radius:50%;margin-right:6px;" />` : '';
-        const li = document.createElement('li');
-        li.innerHTML = `${avatar}<strong>${name}</strong>: ${user.balance}`;
-        leaderboard.appendChild(li);
-      });
-    });
-}
-
-setInterval(() => {
-  if (autoTap > 0) {
-    balance += autoTap;
-    updateBalanceDisplay();
-    saveProgress();
-  }
-}, 1000);
-
-window.onload = () => {
-  if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
-    Telegram.WebApp.ready();
-    Telegram.WebApp.expand();
-    const user = Telegram.WebApp.initDataUnsafe?.user || {};
-    userId = user?.id?.toString();
-    userFirstName = user?.first_name || user?.username || 'Игрок';
-    userAvatar = user?.photo_url || (user?.username ? `https://t.me/i/userpic/320/${user.username}.jpg` : 'https://via.placeholder.com/72');
-    joinDate = new Date().toISOString().split('T')[0];
-    if (userId) loadProgress();
-  }
-  toggleTab('gameContainer');
-};
-
-function toggleTheme() {
-  const body = document.body;
-  const current = body.classList.contains("dark-theme") ? "dark" : "light";
-  const next = current === "dark" ? "light" : "dark";
-  body.classList.remove(current + "-theme");
-  body.classList.add(next + "-theme");
-  localStorage.setItem("theme", next);
-  document.getElementById("themeToggle").textContent = next === "dark" ? "☀️" : "🌙";
-}
-
-(function applyStoredTheme() {
-  const stored = localStorage.getItem("theme") || "light";
-  document.body.classList.add(stored + "-theme");
-  const icon = stored === "dark" ? "☀️" : "🌙";
-  window.addEventListener("DOMContentLoaded", () => {
-    const btn = document.getElementById("themeToggle");
-    if (btn) btn.textContent = icon;
-  });
-})();
-
-
-function triggerVibration(ms = 30) {
-  try {
-    if (Telegram && Telegram.WebApp && Telegram.WebApp.HapticFeedback) {
-      Telegram.WebApp.HapticFeedback.impactOccurred('light');
+    function openBoosters() {
+      document.getElementById('booster-modal').style.display = 'flex';
+      updateBoosterTexts();
     }
-    if (navigator.vibrate) navigator.vibrate(ms);
-  try {
-    if (window.navigator && navigator.vibrate) {
-      navigator.vibrate(ms);
-    } else if (Telegram && Telegram.WebApp && Telegram.WebApp.HapticFeedback) {
-      Telegram.WebApp.HapticFeedback.impactOccurred('light');
+
+    function closeBoosters() {
+      document.getElementById('booster-modal').style.display = 'none';
     }
-  } catch (e) {
-    console.warn("Vibration failed:", e);
-  }
-}
 
-</script>
-<script>
-document.addEventListener("DOMContentLoaded", () => {
-  const dbUrl = "https://tralalero-fec07-default-rtdb.firebaseio.com";
-  let userId = null;
-  let balance = 0, autoTap = 0, level = 1, xp = 0;
-  let ownedSkins = { default: true };
-  let currentSkin = 'default';
-  let userFirstName = '', userAvatar = '', joinDate = '';
+    function updateBoosterTexts() {
+      const boosterItems = document.querySelectorAll('.booster-item');
+      boosterItems.forEach((item, index) => {
+        const increment = index + 1;
+        const infoDiv = item.querySelector('.booster-info');
+        const button = item.querySelector('button');
 
-  const tokenCount = document.getElementById("tokenCount");
-  const tapImage = document.getElementById("tapImage");
-
-  function updateBalanceDisplay() {
-    tokenCount.textContent = `${balance} tokens`;
-    const t = document.getElementById("profileTokens");
-    if (t) t.textContent = `Токенов: ${balance}`;
-  }
-
-  function updateProfileInfo() {
-    const n = document.getElementById("profileName");
-    const a = document.getElementById("profileAvatar");
-    const j = document.getElementById("profileJoin");
-    const l = document.getElementById("profileLevel");
-    if (n) n.textContent = userFirstName;
-    if (a) a.src = userAvatar;
-    if (j) j.textContent = `Дата регистрации: ${joinDate}`;
-    if (l) l.textContent = `Уровень: ${level}`;
-  }
-
-  function handleTap() {
-    balance++;
-    updateBalanceDisplay();
-    tapImage.classList.add("tap-animation");
-    setTimeout(() => tapImage.classList.remove("tap-animation"), 200);
-    triggerVibration(30);
-    saveProgress();
-  }
-
-  function saveProgress() {
-    if (!userId) return;
-    fetch(`${dbUrl}/users/${userId}.json`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ balance, currentSkin, first_name: userFirstName, photo_url: userAvatar, joinDate })
-    });
-  }
-
-  function loadProgress() {
-    if (!userId) return;
-    fetch(`${dbUrl}/users/${userId}.json`)
-      .then(res => res.json())
-      .then(data => {
-        if (data) {
-          balance = data.balance || 0;
-          currentSkin = data.currentSkin || 'default';
-          userFirstName = data.first_name || 'Игрок';
-          userAvatar = data.photo_url || '';
-          joinDate = data.joinDate || new Date().toISOString().split('T')[0];
-          updateBalanceDisplay();
-          updateSkin(currentSkin);
-          updateProfileInfo();
+        if (ownedBoosters[increment]) {
+          infoDiv.textContent = `Авто-Тап +${increment} (куплено)`;
+          button.disabled = true;
+        } else {
+          const price = increment === 3 ? 1000 : increment * 50;
+          infoDiv.textContent = `Авто-Тап +${increment} (${price} токенов)`;
+          button.disabled = false;
         }
       });
-  }
-
-  function toggleTab(id) {
-    ['gameContainer', 'shopContainer', 'boosterContainer', 'profileContainer'].forEach(el => {
-      const element = document.getElementById(el);
-      if (element) element.style.display = 'none';
-    });
-    const selected = document.getElementById(id);
-    if (selected) selected.style.display = 'flex';
-  }
-
-  function buyBooster(cost, power) {
-    if (balance >= cost) {
-      balance -= cost;
-      autoTap += power;
-      updateBalanceDisplay();
-      saveProgress();
     }
-  }
 
-  function buySkin(skin, cost) {
-    if (ownedSkins[skin] || balance >= cost) {
-      if (!ownedSkins[skin]) {
-        balance -= cost;
-        ownedSkins[skin] = true;
+    function buyBooster(price, increment) {
+      if (balance >= price && !ownedBoosters[increment]) {
+        balance -= price;
+        autoTap += increment;
+        ownedBoosters[increment] = true;
+        tokenCount.textContent = `${balance} токенов`;
+        updateBoosterTexts();
+        saveProgress();
+      } else if (ownedBoosters[increment]) {
+        alert('Бустер уже куплен!');
+      } else {
+        alert('Недостаточно токенов!');
       }
-      currentSkin = skin;
-      updateSkin(skin);
-      updateBalanceDisplay();
+    }
+
+    function startAutoTap() {
+      setInterval(() => {
+        if (autoTap > 0) {
+          balance += autoTap;
+          tokenCount.textContent = `${balance} токенов`;
+          saveProgress();
+        }
+      }, 1000);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+        loadingScreen.style.display = 'none';
+        gameContainer.style.display = 'flex';
+      }, 5000);
+
+      if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
+        Telegram.WebApp.ready();
+        Telegram.WebApp.expand();
+
+        const endBtn = document.getElementById('endButton');
+        if (endBtn) {
+          endBtn.style.display = 'inline-block';
+        }
+
+        userId = Telegram.WebApp.initDataUnsafe?.user?.id?.toString();
+        if (userId) {
+          loadProgress();
+          startAutoTap();
+        } else {
+          alert("Не удалось получить userId из Telegram Web App.");
+        }
+      }
+    });
+  
+    function openLeaderboard() {
+      document.getElementById('leaderboard-modal').style.display = 'flex';
+      loadLeaderboard();
+    }
+
+    function closeLeaderboard() {
+      document.getElementById('leaderboard-modal').style.display = 'none';
+    }
+
+    
+    function loadLeaderboard() {
+      fetch(`${dbUrl}/users.json`)
+        .then(response => response.json())
+        .then(data => {
+          const users = Object.entries(data || {}).map(([id, info]) => ({
+            id,
+            balance: info.balance || 0,
+            first_name: info.first_name,
+            username: info.username,
+            photo_url: info.photo_url
+          }));
+          users.sort((a, b) => b.balance - a.balance);
+          const leaderboard = document.getElementById('leaderboardList');
+          leaderboard.innerHTML = '';
+          users.slice(0, 10).forEach(user => {
+            const name = user.first_name || `ID ${user.id.slice(-4)}`;
+            const avatar = user.photo_url ? `<img src="${user.photo_url}" style="width:24px;height:24px;border-radius:50%;margin-right:6px;">` : "";
+            const li = document.createElement('li');
+            li.innerHTML = `${avatar}<strong>${name}</strong>: ${user.balance}`;
+            leaderboard.appendChild(li);
+          });
+        });
+    }
+
+
+</script><script>
+    const dbUrl = 'https://tralalero-fec07-default-rtdb.firebaseio.com';
+    let currentSkin = 'default';
+    let balance = 0;
+    let ownedSkins = { default: true };
+    let autoTap = 0;
+    let ownedBoosters = { 1: false, 2: false, 3: false };
+    let userId = null;
+
+    const tokenCount = document.getElementById('tokenCount');
+    const tapImage = document.getElementById('tapImage');
+    const gameContainer = document.getElementById('screen-game');
+    const loadingScreen = document.getElementById('loading');
+
+    const skinPaths = {
+      default: 'shark.png?v=1',
+      skin2: 'shark_skin2.png?v=1',
+      skin3: 'shark_skin1.png?v=1'
+    };
+
+    function updateSkin() {
+      tapImage.src = skinPaths[currentSkin] || skinPaths.default;
+    }
+
+    
+function saveProgress() {
+  if (!userId) return;
+
+  const user = Telegram.WebApp.initDataUnsafe?.user || {};
+
+  const userData = {
+    balance,
+    currentSkin,
+    ownedSkins,
+    autoTap,
+    ownedBoosters,
+    first_name: user.first_name || "",
+    last_name: user.last_name || "",
+    username: user.username || "",
+    photo_url: user.photo_url || ""
+  };
+
+  fetch(`${dbUrl}/users/${userId}.json`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(userData)
+  });
+}
+
+
+    function loadProgress() {
+      if (!userId) return;
+      fetch(`${dbUrl}/users/${userId}.json`)
+        .then(res => res.json())
+        .then(data => {
+          if (data) {
+            balance = data.balance || 0;
+            currentSkin = data.currentSkin || 'default';
+            ownedSkins = data.ownedSkins || { default: true };
+            autoTap = data.autoTap || 0;
+            ownedBoosters = data.ownedBoosters || { 1: false, 2: false, 3: false };
+            tokenCount.textContent = `${balance} токенов`;
+            updateSkin();
+            updateBoosterTexts();
+          }
+        });
+    }
+
+    function showFloatingText(text) {
+      const floatText = document.createElement("div");
+      floatText.className = "floating-text";
+      floatText.textContent = text;
+      const rect = tapImage.getBoundingClientRect();
+      floatText.style.left = rect.left + rect.width / 2 + "px";
+      floatText.style.top = rect.top + rect.height / 2 + "px";
+      document.body.appendChild(floatText);
+      setTimeout(() => floatText.remove(), 1000);
+    }
+
+    function handleTap() {
+      const rect = tapImage.getBoundingClientRect();
+      const x = rect.left + rect.width / 2;
+      const y = rect.top + rect.height / 2;
+      showClickEffect(x, y);
+      balance++;
+      if (window.navigator.vibrate) {
+        navigator.vibrate(30);
+      } else if (Telegram.WebApp.HapticFeedback) {
+        Telegram.WebApp.HapticFeedback.impactOccurred("medium");
+      }
+      tokenCount.textContent = `${balance} токенов`;
+      showFloatingText("+1");
+      tapImage.classList.add("tap-animation");
+      setTimeout(() => tapImage.classList.remove("tap-animation"), 200);
       saveProgress();
     }
-  }
 
-  function updateSkin(skin) {
-    if (!tapImage) return;
-    if (skin === 'gold') tapImage.src = 'shark_skin1.png';
-    else if (skin === 'leopard') tapImage.src = 'shark_skin2.png';
-    else tapImage.src = 'shark.png';
-  }
-
-  function openLeaderboard() {
-    const modal = document.getElementById('leaderboard-modal');
-    if (modal) modal.style.display = 'flex';
-    fetch(`${dbUrl}/users.json`)
-      .then(res => res.json())
-      .then(data => {
-        const leaderboard = document.getElementById('leaderboardList');
-        if (!leaderboard) return;
-        leaderboard.innerHTML = '';
-        const users = Object.entries(data || {}).map(([id, info]) => ({ id, ...info }))
-          .sort((a, b) => b.balance - a.balance).slice(0, 10);
-        users.forEach(user => {
-          const name = user.first_name || `ID ${user.id?.slice(-4)}`;
-          const photo = user.photo_url || 'https://via.placeholder.com/24';
-          const li = document.createElement('li');
-          li.innerHTML = `<img src="${photo}" style="width:24px;height:24px;border-radius:50%;margin-right:6px;" /><strong>${name}</strong>: ${user.balance}`;
-          leaderboard.appendChild(li);
-        });
-      });
-  }
-
-  function triggerVibration(ms = 30) {
-    try {
-      if (Telegram?.WebApp?.HapticFeedback) Telegram.WebApp.HapticFeedback.impactOccurred('light');
-      if (navigator.vibrate) navigator.vibrate(ms);
-    } catch (e) { console.warn("vibration error", e); }
-  }
-
-  function toggleTheme() {
-    const body = document.body;
-    const current = body.classList.contains("dark-theme") ? "dark" : "light";
-    const next = current === "dark" ? "light" : "dark";
-    body.classList.remove(current + "-theme");
-    body.classList.add(next + "-theme");
-    localStorage.setItem("theme", next);
-    document.getElementById("themeToggle").textContent = next === "dark" ? "☀️" : "🌙";
-  }
-
-  document.querySelectorAll("button[data-action]").forEach(btn => {
-    const action = btn.getAttribute("data-action");
-    if (typeof window[action] === "function") {
-      btn.addEventListener("click", () => window[action]());
+    function openShop() {
+      document.getElementById('shop-modal').style.display = 'flex';
     }
-  });
-  document.querySelectorAll("button[data-tab]").forEach(btn => {
-    const tab = btn.getAttribute("data-tab");
-    btn.addEventListener("click", () => toggleTab(tab));
-  });
 
-  if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
-    Telegram.WebApp.ready();
-    Telegram.WebApp.expand();
-    const user = Telegram.WebApp.initDataUnsafe?.user || {};
-    userId = user.id?.toString();
-    userFirstName = user.first_name || user.username || 'Игрок';
-    userAvatar = user.photo_url || (user.username ? `https://t.me/i/userpic/320/${user.username}.jpg` : 'https://via.placeholder.com/72');
-    joinDate = new Date().toISOString().split('T')[0];
-    updateProfileInfo();
-    if (userId) loadProgress();
+    function closeShop() {
+      document.getElementById('shop-modal').style.display = 'none';
+    }
+
+    function buySkin(skinId, price) {
+      if (ownedSkins[skinId]) {
+        currentSkin = skinId;
+      } else if (balance >= price) {
+        balance -= price;
+        ownedSkins[skinId] = true;
+        currentSkin = skinId;
+      } else {
+        alert('Недостаточно токенов!');
+        return;
+      }
+      updateSkin();
+      tokenCount.textContent = `${balance} токенов`;
+      saveProgress();
+    }
+
+    function openBoosters() {
+      document.getElementById('booster-modal').style.display = 'flex';
+      updateBoosterTexts();
+    }
+
+    function closeBoosters() {
+      document.getElementById('booster-modal').style.display = 'none';
+    }
+
+    function updateBoosterTexts() {
+      const boosterItems = document.querySelectorAll('.booster-item');
+      boosterItems.forEach((item, index) => {
+        const increment = index + 1;
+        const infoDiv = item.querySelector('.booster-info');
+        const button = item.querySelector('button');
+
+        if (ownedBoosters[increment]) {
+          infoDiv.textContent = `Авто-Тап +${increment} (куплено)`;
+          button.disabled = true;
+        } else {
+          const price = increment === 3 ? 1000 : increment * 50;
+          infoDiv.textContent = `Авто-Тап +${increment} (${price} токенов)`;
+          button.disabled = false;
+        }
+      });
+    }
+
+    function buyBooster(price, increment) {
+      if (balance >= price && !ownedBoosters[increment]) {
+        balance -= price;
+        autoTap += increment;
+        ownedBoosters[increment] = true;
+        tokenCount.textContent = `${balance} токенов`;
+        updateBoosterTexts();
+        saveProgress();
+      } else if (ownedBoosters[increment]) {
+        alert('Бустер уже куплен!');
+      } else {
+        alert('Недостаточно токенов!');
+      }
+    }
+
+    function startAutoTap() {
+      setInterval(() => {
+        if (autoTap > 0) {
+          balance += autoTap;
+          tokenCount.textContent = `${balance} токенов`;
+          saveProgress();
+        }
+      }, 1000);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+        loadingScreen.style.display = 'none';
+        
+    
+    gameContainer.style.display = 'flex';
+    
+    const nav = document.getElementById('bottom-nav');
+    if (nav) nav.style.display = 'flex';
+    
+    
+    document.getElementById('bottom-nav').style.display = 'flex';
+    
+      }, 5000);
+
+      if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
+        Telegram.WebApp.ready();
+        Telegram.WebApp.expand();
+
+        const endBtn = document.getElementById('endButton');
+        if (endBtn) {
+          endBtn.style.display = 'inline-block';
+        }
+
+        userId = Telegram.WebApp.initDataUnsafe?.user?.id?.toString();
+        if (userId) {
+          loadProgress();
+          startAutoTap();
+        } else {
+          alert("Не удалось получить userId из Telegram Web App.");
+        }
+      }
+    });
+  
+    function openLeaderboard() {
+      document.getElementById('leaderboard-modal').style.display = 'flex';
+      loadLeaderboard();
+    }
+
+    function closeLeaderboard() {
+      document.getElementById('leaderboard-modal').style.display = 'none';
+    }
+
+    
+    function loadLeaderboard() {
+      fetch(`${dbUrl}/users.json`)
+        .then(response => response.json())
+        .then(data => {
+          const users = Object.entries(data || {}).map(([id, info]) => ({
+            id,
+            balance: info.balance || 0,
+            first_name: info.first_name,
+            username: info.username,
+            photo_url: info.photo_url
+          }));
+          users.sort((a, b) => b.balance - a.balance);
+          const leaderboard = document.getElementById('leaderboardList');
+          leaderboard.innerHTML = '';
+          users.slice(0, 10).forEach(user => {
+            const name = user.first_name || `ID ${user.id.slice(-4)}`;
+            const avatar = user.photo_url ? `<img src="${user.photo_url}" style="width:24px;height:24px;border-radius:50%;margin-right:6px;">` : "";
+            const li = document.createElement('li');
+            li.innerHTML = `${avatar}<strong>${name}</strong>: ${user.balance}`;
+            leaderboard.appendChild(li);
+          });
+        });
+    }
+
+
+
+
+
+function showClickEffect(x, y) {
+  const spark = document.createElement("div");
+  spark.className = "spark";
+  spark.style.left = `${x}px`;
+  spark.style.top = `${y}px`;
+  document.body.appendChild(spark);
+  setTimeout(() => {
+    spark.style.transform = "scale(2)";
+    spark.style.opacity = "0";
+  }, 10);
+  setTimeout(() => spark.remove(), 500);
+}
+
+function switchTab(tabId) {
+  document.querySelectorAll('.tab-screen').forEach(tab => tab.classList.remove('active-tab'));
+  document.getElementById(tabId).classList.add('active-tab');
+  if (tabId === 'screen-leaderboard') loadLeaderboard();
+}
+
+let xp = 0;
+let level = 1;
+const xpToNextLevel = () => 20 + (level - 1) * 10;
+
+function updateXP(amount) {
+  xp += amount;
+  let need = xpToNextLevel();
+  if (xp >= need) {
+    xp -= need;
+    level++;
+    document.getElementById('playerLevel').textContent = level;
   }
+  const percent = Math.floor((xp / xpToNextLevel()) * 100);
+  document.getElementById('xpBar').style.width = percent + '%';
+}
 
-  toggleTab('gameContainer');
-});
-</script></body>
+// Вызываем при каждом тапе
+const originalHandleTap = handleTap;
+handleTap = function () {
+  originalHandleTap();
+  updateXP(1);
+}
+
+function shareGame() {
+  if (Telegram.WebApp && Telegram.WebApp.shareGame) {
+    Telegram.WebApp.shareGame();
+    updateXP(10); // Награда XP за приглашение
+    alert("Спасибо за приглашение! Получено 10 XP!");
+  } else {
+    alert("Поделиться можно только внутри Telegram WebApp.");
+  }
+}
+
+setTimeout(() => {
+  const nav = document.getElementById('bottom-nav');
+  if (nav) nav.classList.add('show');
+}, 100);
+</script><script src="https://telegram.org/js/telegram-web-app.js"></script></body>
 </html>
