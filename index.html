@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-
 <html lang="ru">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
-<title>Shark Tapper Fusion Final</title>
-<script src="https://telegram.org/js/telegram-web-app.js">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Shark Tapper Fusion Final</title>
+  <script src="https://telegram.org/js/telegram-web-app.js">
 function toggleTheme() {
   const body = document.body;
   const current = body.classList.contains("dark-theme") ? "dark" : "light";
@@ -29,6 +28,11 @@ function toggleTheme() {
 
 function triggerVibration(ms = 30) {
   try {
+    if (Telegram && Telegram.WebApp && Telegram.WebApp.HapticFeedback) {
+      Telegram.WebApp.HapticFeedback.impactOccurred('light');
+    }
+    if (navigator.vibrate) navigator.vibrate(ms);
+  try {
     if (window.navigator && navigator.vibrate) {
       navigator.vibrate(ms);
     } else if (Telegram && Telegram.WebApp && Telegram.WebApp.HapticFeedback) {
@@ -40,9 +44,13 @@ function triggerVibration(ms = 30) {
 }
 
 </script>
-<style>
+  <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
+    html, body {
+  overflow: hidden;
+  height: 100vh;
+}
+body {
       font-family: 'SF Pro Display', sans-serif;
       background: linear-gradient(160deg, #e3f2fd, #e0f7fa);
       min-height: 100vh;
@@ -114,6 +122,10 @@ function triggerVibration(ms = 30) {
       100% { transform: scale(1); }
     }
   
+html, body {
+  overflow: hidden;
+  height: 100vh;
+}
 body {
   transition: background-color 0.4s ease, color 0.4s ease;
 }
@@ -155,45 +167,55 @@ body {
 </style>
 </head>
 <body>
+
 <div style="position: absolute; top: 10px; right: 12px; z-index: 1001;">
-<button id="themeToggle" onclick="toggleTheme()" style="font-size: 22px; background: none; border: none; cursor: pointer;">🌗</button>
+  <button id="themeToggle" onclick="toggleTheme()" style="font-size: 22px; background: none; border: none; cursor: pointer;">🌗</button>
 </div>
+
+
 <div class="tab-panel">
-<button class="tab-button" onclick="toggleTab('gameContainer')">🦈 Игра</button>
-<button class="tab-button" onclick="toggleTab('boosterContainer')">⚡ Бустеры</button>
-<button class="tab-button" onclick="toggleTab('shopContainer')">🛒 Магазин</button>
-<button class="tab-button" onclick="toggleTab('profileContainer')">👤 Профиль</button>
-<button class="tab-button" onclick="openLeaderboard()">🏆 Топ</button>
+  <button class="tab-button" onclick="toggleTab('gameContainer')">🦈 Игра</button>
+  <button class="tab-button" onclick="toggleTab('boosterContainer')">⚡ Бустеры</button>
+  <button class="tab-button" onclick="toggleTab('shopContainer')">🛒 Магазин</button>
+  <button class="tab-button" onclick="toggleTab('profileContainer')">👤 Профиль</button>
+  <button class="tab-button" onclick="openLeaderboard()">🏆 Топ</button>
 </div>
+
 <div class="balance" id="tokenCount">0 tokens</div>
-<div class="game-container" id="gameContainer">
-<img alt="Shark" class="tap-image" id="tapImage" onclick="handleTap()" src="shark.png"/>
+
+<div id="gameContainer" class="game-container">
+  <img id="tapImage" class="tap-image" src="shark.png" alt="Shark" onclick="handleTap()" />
 </div>
-<div class="game-container" id="boosterContainer">
-<h2>Boosters</h2>
-<button onclick="buyBooster(50, 1)">Auto-Tap +1 (50)</button>
-<button onclick="buyBooster(100, 2)">Auto-Tap +2 (100)</button>
-<button onclick="buyBooster(1000, 3)">Auto-Tap +3 (1000)</button>
+
+<div id="boosterContainer" class="game-container">
+  <h2>Boosters</h2>
+  <button onclick="buyBooster(50, 1)">Auto-Tap +1 (50)</button>
+  <button onclick="buyBooster(100, 2)">Auto-Tap +2 (100)</button>
+  <button onclick="buyBooster(1000, 3)">Auto-Tap +3 (1000)</button>
 </div>
-<div class="game-container" id="shopContainer">
-<h2>Skins</h2>
-<button onclick="buySkin('default', 0)">Default (Free)</button>
-<button onclick="buySkin('gold', 1000)">Gold (1000)</button>
-<button onclick="buySkin('leopard', 500)">Leopard (500)</button>
+
+<div id="shopContainer" class="game-container">
+  <h2>Skins</h2>
+  <button onclick="buySkin('default', 0)">Default (Free)</button>
+  <button onclick="buySkin('gold', 1000)">Gold (1000)</button>
+  <button onclick="buySkin('leopard', 500)">Leopard (500)</button>
 </div>
-<div class="game-container" id="profileContainer">
-<h2>Профиль</h2>
-<img alt="avatar" id="profileAvatar" src="" style="width:72px;height:72px;border-radius:50%;margin:10px 0;"/>
-<h3 id="profileName">Игрок</h3>
-<p id="profileTokens">Токенов: 0</p>
-<p id="profileLevel">Уровень: 1</p>
-<p id="profileJoin">Дата регистрации: —</p>
+
+<div id="profileContainer" class="game-container">
+  <h2>Профиль</h2>
+  <img id="profileAvatar" src="" alt="avatar" style="width:72px;height:72px;border-radius:50%;margin:10px 0;" />
+  <h3 id="profileName">Игрок</h3>
+  <p id="profileTokens">Токенов: 0</p>
+  <p id="profileLevel">Уровень: 1</p>
+  <p id="profileJoin">Дата регистрации: —</p>
 </div>
+
 <div id="leaderboard-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,0.95);z-index:1000;flex-direction:column;align-items:center;justify-content:center;">
-<h2>🏆 Топ игроков</h2>
-<ul id="leaderboardList"></ul>
-<button onclick="document.getElementById('leaderboard-modal').style.display='none'">Закрыть</button>
+  <h2>🏆 Топ игроков</h2>
+  <ul id="leaderboardList"></ul>
+  <button onclick="document.getElementById('leaderboard-modal').style.display='none'">Закрыть</button>
 </div>
+
 <script>
 const dbUrl = "https://tralalero-fec07-default-rtdb.firebaseio.com";
 let userId = null;
@@ -323,8 +345,8 @@ window.onload = () => {
     Telegram.WebApp.expand();
     const user = Telegram.WebApp.initDataUnsafe?.user || {};
     userId = user?.id?.toString();
-    userFirstName = user?.first_name || 'Игрок';
-    userAvatar = user?.photo_url || '';
+    userFirstName = user?.first_name || user?.username || 'Игрок';
+    userAvatar = user?.photo_url || (user?.username ? `https://t.me/i/userpic/320/${user.username}.jpg` : 'https://via.placeholder.com/72');
     joinDate = new Date().toISOString().split('T')[0];
     if (userId) loadProgress();
   }
@@ -354,6 +376,11 @@ function toggleTheme() {
 
 function triggerVibration(ms = 30) {
   try {
+    if (Telegram && Telegram.WebApp && Telegram.WebApp.HapticFeedback) {
+      Telegram.WebApp.HapticFeedback.impactOccurred('light');
+    }
+    if (navigator.vibrate) navigator.vibrate(ms);
+  try {
     if (window.navigator && navigator.vibrate) {
       navigator.vibrate(ms);
     } else if (Telegram && Telegram.WebApp && Telegram.WebApp.HapticFeedback) {
@@ -365,5 +392,6 @@ function triggerVibration(ms = 30) {
 }
 
 </script>
+
 </body>
 </html>
