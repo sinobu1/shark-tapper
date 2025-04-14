@@ -82,7 +82,7 @@
             display: inline-flex;
             align-items: center;
             gap: 0.6rem;
-            font-family: 'Luckiest Guy', cursive; /* Применяем шрифт Luckiest Guy */
+            font-family: 'Press Start 2P', cursive; /* Пиксельный шрифт для счетчика */
             line-height: 1.2;
         }
         .token-counter img {
@@ -380,7 +380,7 @@
             // Initialize app
             function init() {
                 setupEventListeners();
-                loadTelegram();
+                loadTelegram(); // Загружаем данные Telegram как можно раньше
                 initLocalStorage();
                 showTab('home');
             }
