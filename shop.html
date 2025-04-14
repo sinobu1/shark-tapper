@@ -99,6 +99,65 @@
   </div>
 
   <script>
+    let userData = {};
+
+  document.addEventListener("DOMContentLoaded", function() {
+    // Инициализация Telegram
+    try {
+      const tgUser = Telegram.WebApp.initDataUnsafe?.user;
+      if (tgUser) {
+        userData.userId = tgUser.id;
+      }
+    } catch (e) {
+      console.log('Telegram context not available');
+    }
+
+    loadFromFirebase();
+  });
+
+  async function loadFromFirebase() {
+    if (!userData.userId) {
+      loadFromLocalStorage();
+      return;
+    }
+    
+    try {
+      const response = await fetch(`https://tralalero-fec07-default-rtdb.firebaseio.com/users/${userData.userId}.json`);
+      const data = await response.json();
+      
+      if (data) {
+        userData.tokens = data.balance || 0;
+        userData.skin = data.skin || 'default';
+        userData.autoclickers = data.autoclickers || 0;
+        userData.achievements = data.achievements || [];
+        
+        setupShopButtons();
+        saveToLocalStorage();
+      }
+    } catch(err) {
+      console.error('Firebase load error:', err);
+      loadFromLocalStorage();
+    }
+  }
+
+  async function saveToFirebase() {
+    if (!userData.userId) return;
+    
+    try {
+      await fetch(`https://tralalero-fec07-default-rtdb.firebaseio.com/users/${userData.userId}.json`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          balance: userData.tokens,
+          skin: userData.skin,
+          autoclickers: userData.autoclickers,
+          achievements: userData.achievements
+        })
+      });
+    } catch(err) {
+      console.error('Firebase save error:', err);
+    }
+  }
     let userData = {
       tokens: 0,
       skin: 'default',
