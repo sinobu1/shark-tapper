@@ -188,7 +188,7 @@
   <div class="app-wrapper">
     <header>SHARK TAPPER</header>
 
-    <div class="shark-wrapper">
+    <div id="game" class="shark-wrapper" style="display:none;">
       <img src="shark.png" alt="Tap Shark" class="shark-image" onclick="handleTap()" id="tapImage" />
       <div class="token-counter">
         <img src="coin_icon_small.png" alt="Coin Icon" style="width: 20px; height: 20px;" />
@@ -204,7 +204,7 @@
       <img src="shark_skin2.png" alt="Shark 5" />
     </div>
 
-    <div class="profile-card">
+    <div id="profile" class="profile-card">
       <img src="https://placehold.co/64x64" alt="Avatar" id="profileAvatar">
       <div class="profile-info">
         <span class="name" id="profileName">Имя игрока</span>
@@ -216,9 +216,14 @@
       </div>
     </div>
 
-    <nav>$1</nav>
+    <nav>
+  <button class="active" onclick="showTab('profile')"><i class="fa-solid fa-user"></i><span>Профиль</span></button>
+  <button onclick="showTab('game')"><i class="fa-solid fa-gamepad"></i><span>Игра</span></button>
+  <button onclick="showTab('shop')"><i class="fa-solid fa-store"></i><span>Магазин</span></button>
+  <button onclick="showTab('leaderboard')"><i class="fa-solid fa-list-check"></i><span>Топ</span></button>
+</nav>
 
-<div id="shop" style="margin: 2rem 1rem; background: var(--card-bg); border-radius: 1.5rem; padding: 1rem; box-shadow: 0 6px 16px rgba(0,0,0,0.08);">
+<div id="shop" style="display:none;" style="margin: 2rem 1rem; background: var(--card-bg); border-radius: 1.5rem; padding: 1rem; box-shadow: 0 6px 16px rgba(0,0,0,0.08);">
   <h2 style="font-size: 1.2rem; margin-bottom: 1rem; color: var(--primary);">🛍 Магазин</h2>
   <div class="shop-items" style="display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center;">
     <div class="shop-item" style="text-align: center;">
@@ -277,11 +282,17 @@ loadTelegram();
       }
 
       updateXPDisplay();
-    document.querySelectorAll('nav button').forEach(button => {
-  button.addEventListener('click', () => {
-    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-    button.classList.add('active');
+    function showTab(tabId) {
+  document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(btn => {
+    if (btn.textContent.includes(tabId.charAt(0).toUpperCase() + tabId.slice(1))) btn.classList.add('active');
   });
+  ['profile', 'game', 'shop', 'leaderboard'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = (id === tabId) ? 'block' : 'none';
+  });
+}
+showTab('profile');
 });
 
 // Telegram WebApp + Firebase
