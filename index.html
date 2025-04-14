@@ -407,12 +407,16 @@ function updateSkin(skin) {
   else tapImage.src = 'shark.png';
 }
 
+
+// ✅ Показывает нужную вкладку, скрывает остальные
 function toggleTab(id) {
+
   ['gameContainer', 'shopContainer', 'boosterContainer', 'profileContainer'].forEach(el => {
     const e = document.getElementById(el);
     if (e) e.style.display = 'none';
   });
   const active = document.getElementById(id);
+  if (active && id === 'gameContainer') active.style.display = 'flex';
   if (active) active.style.display = 'flex';
 }
 
@@ -475,7 +479,10 @@ function updateProfileInfo() {
   const pAvatar = document.getElementById("profileAvatar");
   const pJoin = document.getElementById("profileJoin");
   if (pName) pName.textContent = userFirstName;
-  if (pAvatar) pAvatar.src = userAvatar;
+  if (pAvatar) {
+    pAvatar.src = userAvatar;
+    if (!userAvatar) console.warn("⚠ userAvatar missing");
+}
   if (pJoin) pJoin.textContent = "Дата регистрации: " + joinDate;
 }
 
