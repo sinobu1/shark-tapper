@@ -282,6 +282,22 @@
       align-items: center;
       font-family: 'Press Start 2P', cursive;
       z-index: 1000;
+      transition: opacity 0.3s ease;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .loading-overlay.active {
+      opacity: 1;
+    }
+    @media (hover: none) and (pointer: coarse) {
+      .shark-image {
+        -webkit-tap-highlight-color: transparent;
+      }
+    }
+    @keyframes iosTap {
+      0% { transform: scale(1); }
+      50% { transform: scale(0.97); }
+      100% { transform: scale(1); }
     }
   </style>
 </head>
@@ -291,7 +307,6 @@
     
     <div class="main-content">
       <div class="tab-content">
-        <!-- Home Tab -->
         <div id="home" class="tab-page active">
           <div class="shark-wrapper">
             <div class="shark-tap-container">
@@ -319,7 +334,6 @@
           </div>
         </div>
 
-        <!-- Quests Tab -->
         <div id="quests" class="tab-page">
           <div style="padding: 1rem; text-align: center; height: 100%; display: flex; flex-direction: column; justify-content: center;">
             <h2 style="font-family: 'Rubik Mono One', sans-serif; margin-bottom: 1rem;">📝 Quests</h2>
@@ -327,7 +341,6 @@
           </div>
         </div>
 
-        <!-- Shop Tab -->
         <div id="shop" class="tab-page">
           <div style="padding: 1rem; text-align: center; height: 100%; display: flex; flex-direction: column; justify-content: center;">
             <h2 style="font-family: 'Rubik Mono One', sans-serif; margin-bottom: 1rem;">🛍 Shop</h2>
@@ -335,7 +348,6 @@
           </div>
         </div>
 
-        <!-- Leaderboard Tab -->
         <div id="leaderboard" class="tab-page">
           <div style="padding: 1rem;">
             <h2 style="text-align:center; font-family: 'Rubik Mono One', sans-serif; margin-bottom: 1rem;">TOP PLAYERS</h2>
@@ -378,11 +390,11 @@
       };
       let lastSave = 0;
       const SAVE_INTERVAL = 5000;
-      let canVibrate = 'vibrate' in navigator;
       const loader = document.getElementById('loader');
       let loaderTimeout;
+      let canVibrate = 'vibrate' in navigator || 'webkitVibrate' in navigator;
 
-      // Initialize app
+      // Инициализация приложения
       function init() {
         setupEventListeners();
         loadTelegram();
@@ -390,20 +402,17 @@
         showTab('home');
       }
 
-      // Event listeners setup
+      // Настройка обработчиков событий
       function setupEventListeners() {
-        // Shark tap
         const tapImage = document.getElementById('tapImage');
         tapImage.addEventListener('click', handleTap);
         
-        // Skin selection
         document.querySelectorAll('.shark-gallery img').forEach(img => {
           img.addEventListener('click', function() {
             setSkin(this.dataset.skin);
           });
         });
         
-        // Navigation
         document.querySelectorAll('nav button').forEach(btn => {
           btn.addEventListener('click', function() {
             showTab(this.dataset.tab);
@@ -411,49 +420,52 @@
         });
       }
 
-      // Handle tap on shark
+      // Обработка нажатия
       function handleTap(event) {
-        // Vibrate on tap if supported
-        if (canVibrate) {
-          navigator.vibrate(10);
+        handleVibration();
+        handleAnimation(event);
+        updateCoins();
+        saveProgress();
+      }
+
+      // Вибрация
+      function handleVibration() {
+        try {
+          if (canVibrate) {
+            if (navigator.vibrate) navigator.vibrate(10);
+            else if (navigator.webkitVibrate) navigator.webkitVibrate([10]);
+          }
+        } catch (e) {
+          console.log('Vibration not supported');
         }
-        
-        // Animation
+      }
+
+      // Анимация
+      function handleAnimation(event) {
         const shark = document.getElementById("tapImage");
         shark.style.transform = "scale(0.95)";
         setTimeout(() => shark.style.transform = "scale(1)", 100);
         
+        if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+          shark.style.animation = 'iosTap 0.2s';
+          setTimeout(() => shark.style.animation = '', 200);
+        }
+        
         createTapEffect(event);
         createCoinPopup(event);
-        
-        // Increment coins
-        userData.tokens++;
-        updateDisplay();
-        
-        // Save progress
-        const now = Date.now();
-        if (now - lastSave > SAVE_INTERVAL) {
-          saveProgress();
-          lastSave = now;
-        } else {
-          saveToLocalStorage();
-        }
       }
 
-      // Create tap visual effect
+      // Создание эффекта тапа
       function createTapEffect(event) {
         const effect = document.createElement('div');
         effect.className = 'tap-effect';
         effect.style.left = `${event.clientX}px`;
         effect.style.top = `${event.clientY}px`;
         document.body.appendChild(effect);
-        
-        setTimeout(() => {
-          effect.remove();
-        }, 600);
+        setTimeout(() => effect.remove(), 600);
       }
 
-      // Create +1 coin popup
+      // Создание попапа монет
       function createCoinPopup(event) {
         const popup = document.createElement('div');
         popup.className = 'coin-popup';
@@ -461,80 +473,73 @@
         popup.style.left = `${event.clientX}px`;
         popup.style.top = `${event.clientY - 20}px`;
         document.body.appendChild(popup);
-        
-        setTimeout(() => {
-          popup.remove();
-        }, 1000);
+        setTimeout(() => popup.remove(), 1000);
       }
 
-      // Update UI display
+      // Обновление монет
+      function updateCoins() {
+        userData.tokens++;
+        updateDisplay();
+      }
+
+      // Обновление интерфейса
       function updateDisplay() {
-        const counter = document.getElementById("profileTokens");
-        if (counter) counter.textContent = userData.tokens.toLocaleString();
-        
-        const levelEl = document.getElementById("profileLevel");
-        if (levelEl) levelEl.textContent = `Coins: ${userData.tokens.toLocaleString()}`;
+        document.getElementById("profileTokens").textContent = userData.tokens.toLocaleString();
+        document.getElementById("profileLevel").textContent = `Coins: ${userData.tokens.toLocaleString()}`;
         
         const bar = document.getElementById("xpBar");
-        if (bar) {
-          const limits = [0, 100, 500, 1000, 2500, 5000, 10000];
-          let max = limits.find(l => userData.tokens < l) || 10000;
-          let min = limits[limits.indexOf(max) - 1] || 0;
-          let percent = ((userData.tokens - min) / (max - min)) * 100;
-          bar.style.width = `${Math.min(100, Math.max(0, percent))}%`;
-        }
+        const limits = [0, 100, 500, 1000, 2500, 5000, 10000];
+        const max = limits.find(l => userData.tokens < l) || 10000;
+        const min = limits[Math.max(0, limits.indexOf(max) - 1)];
+        const percent = Math.min(100, ((userData.tokens - min) / (max - min)) * 100);
+        bar.style.width = `${percent}%`;
       }
 
-      // Show tab content
+      // Переключение вкладок
       function showTab(tabId) {
-        // Update nav buttons
-        document.querySelectorAll('nav button').forEach(btn => {
-          btn.classList.toggle('active', btn.dataset.tab === tabId);
-        });
+        document.querySelectorAll('nav button').forEach(btn => 
+          btn.classList.toggle('active', btn.dataset.tab === tabId)
+        );
         
-        // Show selected tab
-        document.querySelectorAll('.tab-page').forEach(page => {
-          page.classList.toggle('active', page.id === tabId);
-        });
+        document.querySelectorAll('.tab-page').forEach(page => 
+          page.classList.toggle('active', page.id === tabId)
+        );
         
-        // Load leaderboard if needed
-        if (tabId === 'leaderboard') {
-          loadLeaderboard();
-        }
+        if (tabId === 'leaderboard') loadLeaderboard();
       }
 
-      // Save progress to server and local storage
+      // Сохранение прогресса
       async function saveProgress() {
-        showLoader();
-        try {
-          if (!userId) {
+        const now = Date.now();
+        if (now - lastSave > SAVE_INTERVAL) {
+          showLoader();
+          try {
+            if (userId) {
+              await fetch(`${dbUrl}/users/${userId}.json`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  balance: userData.tokens,
+                  first_name: userData.username,
+                  photo_url: userData.avatar,
+                  skin: userData.skin,
+                  last_update: Date.now()
+                })
+              });
+            }
             saveToLocalStorage();
-            return;
+            lastSave = now;
+          } catch(err) {
+            console.error('Save error:', err);
+          } finally {
+            hideLoader();
           }
-          
-          const response = await fetch(`${dbUrl}/users/${userId}.json`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              balance: userData.tokens,
-              first_name: userData.username,
-              photo_url: userData.avatar,
-              skin: userData.skin,
-              last_update: Date.now()
-            })
-          });
-          
-          if (!response.ok) throw new Error('Save failed');
+        } else {
           saveToLocalStorage();
-        } catch(err) {
-          console.error('Save error:', err);
-          saveToLocalStorage();
-        } finally {
-          hideLoader();
         }
       }
 
-      // Load from local storage
+      // Работа с локальным хранилищем
       function initLocalStorage() {
         const savedData = localStorage.getItem('sharkTapperData');
         if (savedData) {
@@ -550,7 +555,6 @@
         }
       }
 
-      // Save to local storage
       function saveToLocalStorage() {
         localStorage.setItem('sharkTapperData', JSON.stringify({
           tokens: userData.tokens,
@@ -558,73 +562,32 @@
         }));
       }
 
-      // Load progress from server
-      async function loadProgress() {
-        showLoader();
-        try {
-          if (!userId) return;
-          
-          const response = await fetch(`${dbUrl}/users/${userId}.json`);
-          if (!response.ok) throw new Error('Network response was not ok');
-          
-          const data = await response.json();
-          if (data) {
-            // Use highest value between server and local
-            const serverTokens = data.balance || 0;
-            userData.tokens = Math.max(serverTokens, userData.tokens);
-            
-            // Update user data
-            userData.username = data.first_name || "Player";
-            userData.avatar = data.photo_url || "https://placehold.co/64x64";
-            userData.skin = data.skin || 'default';
-            
-            // Update UI
-            updateDisplay();
-            document.getElementById("profileName").textContent = userData.username;
-            document.getElementById("profileAvatar").src = userData.avatar;
-            setSkin(userData.skin, true);
-            
-            // Save merged data
-            saveToLocalStorage();
-          }
-        } catch(err) {
-          console.error('Load error:', err);
-        } finally {
-          hideLoader();
-        }
-      }
-
-      // Load leaderboard
+      // Загрузка лидерборда
       async function loadLeaderboard() {
         showLoader();
         try {
-          const response = await fetch(`${dbUrl}/users.json?orderBy="balance"&limitToLast=10`);
-          if (!response.ok) throw new Error('Network response was not ok');
-          
+          const response = await fetch(`${dbUrl}/users.json?orderBy="balance"&limitToLast=50`);
           const data = await response.json();
-          const list = document.getElementById("leaderboardList");
           
-          if (!data || Object.keys(data).length === 0) {
-            list.innerHTML = '<li style="text-align:center; color: var(--subtext);">No players yet</li>';
-            return;
-          }
-          
-          // Sort by balance
           const sorted = Object.entries(data)
-            .sort((a, b) => (b[1].balance || 0) - (a[1].balance || 0))
+            .sort((a, b) => (b[1]?.balance || 0) - (a[1]?.balance || 0))
             .slice(0, 10);
-          
+
           renderLeaderboard(sorted);
+          localStorage.setItem('leaderboardCache', JSON.stringify({
+            data: sorted,
+            timestamp: Date.now()
+          }));
         } catch(err) {
           console.error('Leaderboard error:', err);
-          const list = document.getElementById("leaderboardList");
-          list.innerHTML = '<li style="text-align:center; color: var(--subtext);">Loading error</li>';
+          const cache = JSON.parse(localStorage.getItem('leaderboardCache'));
+          if (cache) renderLeaderboard(cache.data);
         } finally {
           hideLoader();
         }
       }
 
-      // Render leaderboard
+      // Отрисовка лидерборда
       function renderLeaderboard(data) {
         const list = document.getElementById("leaderboardList");
         list.innerHTML = data.map(([id, user], i) => {
@@ -644,7 +607,7 @@
         }).join("");
       }
 
-      // Set shark skin
+      // Смена скина
       function setSkin(skin, silent = false) {
         const skins = {
           'default': 'https://sinobu1.github.io/shark-tapper/shark.png',
@@ -659,43 +622,48 @@
         }
       }
 
-      // Load Telegram user data
+      // Инициализация Telegram
       function loadTelegram() {
-        const tgUser = Telegram?.WebApp?.initDataUnsafe?.user;
-        if (tgUser) {
-          userId = tgUser.id?.toString();
-          userData.username = tgUser.first_name || "Player";
-          userData.avatar = tgUser.photo_url || "https://placehold.co/64x64";
-          document.getElementById("profileName").textContent = userData.username;
-          document.getElementById("profileAvatar").src = userData.avatar;
-          loadProgress();
-        } else {
-          document.getElementById("profileName").textContent = "Player";
+        try {
+          Telegram.WebApp.ready();
+          Telegram.WebApp.expand();
+          
+          const tgUser = Telegram.WebApp.initDataUnsafe?.user;
+          if (tgUser) {
+            userId = tgUser.id.toString();
+            userData.username = tgUser.first_name || "Player";
+            userData.avatar = tgUser.photo_url || "https://placehold.co/64x64";
+            document.getElementById("profileName").textContent = userData.username;
+            document.getElementById("profileAvatar").src = userData.avatar;
+            loadProgress();
+          }
+        } catch (e) {
+          console.log('Telegram context not available');
           initLocalStorage();
-          updateDisplay();
         }
       }
 
+      // Управление лоадером
       function showLoader() {
         clearTimeout(loaderTimeout);
         loaderTimeout = setTimeout(() => {
-          loader.style.display = 'flex';
+          loader.classList.add('active');
+          document.body.style.pointerEvents = 'none';
         }, 300);
       }
 
       function hideLoader() {
         clearTimeout(loaderTimeout);
-        loader.style.display = 'none';
+        loader.classList.remove('active');
+        document.body.style.pointerEvents = 'auto';
       }
 
-      // Auto-save every 30 seconds
+      // Автосохранение
       setInterval(() => {
-        if (userData.tokens > 0) {
-          saveProgress();
-        }
+        if (userData.tokens > 0) saveProgress();
       }, 30000);
 
-      // Initialize the app
+      // Запуск приложения
       init();
     });
   </script>
