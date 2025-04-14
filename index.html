@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <title>Shark Tapper 2025</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Press+Start+2P&family=Rubik+Mono+One&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #2f80ed;
+      --accent: #56ccf2;
+      --bg: #f2f5f9;
+      --card-bg: #ffffff;
+      --text: #0d1b2a;
+      --subtext: #6c7787;
+      --border: #e0e6ed;
+      --success: #27ae60;
+      --warning: #f39c12;
+      --danger: #e74c3c;
+    }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      touch-action: manipulation;
+    }
+    body {
+      font-family: 'Bungee', cursive;
+      background: linear-gradient(180deg, #dbeafe 0%, #f0f4f8 100%);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      position: fixed;
+    }
+    #app-container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    header {
+      background: none;
+      color: var(--primary);
+      padding: 1rem;
+      text-align: center;
+      font-size: 2rem;
+      font-family: 'Rubik Mono One', sans-serif;
+      text-shadow: -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff, 2px 2px 0 #fff;
+      flex-shrink: 0;
+    }
+    .main-content {
+      flex: 1;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .tab-content {
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 60px;
+    }
+    .token-counter {
+      margin: 0 auto;
+      font-size: 0.8rem;
+      color: var(--primary);
+      background: var(--card-bg);
+      padding: 0.5rem 1rem;
+      border-radius: 999px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: 'Press Start 2P', cursive;
+      line-height: 1.2;
+    }
+    .shark-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      flex: 1;
+    }
+    .shark-tap-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      position: relative;
+    }
+    .shark-image {
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      border: 4px solid var(--accent);
+      background: var(--card-bg);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      object-fit: cover;
+      cursor: pointer;
+      transition: transform 0.1s ease;
+      z-index: 5;
+    }
+    .shark-gallery {
+      margin: 1rem 0;
+      padding: 0.5rem;
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+      overflow-x: auto;
+      width: 100%;
+      scrollbar-width: none;
+    }
+    .shark-gallery::-webkit-scrollbar {
+      display: none;
+    }
+    .shark-gallery img {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: 2px solid var(--primary);
+      background: white;
+      object-fit: cover;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      flex-shrink: 0;
+      transition: all 0.2s ease;
+    }
+    .shark-gallery img.selected {
+      border-color: var(--accent);
+      transform: scale(1.1);
+      box-shadow: 0 0 0 3px var(--accent);
+    }
+    .shark-gallery img:hover {
+      transform: scale(1.1);
+    }
+    .profile-card {
+      background: var(--card-bg);
+      border-radius: 1.5rem;
+      padding: 1rem;
+      margin: 1rem;
+      border: 1px solid var(--border);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.06);
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+    }
+    .profile-card img {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--accent);
+      flex-shrink: 0;
+    }
+    .profile-info {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      min-width: 0;
+    }
+    .profile-info .name {
+      font-weight: 600;
+      font-size: 0.85rem;
+      font-family: 'Press Start 2P', cursive;
+      line-height: 1.3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .profile-info .sub {
+      font-size: 0.8rem;
+      color: var(--subtext);
+      font-family: 'Bungee', cursive;
+    }
+    .xp-bar {
+      width: 100%;
+      height: 6px;
+      background: var(--border);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 0.5rem;
+      position: relative;
+    }
+    .xp-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(to right, var(--primary), var(--accent));
+      transition: width 0.3s ease;
+    }
+    .xp-level {
+      position: absolute;
+      right: 0;
+      top: -20px;
+      font-size: 0.7rem;
+      color: var(--subtext);
+      font-family: 'Press Start 2P', cursive;
+    }
+    nav {
+      width: 100%;
+      display: flex;
+      background: var(--card-bg);
+      border-top: 1px solid var(--border);
+      padding: 0.5rem 0;
+      box-shadow: 0 -4px 12px rgba(0,0,0,0.06);
+      backdrop-filter: blur(12px);
+      z-index: 100;
+      flex-shrink: 0;
+    }
+    nav button {
+      flex: 1;
+      background: none;
+      border: none;
+      font-size: 0.65rem;
+      color: var(--subtext);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+      font-family: 'Bungee', cursive;
+      transition: all 0.2s ease;
+    }
+    nav button i {
+      font-size: 1.1rem;
+      transition: all 0.2s ease;
+    }
+    nav button.active {
+      color: var(--primary);
+      transform: translateY(-2px);
+    }
+    nav button.active i {
+      transform: scale(1.2);
+    }
+    .tap-effect {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%);
+      border-radius: 50%;
+      pointer-events: none;
+      transform: translate(-50%, -50%) scale(0.5);
+      animation: tapAnimation 0.6s forwards;
+      z-index: 10;
+    }
+    @keyframes tapAnimation {
+      0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
+      100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
+    }
+    .coin-popup {
+      position: absolute;
+      font-family: 'Press Start 2P', cursive;
+      color: #f8d030;
+      text-shadow: 1px 1px 0 #b88b00, -1px -1px 0 #b88b00;
+      font-size: 0.9rem;
+      animation: coinPopup 1s forwards;
+      pointer-events: none;
+      z-index: 20;
+      white-space: nowrap;
+    }
+    @keyframes coinPopup {
+      0% { transform: translateY(0); opacity: 1; }
+      100% { transform: translateY(-50px); opacity: 0; }
+    }
+    .tab-page {
+      display: none;
+      height: 100%;
+      flex-direction: column;
+    }
+    .tab-page.active {
+      display: flex;
+    }
+    .leaderboard-item {
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem;
+      border-radius: 12px;
+      background: transparent;
+      transition: all 0.2s ease;
+    }
+    .leaderboard-item.current-user {
+      background: rgba(47, 128, 237, 0.1);
+      box-shadow: 0 0 0 2px var(--accent);
+    }
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255,255,255,0.9);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Press Start 2P', cursive;
+      z-index: 1000;
+      transition: opacity 0.3s ease;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .loading-overlay.active {
+      display: flex;
+      opacity: 1;
+    }
+    .shop-item {
+      background: var(--card-bg);
+      border-radius: 1rem;
+      padding: 1rem;
+      margin: 0.5rem;
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: all 0.2s ease;
+    }
+    .shop-item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    .shop-item img {
+      width: 64px;
+      height: 64px;
+      object-fit: contain;
+      margin-bottom: 0.5rem;
+    }
+    .shop-item button {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 999px;
+      font-family: 'Press Start 2P', cursive;
+      font-size: 0.7rem;
+      margin-top: 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .shop-item button:disabled {
+      background: var(--subtext);
+      cursor: not-allowed;
+    }
+    .shop-item button:hover:not(:disabled) {
+      background: var(--accent);
+      transform: scale(1.05);
+    }
+    .quest-item {
+      background: var(--card-bg);
+      border-radius: 1rem;
+      padding: 1rem;
+      margin: 0.5rem;
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+    }
+    .quest-progress {
+      height: 6px;
+      background: var(--border);
+      border-radius: 999px;
+      margin-top: 0.5rem;
+      overflow: hidden;
+    }
+    .quest-progress-fill {
+      height: 100%;
+      background: linear-gradient(to right, var(--primary), var(--accent));
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+    .quest-reward {
+      color: var(--success);
+      font-family: 'Press Start 2P', cursive;
+      font-size: 0.7rem;
+      margin-top: 0.5rem;
+    }
+    .achievement-badge {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: var(--danger);
+      color: white;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.6rem;
+      font-family: 'Press Start 2P', cursive;
+      z-index: 10;
+    }
+    .daily-bonus {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.8);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      flex-direction: column;
+      color: white;
+      font-family: 'Press Start 2P', cursive;
+      text-align: center;
+    }
+    .daily-bonus.active {
+      display: flex;
+    }
+    .daily-bonus-coin {
+      font-size: 3rem;
+      margin: 1rem 0;
+      animation: bounce 0.5s infinite alternate;
+    }
+    @keyframes bounce {
+      from { transform: translateY(0); }
+      to { transform: translateY(-20px); }
+    }
+    .autoclicker-indicator {
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--warning);
+      color: white;
+      padding: 0.2rem 0.5rem;
+      border-radius: 999px;
+      font-size: 0.6rem;
+      font-family: 'Press Start 2P', cursive;
+      z-index: 10;
+      white-space: nowrap;
+    }
+    .skin-unlock-animation {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle, rgba(86,204,242,0.3) 0%, rgba(86,204,242,0) 70%);
+      border-radius: 50%;
+      animation: pulse 1s forwards;
+      z-index: 5;
+      pointer-events: none;
+    }
+    @keyframes pulse {
+      0% { transform: scale(0.5); opacity: 1; }
+      100% { transform: scale(1.5); opacity: 0; }
+    }
+    @media (max-width: 480px) {
+      .shark-image {
+        width: 140px;
+        height: 140px;
+      }
+      header {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app-container">
+    <header>SHARK TAPPER 2025</header>
+    
+    <div class="main-content">
+      <div class="tab-content">
+        <!-- Home Tab -->
+        <div id="home" class="tab-page active">
+          <div class="shark-wrapper">
+            <div class="shark-tap-container">
+              <div class="token-counter" id="tokenCounter">
+                <img src="https://sinobu1.github.io/shark-tapper/coin_icon_small.png" alt="Coin Icon" class="coin-icon" />
+                <span id="profileTokens">0</span> coins
+              </div>
+              <img src="https://sinobu1.github.io/shark-tapper/shark.png" alt="Tap Shark" class="shark-image" id="tapImage" />
+              <div id="autoclickerIndicator" class="autoclicker-indicator" style="display: none;">AUTO: 0/s</div>
+            </div>
+            <div class="shark-gallery">
+              <img src="https://sinobu1.github.io/shark-tapper/shark.png" alt="Shark 1" data-skin="default" class="selected" />
+              <img src="https://sinobu1.github.io/shark-tapper/shark_skin1.png" alt="Gold Shark" data-skin="skin3" />
+              <img src="https://sinobu1.github.io/shark-tapper/shark_skin2.png" alt="Leopard Shark" data-skin="skin2" />
+            </div>
+          </div>
+          <div class="profile-card">
+            <div style="position: relative;">
+              <img src="https://placehold.co/64x64" alt="Avatar" id="profileAvatar">
+              <div id="achievementBadge" class="achievement-badge" style="display: none;">0</div>
+            </div>
+            <div class="profile-info">
+              <span class="name" id="profileName">Player</span>
+              <span class="sub" id="profileLevel">Coins: 0</span>
+              <div class="xp-bar">
+                <div class="xp-fill" id="xpBar"></div>
+                <div class="xp-level" id="xpLevel">Lvl 1</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quests Tab -->
+        <div id="quests" class="tab-page">
+          <div style="padding: 1rem;">
+            <h2 style="font-family: 'Rubik Mono One', sans-serif; margin-bottom: 1rem; text-align: center;">📝 DAILY QUESTS</h2>
+            <div id="questsList">
+              <div class="quest-item">
+                <h3>Tap 100 times</h3>
+                <p style="color: var(--subtext); font-size: 0.8rem;">Tap the shark 100 times</p>
+                <div class="quest-progress">
+                  <div class="quest-progress-fill" style="width: 0%"></div>
+                </div>
+                <div class="quest-reward">+50 coins</div>
+              </div>
+              <div class="quest-item">
+                <h3>Reach 500 coins</h3>
+                <p style="color: var(--subtext); font-size: 0.8rem;">Collect 500 coins in total</p>
+                <div class="quest-progress">
+                  <div class="quest-progress-fill" style="width: 0%"></div>
+                </div>
+                <div class="quest-reward">+100 coins</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Shop Tab -->
+        <div id="shop" class="tab-page">
+          <div style="padding: 1rem;">
+            <h2 style="font-family: 'Rubik Mono One', sans-serif; margin-bottom: 1rem; text-align: center;">🛍 SHARK SHOP</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 0.5rem;" id="shopItems">
+              <div class="shop-item">
+                <img src="https://sinobu1.github.io/shark-tapper/shark_skin1.png" alt="Gold Shark">
+                <h3 style="font-size: 0.9rem; text-align: center;">Gold Shark</h3>
+                <p style="color: var(--subtext); font-size: 0.7rem; text-align: center;">500 coins</p>
+                <button data-item="skin3" data-cost="500">Buy</button>
+              </div>
+              <div class="shop-item">
+                <img src="https://sinobu1.github.io/shark-tapper/shark_skin2.png" alt="Leopard Shark">
+                <h3 style="font-size: 0.9rem; text-align: center;">Leopard Shark</h3>
+                <p style="color: var(--subtext); font-size: 0.7rem; text-align: center;">300 coins</p>
+                <button data-item="skin2" data-cost="300">Buy</button>
+              </div>
+              <div class="shop-item">
+                <img src="https://sinobu1.github.io/shark-tapper/autoclicker.png" alt="Autoclicker">
+                <h3 style="font-size: 0.9rem; text-align: center;">Autoclicker</h3>
+                <p style="color: var(--subtext); font-size: 0.7rem; text-align: center;">1000 coins</p>
+                <button data-item="autoclicker" data-cost="1000">Buy</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Leaderboard Tab -->
+        <div id="leaderboard" class="tab-page">
+          <div style="padding: 1rem;">
+            <h2 style="text-align:center; font-family: 'Rubik Mono One', sans-serif; margin-bottom: 1rem;">TOP PLAYERS</h2>
+            <div style="display: flex; justify-content: center; gap: 1rem; margin-bottom: 1rem;">
+              <button id="dailyLeaderboard" style="background: var(--primary); color: white; border: none; padding: 0.5rem 1rem; border-radius: 999px; font-family: 'Press Start 2P', cursive; font-size: 0.6rem;">Daily</button>
+              <button id="alltimeLeaderboard" style="background: var(--border); color: var(--text); border: none; padding: 0.5rem 1rem; border-radius: 999px; font-family: 'Press Start 2P', cursive; font-size: 0.6rem;">All Time</button>
+            </div>
+            <ul id="leaderboardList" style="list-style: none; padding: 0; margin: 0;">
+              <li style="text-align:center; color: var(--subtext);">Loading...</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <nav>
+      <button class="active" data-tab="home">
+        <i class="fa-solid fa-gamepad"></i><span>Game</span>
+      </button>
+      <button data-tab="quests">
+        <i class="fa-solid fa-list-check"></i><span>Quests</span>
+      </button>
+      <button data-tab="shop">
+        <i class="fa-solid fa-store"></i><span>Shop</span>
+      </button>
+      <button data-tab="leaderboard">
+        <i class="fa-solid fa-ranking-star"></i><span>Top</span>
+      </button>
+    </nav>
+
+    <div class="loading-overlay" id="loader">LOADING...</div>
+    
+    <div class="daily-bonus" id="dailyBonus">
+      <h2>DAILY BONUS!</h2>
+      <div class="daily-bonus-coin">💰</div>
+      <h3 id="dailyBonusAmount">+100 coins</h3>
+      <button style="background: var(--success); color: white; border: none; padding: 0.8rem 1.5rem; border-radius: 999px; font-family: 'Press Start 2P', cursive; font-size: 0.8rem; margin-top: 1rem; cursor: pointer;">CLAIM</button>
+    </div>
+  </div>
+
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      const dbUrl = "https://tralalero-fec07-default-rtdb.firebaseio.com";
+      let userId = null;
+      let userData = {
+        username: "Player",
+        avatar: "https://placehold.co/64x64",
+        tokens: 0,
+        skin: 'default',
+        taps: 0,
+        achievements: [],
+        autoclickers: 0,
+        lastTap: Date.now(),
+        dailyQuests: {
+          taps: { current: 0, target: 100, completed: false },
+          coins: { current: 0, target: 500, completed: false }
+        },
+        lastDailyBonus: null
+      };
+      
+      let lastSave = 0;
+      const SAVE_INTERVAL = 5000;
+      const loader = document.getElementById('loader');
+      let loaderTimeout;
+      let canVibrate = 'vibrate' in navigator || 'webkitVibrate' in navigator;
+      let autoclickerInterval = null;
+      let autoclickerRate = 0;
+      
+      // Game state
+      let gameState = {
+        leaderboardType: 'daily',
+        tapMultiplier: 1,
+        lastAchievementCheck: 0
+      };
+
+      // Initialize app
+      function init() {
+        setupEventListeners();
+        loadTelegram();
+        initLocalStorage();
+        showTab('home');
+        checkDailyBonus();
+        updateAutoclicker();
+      }
+
+      // Setup event listeners
+      function setupEventListeners() {
+        // Shark tap
+        const tapImage = document.getElementById('tapImage');
+        tapImage.addEventListener('click', handleTap);
+        tapImage.addEventListener('touchstart', handleTap, { passive: true });
+        
+        // Skin selection
+        document.querySelectorAll('.shark-gallery img').forEach(img => {
+          img.addEventListener('click', function() {
+            setSkin(this.dataset.skin);
+          });
+        });
+        
+        // Navigation
+        document.querySelectorAll('nav button').forEach(btn => {
+          btn.addEventListener('click', function() {
+            showTab(this.dataset.tab);
+          });
+        });
+        
+        // Shop items
+        document.querySelectorAll('#shopItems button').forEach(btn => {
+          btn.addEventListener('click', function() {
+            buyItem(this.dataset.item, parseInt(this.dataset.cost));
+          });
+        });
+        
+        // Leaderboard tabs
+        document.getElementById('dailyLeaderboard').addEventListener('click', () => {
+          gameState.leaderboardType = 'daily';
+          updateLeaderboardTabs();
+          loadLeaderboard();
+        });
+        
+        document.getElementById('alltimeLeaderboard').addEventListener('click', () => {
+          gameState.leaderboardType = 'alltime';
+          updateLeaderboardTabs();
+          loadLeaderboard();
+        });
+        
+        // Daily bonus
+        document.querySelector('#dailyBonus button').addEventListener('click', claimDailyBonus);
+      }
+      
+      // Update leaderboard tabs UI
+      function updateLeaderboardTabs() {
+        const dailyBtn = document.getElementById('dailyLeaderboard');
+        const alltimeBtn = document.getElementById('alltimeLeaderboard');
+        
+        if (gameState.leaderboardType === 'daily') {
+          dailyBtn.style.background = 'var(--primary)';
+          dailyBtn.style.color = 'white';
+          alltimeBtn.style.background = 'var(--border)';
+          alltimeBtn.style.color = 'var(--text)';
+        } else {
+          dailyBtn.style.background = 'var(--border)';
+          dailyBtn.style.color = 'var(--text)';
+          alltimeBtn.style.background = 'var(--primary)';
+          alltimeBtn.style.color = 'white';
+        }
+      }
+
+      // Handle tap on shark
+      function handleTap(event) {
+        // Prevent double taps on mobile
+        const now = Date.now();
+        if (now - userData.lastTap < 100) return;
+        userData.lastTap = now;
+        
+        handleVibration();
+        handleAnimation(event);
+        
+        // Increment coins and taps
+        userData.tokens += gameState.tapMultiplier;
+        userData.taps += 1;
+        userData.dailyQuests.taps.current += 1;
+        
+        updateDisplay();
+        checkQuests();
+        checkAchievements();
+        saveProgress();
+      }
+      
+      // Check and update quests
+      function checkQuests() {
+        // Update coin quest progress
+        userData.dailyQuests.coins.current = userData.tokens;
+        
+        // Check tap quest
+        if (!userData.dailyQuests.taps.completed && 
+            userData.dailyQuests.taps.current >= userData.dailyQuests.taps.target) {
+          userData.dailyQuests.taps.completed = true;
+          completeQuest('taps');
+        }
+        
+        // Check coin quest
+        if (!userData.dailyQuests.coins.completed && 
+            userData.dailyQuests.coins.current >= userData.dailyQuests.coins.target) {
+          userData.dailyQuests.coins.completed = true;
+          completeQuest('coins');
+        }
+        
+        updateQuestsDisplay();
+      }
+      
+      // Complete a quest and give reward
+      function completeQuest(type) {
+        let reward = 0;
+        
+        if (type === 'taps') {
+          reward = 50;
+        } else if (type === 'coins') {
+          reward = 100;
+        }
+        
+        userData.tokens += reward;
+        
+        // Show reward popup
+        const popup = document.createElement('div');
+        popup.className = 'coin-popup';
+        popup.textContent = `+${reward} (Quest!)`;
+        popup.style.left = '50%';
+        popup.style.top = '40%';
+        popup.style.color = '#27ae60';
+        document.body.appendChild(popup);
+        setTimeout(() => popup.remove(), 1000);
+        
+        updateDisplay();
+      }
+      
+      // Update quests display
+      function updateQuestsDisplay() {
+        const quests = [
+          {
+            type: 'taps',
+            current: userData.dailyQuests.taps.current,
+            target: userData.dailyQuests.taps.target,
+            completed: userData.dailyQuests.taps.completed
+          },
+          {
+            type: 'coins',
+            current: Math.min(userData.dailyQuests.coins.current, userData.dailyQuests.coins.target),
+            target: userData.dailyQuests.coins.target,
+            completed: userData.dailyQuests.coins.completed
+          }
+        ];
+        
+        const questElements = document.querySelectorAll('#questsList .quest-item');
+        
+        quests.forEach((quest, index) => {
+          if (index < questElements.length) {
+            const progress = questElements[index].querySelector('.quest-progress-fill');
+            const percent = Math.min(100, (quest.current / quest.target) * 100);
+            progress.style.width = `${percent}%`;
+            
+            if (quest.completed) {
+              questElements[index].style.opacity = '0.6';
+              questElements[index].querySelector('button').textContent = 'Completed';
+              questElements[index].querySelector('button').disabled = true;
+            }
+          }
+        });
+      }
+      
+      // Check for achievements
+      function checkAchievements() {
+        const now = Date.now();
+        if (now - gameState.lastAchievementCheck < 5000) return;
+        gameState.lastAchievementCheck = now;
+        
+        const newAchievements = [];
+        const achievements = [
+          { id: 'first100', condition: () => userData.tokens >= 100, title: 'First 100 Coins' },
+          { id: 'first500', condition: () => userData.tokens >= 500, title: 'First 500 Coins' },
+          { id: 'tapper100', condition: () => userData.taps >= 100, title: '100 Taps' },
+          { id: 'skinCollector', condition: () => ['skin2', 'skin3'].every(skin => userData.achievements.includes(skin)), title: 'Skin Collector' }
+        ];
+        
+        achievements.forEach(achievement => {
+          if (!userData.achievements.includes(achievement.id) {
+            if (achievement.condition()) {
+              newAchievements.push(achievement);
+              userData.achievements.push(achievement.id);
+            }
+          }
+        });
+        
+        if (newAchievements.length > 0) {
+          showAchievements(newAchievements);
+        }
+        
+        updateAchievementBadge();
+      }
+      
+      // Show achievements popup
+      function showAchievements(achievements) {
+        achievements.forEach(achievement => {
+          const popup = document.createElement('div');
+          popup.className = 'coin-popup';
+          popup.textContent = `Achievement: ${achievement.title}!`;
+          popup.style.left = '50%';
+          popup.style.top = '30%';
+          popup.style.color = '#e74c3c';
+          popup.style.fontSize = '0.8rem';
+          popup.style.width = '80%';
+          popup.style.textAlign = 'center';
+          popup.style.transform = 'translateX(-50%)';
+          document.body.appendChild(popup);
+          setTimeout(() => popup.remove(), 2000);
+        });
+      }
+      
+      // Update achievement badge
+      function updateAchievementBadge() {
+        const badge = document.getElementById('achievementBadge');
+        if (userData.achievements.length > 0) {
+          badge.style.display = 'flex';
+          badge.textContent = userData.achievements.length;
+        } else {
+          badge.style.display = 'none';
+        }
+      }
+      
+      // Buy item from shop
+      function buyItem(item, cost) {
+        if (userData.tokens < cost) {
+          // Show not enough coins message
+          const popup = document.createElement('div');
+          popup.className = 'coin-popup';
+          popup.textContent = 'Not enough coins!';
+          popup.style.left = '50%';
+          popup.style.top = '40%';
+          popup.style.color = '#e74c3c';
+          document.body.appendChild(popup);
+          setTimeout(() => popup.remove(), 1000);
+          return;
+        }
+        
+        userData.tokens -= cost;
+        
+        if (item.startsWith('skin')) {
+          setSkin(item);
+          
+          // Show skin unlock animation
+          const shark = document.getElementById('tapImage');
+          const animation = document.createElement('div');
+          animation.className = 'skin-unlock-animation';
+          shark.parentNode.insertBefore(animation, shark.nextSibling);
+          setTimeout(() => animation.remove(), 1000);
+        } else if (item === 'autoclicker') {
+          userData.autoclickers += 1;
+          updateAutoclicker();
+          
+          // Show autoclicker message
+          const popup = document.createElement('div');
+          popup.className = 'coin-popup';
+          popup.textContent = 'Autoclicker +1!';
+          popup.style.left = '50%';
+          popup.style.top = '40%';
+          popup.style.color = '#f39c12';
+          document.body.appendChild(popup);
+          setTimeout(() => popup.remove(), 1000);
+        }
+        
+        updateDisplay();
+        saveProgress();
+      }
+      
+      // Update autoclicker
+      function updateAutoclicker() {
+        autoclickerRate = userData.autoclickers;
+        
+        const indicator = document.getElementById('autoclickerIndicator');
+        if (autoclickerRate > 0) {
+          indicator.style.display = 'block';
+          indicator.textContent = `AUTO: ${autoclickerRate}/s`;
+          
+          // Clear existing interval if any
+          if (autoclickerInterval) {
+            clearInterval(autoclickerInterval);
+          }
+          
+          // Set up new interval
+          autoclickerInterval = setInterval(() => {
+            if (autoclickerRate > 0) {
+              userData.tokens += autoclickerRate;
+              updateDisplay();
+              saveProgress();
+            }
+          }, 1000);
+        } else {
+          indicator.style.display = 'none';
+          if (autoclickerInterval) {
+            clearInterval(autoclickerInterval);
+            autoclickerInterval = null;
+          }
+        }
+      }
+      
+      // Check for daily bonus
+      function checkDailyBonus() {
+        const today = new Date().toDateString();
+        
+        if (!userData.lastDailyBonus || userData.lastDailyBonus !== today) {
+          // Show daily bonus popup
+          const bonusAmount = 100 + Math.floor(Math.random() * 100);
+          document.getElementById('dailyBonusAmount').textContent = `+${bonusAmount} coins`;
+          document.getElementById('dailyBonus').classList.add('active');
+          
+          // Store the bonus amount in a data attribute
+          document.getElementById('dailyBonus').dataset.amount = bonusAmount;
+        }
+      }
+      
+      // Claim daily bonus
+      function claimDailyBonus() {
+        const bonusAmount = parseInt(document.getElementById('dailyBonus').dataset.amount);
+        userData.tokens += bonusAmount;
+        userData.lastDailyBonus = new Date().toDateString();
+        
+        document.getElementById('dailyBonus').classList.remove('active');
+        updateDisplay();
+        saveProgress();
+        
+        // Show bonus received message
+        const popup = document.createElement('div');
+        popup.className = 'coin-popup';
+        popup.textContent = `Daily Bonus: +${bonusAmount}!`;
+        popup.style.left = '50%';
+        popup.style.top = '40%';
+        popup.style.color = '#f8d030';
+        document.body.appendChild(popup);
+        setTimeout(() => popup.remove(), 1000);
+      }
+
+      // Handle vibration
+      function handleVibration() {
+        try {
+          if (canVibrate) {
+            if (navigator.vibrate) navigator.vibrate(10);
+            else if (navigator.webkitVibrate) navigator.webkitVibrate([10]);
+          }
+        } catch (e) {
+          console.log('Vibration not supported');
+        }
+      }
+
+      // Handle animation
+      function handleAnimation(event) {
+        const shark = document.getElementById("tapImage");
+        shark.style.transform = "scale(0.95)";
+        setTimeout(() => shark.style.transform = "scale(1)", 100);
+        
+        if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+          shark.style.animation = 'iosTap 0.2s';
+          setTimeout(() => shark.style.animation = '', 200);
+        }
+        
+        createTapEffect(event);
+        createCoinPopup(event);
+      }
+
+      // Create tap effect
+      function createTapEffect(event) {
+        const effect = document.createElement('div');
+        effect.className = 'tap-effect';
+        
+        // Handle both mouse and touch events
+        const x = event.clientX || event.touches[0].clientX;
+        const y = event.clientY || event.touches[0].clientY;
+        
+        effect.style.left = `${x}px`;
+        effect.style.top = `${y}px`;
+        document.body.appendChild(effect);
+        setTimeout(() => effect.remove(), 600);
+      }
+
+      // Create coin popup
+      function createCoinPopup(event) {
+        const popup = document.createElement('div');
+        popup.className = 'coin-popup';
+        popup.textContent = `+${gameState.tapMultiplier}`;
+        
+        // Handle both mouse and touch events
+        const x = event.clientX || event.touches[0].clientX;
+        const y = event.clientY || event.touches[0].clientY;
+        
+        popup.style.left = `${x}px`;
+        popup.style.top = `${y - 20}px`;
+        document.body.appendChild(popup);
+        setTimeout(() => popup.remove(), 1000);
+      }
+
+      // Update display
+      function updateDisplay() {
+        document.getElementById("profileTokens").textContent = userData.tokens.toLocaleString();
+        document.getElementById("profileLevel").textContent = `Coins: ${userData.tokens.toLocaleString()}`;
+        
+        // Update XP bar and level
+        const bar = document.getElementById("xpBar");
+        const levelElement = document.getElementById("xpLevel");
+        const limits = [0, 100, 500, 1000, 2500, 5000, 10000, 25000, 50000];
+        const max = limits.find(l => userData.tokens < l) || 50000;
+        const min = limits[Math.max(0, limits.indexOf(max) - 1)];
+        const level = limits.indexOf(max);
+        const percent = Math.min(100, ((userData.tokens - min) / (max - min)) * 100);
+        
+        bar.style.width = `${percent}%`;
+        levelElement.textContent = `Lvl ${level}`;
+        
+        // Update tap multiplier based on level
+        gameState.tapMultiplier = 1 + Math.floor(level / 5);
+      }
+
+      // Show tab
+      function showTab(tabId) {
+        document.querySelectorAll('nav button').forEach(btn => 
+          btn.classList.toggle('active', btn.dataset.tab === tabId)
+        );
+        
+        document.querySelectorAll('.tab-page').forEach(page => 
+          page.classList.toggle('active', page.id === tabId)
+        );
+        
+        if (tabId === 'leaderboard') loadLeaderboard();
+        if (tabId === 'quests') updateQuestsDisplay();
+      }
+
+      // Save progress
+      async function saveProgress() {
+        const now = Date.now();
+        if (now - lastSave > SAVE_INTERVAL) {
+          showLoader();
+          try {
+            if (userId) {
+              await fetch(`${dbUrl}/users/${userId}.json`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  balance: userData.tokens,
+                  first_name: userData.username,
+                  photo_url: userData.avatar,
+                  skin: userData.skin,
+                  taps: userData.taps,
+                  achievements: userData.achievements,
+                  autoclickers: userData.autoclickers,
+                  dailyQuests: userData.dailyQuests,
+                  lastDailyBonus: userData.lastDailyBonus,
+                  last_update: Date.now()
+                })
+              });
+            }
+            saveToLocalStorage();
+            lastSave = now;
+          } catch(err) {
+            console.error('Save error:', err);
+          } finally {
+            hideLoader();
+          }
+        } else {
+          saveToLocalStorage();
+        }
+      }
+
+      // Initialize local storage
+      function initLocalStorage() {
+        const savedData = localStorage.getItem('sharkTapperData');
+        if (savedData) {
+          try {
+            const parsed = JSON.parse(savedData);
+            userData.tokens = parsed.tokens || 0;
+            userData.skin = parsed.skin || 'default';
+            userData.taps = parsed.taps || 0;
+            userData.achievements = parsed.achievements || [];
+            userData.autoclickers = parsed.autoclickers || 0;
+            userData.dailyQuests = parsed.dailyQuests || {
+              taps: { current: 0, target: 100, completed: false },
+              coins: { current: 0, target: 500, completed: false }
+            };
+            userData.lastDailyBonus = parsed.lastDailyBonus || null;
+            
+            updateDisplay();
+            setSkin(userData.skin, true);
+            updateAutoclicker();
+            updateAchievementBadge();
+          } catch(e) {
+            console.error('Error parsing saved data', e);
+          }
+        }
+      }
+
+      // Save to local storage
+      function saveToLocalStorage() {
+        localStorage.setItem('sharkTapperData', JSON.stringify({
+          tokens: userData.tokens,
+          skin: userData.skin,
+          taps: userData.taps,
+          achievements: userData.achievements,
+          autoclickers: userData.autoclickers,
+          dailyQuests: userData.dailyQuests,
+          lastDailyBonus: userData.lastDailyBonus
+        }));
+      }
+
+      // Load leaderboard
+      async function loadLeaderboard() {
+        showLoader();
+        try {
+          const orderBy = gameState.leaderboardType === 'daily' ? 'daily_taps' : 'balance';
+          const response = await fetch(`${dbUrl}/users.json?orderBy="${orderBy}"&limitToLast=50`);
+          const data = await response.json();
+          
+          const sorted = Object.entries(data)
+            .sort((a, b) => (b[1]?.[orderBy] || 0) - (a[1]?.[orderBy] || 0))
+            .slice(0, 10);
+
+          renderLeaderboard(sorted, orderBy);
+          localStorage.setItem('leaderboardCache', JSON.stringify({
+            data: sorted,
+            timestamp: Date.now(),
+            type: gameState.leaderboardType
+          }));
+        } catch(err) {
+          console.error('Leaderboard error:', err);
+          const cache = JSON.parse(localStorage.getItem('leaderboardCache'));
+          if (cache && cache.type === gameState.leaderboardType) {
+            renderLeaderboard(cache.data, gameState.leaderboardType === 'daily' ? 'daily_taps' : 'balance');
+          } else {
+            document.getElementById("leaderboardList").innerHTML = 
+              '<li style="text-align:center; color: var(--subtext);">Failed to load leaderboard</li>';
+          }
+        } finally {
+          hideLoader();
+        }
+      }
+
+      // Render leaderboard
+      function renderLeaderboard(data, orderBy) {
+        const list = document.getElementById("leaderboardList");
+        list.innerHTML = data.map(([id, user], i) => {
+          const isCurrentUser = id === userId?.toString();
+          const value = user[orderBy] || 0;
+          
+          return `
+            <li class="leaderboard-item ${isCurrentUser ? 'current-user' : ''}">
+              <span style="font-weight: bold; color: var(--primary); width: 24px; text-align: center;">#${i + 1}</span>
+              <img src="${user.photo_url || 'https://placehold.co/32x32'}" 
+                   style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--accent); object-fit: cover;">
+              <span style="flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                ${user.first_name || 'Player'}
+              </span>
+              <span style="color: var(--subtext); font-family: 'Press Start 2P', cursive; font-size: 0.7rem;">
+                ${value.toLocaleString()} ${orderBy === 'daily_taps' ? '👆' : '💰'}
+              </span>
+            </li>`;
+        }).join("");
+      }
+
+      // Set skin
+      function setSkin(skin, silent = false) {
+        const skins = {
+          'default': 'https://sinobu1.github.io/shark-tapper/shark.png',
+          'skin2': 'https://sinobu1.github.io/shark-tapper/shark_skin2.png',
+          'skin3': 'https://sinobu1.github.io/shark-tapper/shark_skin1.png'
+        };
+        
+        if (skins[skin]) {
+          userData.skin = skin;
+          document.getElementById('tapImage').src = skins[skin];
+          
+          // Update selected skin in gallery
+          document.querySelectorAll('.shark-gallery img').forEach(img => {
+            img.classList.toggle('selected', img.dataset.skin === skin);
+          });
+          
+          if (!silent) saveProgress();
+        }
+      }
+
+      // Load Telegram
+      function loadTelegram() {
+        try {
+          Telegram.WebApp.ready();
+          Telegram.WebApp.expand();
+          
+          const tgUser = Telegram.WebApp.initDataUnsafe?.user;
+          if (tgUser) {
+            userId = tgUser.id.toString();
+            userData.username = tgUser.first_name || "Player";
+            userData.avatar = tgUser.photo_url || "https://placehold.co/64x64";
+            document.getElementById("profileName").textContent = userData.username;
+            document.getElementById("profileAvatar").src = userData.avatar;
+            loadProgress();
+          }
+        } catch (e) {
+          console.log('Telegram context not available');
+          initLocalStorage();
+        }
+      }
+      
+      // Load progress from server
+      async function loadProgress() {
+        showLoader();
+        try {
+          if (!userId) return;
+          
+          const response = await fetch(`${dbUrl}/users/${userId}.json`);
+          const data = await response.json();
+          
+          if (data) {
+            // Merge server data with local
+            userData.tokens = Math.max(data.balance || 0, userData.tokens);
+            userData.taps = Math.max(data.taps || 0, userData.taps);
+            userData.skin = data.skin || userData.skin || 'default';
+            userData.achievements = [...new Set([...(data.achievements || []), ...userData.achievements])];
+            userData.autoclickers = Math.max(data.autoclickers || 0, userData.autoclickers);
+            
+            // Update UI
+            updateDisplay();
+            setSkin(userData.skin, true);
+            updateAutoclicker();
+            updateAchievementBadge();
+            
+            // Save merged data
+            saveToLocalStorage();
+          }
+        } catch(err) {
+          console.error('Load error:', err);
+        } finally {
+          hideLoader();
+        }
+      }
+
+      // Show loader
+      function showLoader() {
+        clearTimeout(loaderTimeout);
+        loaderTimeout = setTimeout(() => {
+          loader.classList.add('active');
+          document.body.style.pointerEvents = 'none';
+        }, 300);
+      }
+
+      // Hide loader
+      function hideLoader() {
+        clearTimeout(loaderTimeout);
+        loader.classList.remove('active');
+        document.body.style.pointerEvents = 'auto';
+      }
+
+      // Auto-save every 30 seconds
+      setInterval(() => {
+        if (userData.tokens > 0) saveProgress();
+      }, 30000);
+
+      // Reset daily quests at midnight
+      function checkDailyReset() {
+        const now = new Date();
+        const tomorrow = new Date(now);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        tomorrow.setHours(0, 0, 0, 0);
+        
+        const timeUntilReset = tomorrow - now;
+        
+        setTimeout(() => {
+          userData.dailyQuests = {
+            taps: { current: 0, target: 100, completed: false },
+            coins: { current: 0, target: 500, completed: false }
+          };
+          saveProgress();
+          checkDailyReset(); // Set up next reset
+        }, timeUntilReset);
+      }
+      
+      // Initialize daily reset check
+      checkDailyReset();
+
+      // Initialize the app
+      init();
+    });
+  </script>
+</body>
+</html>
