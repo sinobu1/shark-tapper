@@ -1,186 +1,75 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Shark Tapper</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=SF+Pro+Display:wght@400;600;700&display=swap" rel="stylesheet" />
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=SF+Pro+Display:wght@400;600;700&display=swap" rel="stylesheet" />
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body {
-      width: 100%; height: 100%; overflow: hidden;
-      font-family: 'SF Pro Display', 'Segoe UI', sans-serif;
+    body {
+      font-family: 'SF Pro Display', sans-serif;
       background: linear-gradient(160deg, #f1f3f5, #dee2e6);
+      height: 100vh; display: flex; flex-direction: column; align-items: center;
     }
-    .loading-screen {
-      position: fixed; width: 100%; height: 100%; background: #fff; z-index: 9999;
-      display: flex; align-items: center; justify-content: center; flex-direction: column;
-    }
-    .game-container {
+    .game-container, #shopContainer, #boosterContainer {
       display: none;
-      position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
-      width: 90vw; max-width: 400px; height: 90vh; max-height: 700px;
-      background: white; border-radius: 24px; box-shadow: 0 6px 20px rgba(0,0,0,0.1);
-      padding: 20px; display: flex; flex-direction: column; justify-content: space-between; align-items: center;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
     }
     .balance {
-      font-size: 22px; font-weight: 600; color: #111;
+      font-size: 20px; margin: 10px 0;
     }
     .tap-image {
-      max-width: 100%; border-radius: 16px; cursor: pointer;
-      transition: transform 0.1s;
-    }
-    .tap-animation { animation: tapPulse 0.2s ease; }
-    @keyframes tapPulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(0.9); }
-      100% { transform: scale(1); }
-    }
-    .floating-text {
-      position: absolute; font-size: 24px; color: #00c853; font-weight: 700;
-      animation: floatUp 1s ease-out forwards; pointer-events: none;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.4);
-    }
-    @keyframes floatUp {
-      0% { opacity: 1; transform: translateY(0); }
-      100% { opacity: 0; transform: translateY(-50px); }
+      width: 200px;
+      border-radius: 16px;
+      cursor: pointer;
     }
     .tab-bar {
       position: fixed;
       bottom: 0;
-      left: 0;
       width: 100%;
       display: flex;
       justify-content: space-around;
       background: white;
       border-top: 1px solid #ccc;
       padding: 10px 0;
-      z-index: 1000;
     }
     .tab-button {
       background: none;
       border: none;
       font-size: 18px;
-      font-weight: 600;
-      color: #444;
-      font-family: 'SF Pro Display';
       cursor: pointer;
+      font-weight: 600;
     }
   </style>
 </head>
 <body>
-  <div class="loading-screen" id="loading">
-    <img src="w1.png" alt="Loading..." style="position:absolute; width:100%; height:100%; object-fit:cover; z-index:-1;">
-    <div style="position:absolute; bottom:80px; width:100%; text-align:center;">
-      <div style="font-family: 'Orbitron', sans-serif; font-size: 28px; color: #fff; text-shadow: 2px 2px 8px rgba(0,0,0,0.8); margin-bottom: 16px;">Adventure of the Year 2025</div>
-      <div style="width: 80%; height: 14px; background: #1a1a1a; border-radius: 8px; overflow: hidden; margin: 0 auto;">
-        <div id="progress-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #00ffcc, #0072ff); animation: loadProgress 5s linear forwards; box-shadow: 0 0 12px #00f5ff;"></div>
-      </div>
-    </div>
+
+<div class="balance" id="tokenCount">0 tokens</div>
+<div id="gameContainer" class="game-container">
+  <img id="tapImage" class="tap-image" src="shark.png" alt="Shark" onclick="handleTap()" />
+</div>
+
+<div id="boosterContainer">
+  <h2>Boosters</h2>
+  <div>
+    <button onclick="buyBooster(50, 1)">Auto-Tap +1 (50)</button>
+    <button onclick="buyBooster(100, 2)">Auto-Tap +2 (100)</button>
+    <button onclick="buyBooster(1000, 3)">Auto-Tap +3 (1000)</button>
   </div>
+</div>
 
-  <div class="game-container" id="gameContainer">
-    <div class="balance" id="tokenCount">0 tokens</div>
-    <img src="shark.png" id="tapImage" class="tap-image" onclick="handleTap()" alt="Shark">
+<div id="shopContainer">
+  <h2>Skins</h2>
+  <div>
+    <button onclick="buySkin('default', 0)">Default (Free)</button>
+    <button onclick="buySkin('gold', 1000)">Gold (1000)</button>
+    <button onclick="buySkin('leopard', 500)">Leopard (500)</button>
   </div>
-
-  <div class="tab-bar">
-    <button class="tab-button" onclick="alert('Game tab active')">🦈 Game</button>
-    <button class="tab-button" onclick="alert('Quests coming soon')">🎯 Quests</button>
-    <button class="tab-button" onclick="alert('Leaderboard coming soon')">🏆 Leaderboard</button>
-    <button class="tab-button" onclick="alert('Shop coming soon')">🛒 Shop</button>
-    <button class="tab-button" onclick="alert('Profile coming soon')">👤 Profile</button>
-  </div>
-
-  <script>
-    const dbUrl = 'https://tralalero-fec07-default-rtdb.firebaseio.com';
-    let userId = null;
-    let balance = 0;
-    const tapImage = document.getElementById('tapImage');
-    const tokenCount = document.getElementById('tokenCount');
-
-    function updateBalanceDisplay() {
-      tokenCount.textContent = `${balance} tokens`;
-    }
-
-    function handleTap() {
-      balance++;
-      updateBalanceDisplay();
-      tapImage.classList.add("tap-animation");
-      showFloatingText('+1');
-      setTimeout(() => tapImage.classList.remove("tap-animation"), 200);
-      saveProgress();
-    }
-
-    function showFloatingText(text) {
-      const floatText = document.createElement("div");
-      floatText.className = "floating-text";
-      floatText.textContent = text;
-      const rect = tapImage.getBoundingClientRect();
-      floatText.style.left = rect.left + rect.width / 2 + "px";
-      floatText.style.top = rect.top + rect.height / 2 + "px";
-      document.body.appendChild(floatText);
-      setTimeout(() => floatText.remove(), 1000);
-    }
-
-    function saveProgress() {
-      if (!userId) return;
-      const user = Telegram.WebApp.initDataUnsafe?.user || {};
-      const userData = {
-        balance,
-        first_name: user.first_name || "",
-        last_name: user.last_name || "",
-        username: user.username || "",
-        photo_url: user.photo_url || ""
-      };
-      fetch(`${dbUrl}/users/${userId}.json`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(userData)
-      });
-    }
-
-    function loadProgress() {
-      if (!userId) return;
-      fetch(`${dbUrl}/users/${userId}.json`)
-        .then(res => res.json())
-        .then(data => {
-          if (data) {
-            balance = data.balance || 0;
-            updateBalanceDisplay();
-          }
-        });
-    }
-
-    window.addEventListener('DOMContentLoaded', () => {
-      setTimeout(() => {
-        document.getElementById('loading').style.display = 'none';
-        document.getElementById('gameContainer').style.display = 'flex';
-      }, 5000);
-
-      if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
-        Telegram.WebApp.ready();
-        Telegram.WebApp.expand();
-        userId = Telegram.WebApp.initDataUnsafe?.user?.id?.toString();
-        if (userId) {
-          loadProgress();
-        } else {
-          alert("Failed to get userId from Telegram WebApp.");
-        }
-      }
-    });
-<script>
-function toggleTab(tabId) {
-  const containers = ['gameContainer', 'shopContainer', 'boosterContainer'];
-  containers.forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.style.display = 'none';
-  });
-  const target = document.getElementById(tabId);
-  if (target) target.style.display = 'flex';
-}
-</script>
+</div>
 
 <div class="tab-bar">
   <button class="tab-button" onclick="toggleTab('gameContainer')">🦈 Game</button>
@@ -188,61 +77,55 @@ function toggleTab(tabId) {
   <button class="tab-button" onclick="toggleTab('shopContainer')">🛒 Shop</button>
 </div>
 
-<!-- 🛍 SHOP + BOOSTERS MODULE -->
-<div id="shopContainer" style="display: none; padding: 20px; flex-direction: column; align-items: center;">
-  <h2 style="font-size: 22px; font-weight: 700; margin-bottom: 16px;">Shark Skins</h2>
-  <div style="display: flex; flex-direction: column; gap: 12px;">
-    <div class="shop-item">
-      <img src="shark.png" style="width: 100px; border-radius: 16px;">
-      <button onclick="buySkin('default', 0)">Use</button>
-    </div>
-    <div class="shop-item">
-      <img src="shark_skin1.png" style="width: 100px; border-radius: 16px;">
-      <button onclick="buySkin('gold', 1000)">Buy / Use (1000)</button>
-    </div>
-    <div class="shop-item">
-      <img src="shark_skin2.png" style="width: 100px; border-radius: 16px;">
-      <button onclick="buySkin('leopard', 500)">Buy / Use (500)</button>
-    </div>
-  </div>
-</div>
-
-<div id="boosterContainer" style="display: none; padding: 20px; flex-direction: column; align-items: center;">
-  <h2 style="font-size: 22px; font-weight: 700; margin-bottom: 16px;">Boosters</h2>
-  <div style="display: flex; flex-direction: column; gap: 12px;">
-    <div class="booster-item">
-      <div>Auto-Tap +1 (50 tokens)</div>
-      <button onclick="buyBooster(50, 1)">Buy</button>
-    </div>
-    <div class="booster-item">
-      <div>Auto-Tap +2 (100 tokens)</div>
-      <button onclick="buyBooster(100, 2)">Buy</button>
-    </div>
-    <div class="booster-item">
-      <div>Auto-Tap +3 (1000 tokens)</div>
-      <button onclick="buyBooster(1000, 3)">Buy</button>
-    </div>
-  </div>
-</div>
-
 <script>
+const dbUrl = "https://tralalero-fec07-default-rtdb.firebaseio.com";
+let userId = null;
+let balance = 0;
+let autoTap = 0;
 let ownedSkins = { default: true };
 let currentSkin = 'default';
-let autoTap = 0;
 
-function buySkin(skin, cost) {
-  if (ownedSkins[skin] || balance >= cost) {
-    if (!ownedSkins[skin]) {
-      balance -= cost;
-      ownedSkins[skin] = true;
-    }
-    currentSkin = skin;
-    document.getElementById('tapImage').src = skin === 'gold' ? 'shark_skin1.png' : skin === 'leopard' ? 'shark_skin2.png' : 'shark.png';
-    updateBalanceDisplay();
-    saveProgress();
-  } else {
-    alert('Not enough tokens!');
-  }
+const tokenCount = document.getElementById("tokenCount");
+const tapImage = document.getElementById("tapImage");
+
+function updateBalanceDisplay() {
+  tokenCount.textContent = `${balance} tokens`;
+}
+
+function handleTap() {
+  balance++;
+  updateBalanceDisplay();
+  saveProgress();
+}
+
+function saveProgress() {
+  if (!userId) return;
+  fetch(`${dbUrl}/users/${userId}.json`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ balance, currentSkin })
+  });
+}
+
+function loadProgress() {
+  if (!userId) return;
+  fetch(`${dbUrl}/users/${userId}.json`)
+    .then(res => res.json())
+    .then(data => {
+      if (data) {
+        balance = data.balance || 0;
+        currentSkin = data.currentSkin || 'default';
+        updateBalanceDisplay();
+        updateSkin(currentSkin);
+      }
+    });
+}
+
+function toggleTab(id) {
+  ['gameContainer', 'shopContainer', 'boosterContainer'].forEach(el =>
+    document.getElementById(el).style.display = 'none'
+  );
+  document.getElementById(id).style.display = 'flex';
 }
 
 function buyBooster(cost, power) {
@@ -251,9 +134,26 @@ function buyBooster(cost, power) {
     autoTap += power;
     updateBalanceDisplay();
     saveProgress();
-  } else {
-    alert('Not enough tokens!');
   }
+}
+
+function buySkin(skin, cost) {
+  if (ownedSkins[skin] || balance >= cost) {
+    if (!ownedSkins[skin]) {
+      balance -= cost;
+      ownedSkins[skin] = true;
+    }
+    currentSkin = skin;
+    updateSkin(skin);
+    updateBalanceDisplay();
+    saveProgress();
+  }
+}
+
+function updateSkin(skin) {
+  if (skin === 'gold') tapImage.src = 'shark_skin1.png';
+  else if (skin === 'leopard') tapImage.src = 'shark_skin2.png';
+  else tapImage.src = 'shark.png';
 }
 
 setInterval(() => {
@@ -263,8 +163,17 @@ setInterval(() => {
     saveProgress();
   }
 }, 1000);
+
+window.onload = () => {
+  if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
+    Telegram.WebApp.ready();
+    Telegram.WebApp.expand();
+    userId = Telegram.WebApp.initDataUnsafe?.user?.id?.toString();
+    if (userId) loadProgress();
+  }
+  toggleTab('gameContainer');
+};
 </script>
 
-<!-- 👆 Tabs + Cards HoYoLAB + Full Switching Logic Done -->
 </body>
 </html>
