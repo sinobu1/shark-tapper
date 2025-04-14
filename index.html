@@ -170,6 +170,101 @@
         }
       }
     });
-  </script>
+<script>
+function toggleTab(tabId) {
+  const containers = ['gameContainer', 'shopContainer', 'boosterContainer'];
+  containers.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
+  const target = document.getElementById(tabId);
+  if (target) target.style.display = 'flex';
+}
+</script>
+
+<div class="tab-bar">
+  <button class="tab-button" onclick="toggleTab('gameContainer')">🦈 Game</button>
+  <button class="tab-button" onclick="toggleTab('boosterContainer')">⚡ Boosters</button>
+  <button class="tab-button" onclick="toggleTab('shopContainer')">🛒 Shop</button>
+</div>
+
+<!-- 🛍 SHOP + BOOSTERS MODULE -->
+<div id="shopContainer" style="display: none; padding: 20px; flex-direction: column; align-items: center;">
+  <h2 style="font-size: 22px; font-weight: 700; margin-bottom: 16px;">Shark Skins</h2>
+  <div style="display: flex; flex-direction: column; gap: 12px;">
+    <div class="shop-item">
+      <img src="shark.png" style="width: 100px; border-radius: 16px;">
+      <button onclick="buySkin('default', 0)">Use</button>
+    </div>
+    <div class="shop-item">
+      <img src="shark_skin1.png" style="width: 100px; border-radius: 16px;">
+      <button onclick="buySkin('gold', 1000)">Buy / Use (1000)</button>
+    </div>
+    <div class="shop-item">
+      <img src="shark_skin2.png" style="width: 100px; border-radius: 16px;">
+      <button onclick="buySkin('leopard', 500)">Buy / Use (500)</button>
+    </div>
+  </div>
+</div>
+
+<div id="boosterContainer" style="display: none; padding: 20px; flex-direction: column; align-items: center;">
+  <h2 style="font-size: 22px; font-weight: 700; margin-bottom: 16px;">Boosters</h2>
+  <div style="display: flex; flex-direction: column; gap: 12px;">
+    <div class="booster-item">
+      <div>Auto-Tap +1 (50 tokens)</div>
+      <button onclick="buyBooster(50, 1)">Buy</button>
+    </div>
+    <div class="booster-item">
+      <div>Auto-Tap +2 (100 tokens)</div>
+      <button onclick="buyBooster(100, 2)">Buy</button>
+    </div>
+    <div class="booster-item">
+      <div>Auto-Tap +3 (1000 tokens)</div>
+      <button onclick="buyBooster(1000, 3)">Buy</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let ownedSkins = { default: true };
+let currentSkin = 'default';
+let autoTap = 0;
+
+function buySkin(skin, cost) {
+  if (ownedSkins[skin] || balance >= cost) {
+    if (!ownedSkins[skin]) {
+      balance -= cost;
+      ownedSkins[skin] = true;
+    }
+    currentSkin = skin;
+    document.getElementById('tapImage').src = skin === 'gold' ? 'shark_skin1.png' : skin === 'leopard' ? 'shark_skin2.png' : 'shark.png';
+    updateBalanceDisplay();
+    saveProgress();
+  } else {
+    alert('Not enough tokens!');
+  }
+}
+
+function buyBooster(cost, power) {
+  if (balance >= cost) {
+    balance -= cost;
+    autoTap += power;
+    updateBalanceDisplay();
+    saveProgress();
+  } else {
+    alert('Not enough tokens!');
+  }
+}
+
+setInterval(() => {
+  if (autoTap > 0) {
+    balance += autoTap;
+    updateBalanceDisplay();
+    saveProgress();
+  }
+}, 1000);
+</script>
+
+<!-- 👆 Tabs + Cards HoYoLAB + Full Switching Logic Done -->
 </body>
 </html>
