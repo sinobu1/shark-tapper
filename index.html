@@ -38,17 +38,17 @@
     }
     .token-counter {
       margin-top: 8px;
-      font-size: 1.25rem;
-      font-weight: 600;
+      font-size: 1rem;
       color: var(--primary);
       background: var(--card-bg);
-      padding: 0.5rem 1rem;
+      padding: 0.75rem 1.25rem;
       border-radius: 999px;
       box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
       display: flex;
       align-items: center;
       gap: 0.5rem;
       font-family: 'Press Start 2P', cursive;
+      line-height: 1.2;
     }
     .shark-wrapper {
       position: relative;
@@ -56,6 +56,7 @@
       flex-direction: column;
       align-items: center;
       z-index: 2;
+      margin-top: 10px;
     }
     .shark-image {
       width: 160px;
@@ -69,13 +70,17 @@
       transition: transform 0.1s ease;
     }
     .shark-gallery {
-      margin: 1rem auto;
-      padding: 0 1rem;
+      margin: 1.5rem auto;
+      padding: 0.5rem 1rem;
       display: flex;
       justify-content: center;
-      overflow-x: auto;
       gap: 0.75rem;
-      scroll-snap-type: x mandatory;
+      overflow-x: auto;
+      width: 100%;
+      scrollbar-width: none;
+    }
+    .shark-gallery::-webkit-scrollbar {
+      display: none;
     }
     .shark-gallery img {
       width: 52px;
@@ -84,8 +89,12 @@
       border: 2px solid var(--primary);
       background: white;
       object-fit: cover;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
       flex-shrink: 0;
+      transition: transform 0.2s ease;
+    }
+    .shark-gallery img:hover {
+      transform: scale(1.1);
     }
     .profile-card {
       background: var(--card-bg);
@@ -112,8 +121,9 @@
     }
     .profile-info .name {
       font-weight: 600;
-      font-size: 1.2rem;
+      font-size: 1rem;
       font-family: 'Press Start 2P', cursive;
+      line-height: 1.3;
     }
     .profile-info .sub {
       font-size: 0.9rem;
@@ -126,7 +136,7 @@
       background: var(--border);
       border-radius: 999px;
       overflow: hidden;
-      margin-top: 0.25rem;
+      margin-top: 0.5rem;
     }
     .xp-fill {
       height: 100%;
@@ -150,7 +160,7 @@
       flex: 1;
       background: none;
       border: none;
-      font-size: 0.8rem;
+      font-size: 0.7rem;
       color: var(--subtext);
       display: flex;
       flex-direction: column;
@@ -159,7 +169,7 @@
       font-family: 'Bungee', cursive;
     }
     nav button i {
-      font-size: 1.3rem;
+      font-size: 1.2rem;
     }
     nav button.active {
       color: var(--primary);
@@ -185,6 +195,20 @@
       0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
       100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
     }
+    .coin-popup {
+      position: absolute;
+      font-family: 'Press Start 2P', cursive;
+      color: #f8d030;
+      text-shadow: 1px 1px 0 #b88b00, -1px -1px 0 #b88b00;
+      font-size: 1rem;
+      animation: coinPopup 1s forwards;
+      pointer-events: none;
+      z-index: 20;
+    }
+    @keyframes coinPopup {
+      0% { transform: translateY(0); opacity: 1; }
+      100% { transform: translateY(-50px); opacity: 0; }
+    }
   </style>
 </head>
 <body>
@@ -208,7 +232,7 @@
       <div class="profile-card">
         <img src="https://placehold.co/64x64" alt="Avatar" id="profileAvatar">
         <div class="profile-info">
-          <span class="name" id="profileName">Loading...</span>
+          <span class="name" id="profileName">Player</span>
           <span class="sub" id="profileLevel">Coins: 0</span>
           <div class="xp-bar">
             <div class="xp-fill" id="xpBar"></div>
@@ -216,9 +240,9 @@
         </div>
       </div>
       <div id="leaderboard" style="display: none;">
-        <h2 style="text-align:center; font-family: 'Rubik Mono One', sans-serif;">Топ игроков</h2>
+        <h2 style="text-align:center; font-family: 'Rubik Mono One', sans-serif;">TOP PLAYERS</h2>
         <ul id="leaderboardList" style="list-style: none; padding: 0; margin: 0;">
-          <li style="text-align:center; color: var(--subtext);">Загрузка...</li>
+          <li style="text-align:center; color: var(--subtext);">Loading...</li>
         </ul>
       </div>
     </div>
@@ -227,22 +251,22 @@
         <i class="fa-solid fa-gamepad"></i><span>Game</span>
       </button>
       <button onclick="showTab('quests')">
-        <i class="fa-solid fa-list-check"></i><span>Задания</span>
+        <i class="fa-solid fa-list-check"></i><span>Quests</span>
       </button>
       <button onclick="showTab('shop')">
-        <i class="fa-solid fa-store"></i><span>Магазин</span>
+        <i class="fa-solid fa-store"></i><span>Shop</span>
       </button>
       <button onclick="showTab('leaderboard')">
-        <i class="fa-solid fa-ranking-star"></i><span>Топ</span>
+        <i class="fa-solid fa-ranking-star"></i><span>Top</span>
       </button>
     </nav>
     <div id="quests" style="display:none; padding: 1rem; text-align: center;">
-      <h2 style="font-family: 'Rubik Mono One', sans-serif;">📝 Задания</h2>
-      <p style="color: var(--subtext);">Скоро появятся увлекательные задания!</p>
+      <h2 style="font-family: 'Rubik Mono One', sans-serif;">📝 Quests</h2>
+      <p style="color: var(--subtext);">Exciting quests coming soon!</p>
     </div>
     <div id="shop" style="display:none;">
-      <h2 style="font-family: 'Rubik Mono One', sans-serif; text-align: center;">🛍 Магазин</h2>
-      <p style="text-align:center; color: var(--subtext);">Скоро доступно</p>
+      <h2 style="font-family: 'Rubik Mono One', sans-serif; text-align: center;">🛍 Shop</h2>
+      <p style="text-align:center; color: var(--subtext);">Coming soon</p>
     </div>
   </div>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -251,7 +275,7 @@
       const dbUrl = "https://tralalero-fec07-default-rtdb.firebaseio.com";
       let userId = null;
       let userData = {
-        username: "Loading...",
+        username: "Player",
         avatar: "https://placehold.co/64x64",
         tokens: 0,
         skin: 'default'
@@ -286,6 +310,7 @@
         setTimeout(() => shark.style.transform = "scale(1)", 100);
         
         createTapEffect(event);
+        createCoinPopup(event);
         
         userData.tokens++;
         updateDisplay();
@@ -309,6 +334,19 @@
         setTimeout(() => {
           effect.remove();
         }, 600);
+      }
+
+      function createCoinPopup(event) {
+        const popup = document.createElement('div');
+        popup.className = 'coin-popup';
+        popup.textContent = '+1';
+        popup.style.left = `${event.clientX}px`;
+        popup.style.top = `${event.clientY - 20}px`;
+        document.body.appendChild(popup);
+        
+        setTimeout(() => {
+          popup.remove();
+        }, 1000);
       }
 
       function updateDisplay() {
@@ -407,7 +445,7 @@
           .then(data => {
             const list = document.getElementById("leaderboardList");
             if (!data || Object.keys(data).length === 0) {
-              return list.innerHTML = '<li style="text-align:center; color: var(--subtext);">Пока пусто</li>';
+              return list.innerHTML = '<li style="text-align:center; color: var(--subtext);">No players yet</li>';
             }
             
             const sorted = Object.entries(data)
@@ -419,7 +457,7 @@
           .catch(err => {
             console.error('Leaderboard error:', err);
             const list = document.getElementById("leaderboardList");
-            list.innerHTML = '<li style="text-align:center; color: var(--subtext);">Ошибка загрузки</li>';
+            list.innerHTML = '<li style="text-align:center; color: var(--subtext);">Loading error</li>';
           });
       }
 
