@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -26,75 +26,114 @@
       width: 200px;
       border-radius: 16px;
       cursor: pointer;
+      transition: transform 0.1s;
+    }
+    .tap-animation {
+      animation: tapPulse 0.2s ease;
+    }
+    @keyframes tapPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(0.9); }
+      100% { transform: scale(1); }
+    }
+    .floating-text {
+      position: absolute;
+      font-size: 20px;
+      color: #00c853;
+      font-weight: 700;
+      animation: floatUp 1s ease-out forwards;
+      pointer-events: none;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+    }
+    @keyframes floatUp {
+      0% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-50px); }
+    }
+    .xp-bar-container {
+      width: 80%; height: 14px; background: #ddd; border-radius: 8px; margin: 10px 0;
+    }
+    .xp-bar {
+      height: 100%; background: linear-gradient(to right, #00ffcc, #0072ff);
+      width: 0%; border-radius: 8px;
+    }
+    #leaderboard-modal {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.95);
+      display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 1000;
     }
     .tab-bar {
       position: fixed;
       bottom: 0;
-      width: 100%;
-      display: flex;
+      width: 100%; display: flex;
       justify-content: space-around;
-      background: white;
-      border-top: 1px solid #ccc;
-      padding: 10px 0;
+      background: white; border-top: 1px solid #ccc; padding: 10px 0;
     }
     .tab-button {
-      background: none;
-      border: none;
-      font-size: 18px;
-      cursor: pointer;
-      font-weight: 600;
+      background: none; border: none;
+      font-size: 18px; cursor: pointer; font-weight: 600;
     }
   </style>
 </head>
 <body>
-
-<div class="balance" id="tokenCount">0 tokens</div>
+<div class="balance" id="tokenCount">0 токенов</div>
+<div id="playerLevel">Уровень: 1</div>
+<div class="xp-bar-container"><div class="xp-bar" id="xpBar"></div></div>
 <div id="gameContainer" class="game-container">
   <img id="tapImage" class="tap-image" src="shark.png" alt="Shark" onclick="handleTap()" />
 </div>
-
-<div id="boosterContainer">
-  <h2>Boosters</h2>
-  <div>
-    <button onclick="buyBooster(50, 1)">Auto-Tap +1 (50)</button>
-    <button onclick="buyBooster(100, 2)">Auto-Tap +2 (100)</button>
-    <button onclick="buyBooster(1000, 3)">Auto-Tap +3 (1000)</button>
-  </div>
+<div id="boosterContainer">...</div>
+<div id="shopContainer">...</div>
+<div id="leaderboard-modal">
+  <h2>🏆 Топ игроков</h2>
+  <ul id="leaderboardList"></ul>
+  <button onclick="document.getElementById('leaderboard-modal').style.display='none'">Закрыть</button>
 </div>
-
-<div id="shopContainer">
-  <h2>Skins</h2>
-  <div>
-    <button onclick="buySkin('default', 0)">Default (Free)</button>
-    <button onclick="buySkin('gold', 1000)">Gold (1000)</button>
-    <button onclick="buySkin('leopard', 500)">Leopard (500)</button>
-  </div>
-</div>
-
 <div class="tab-bar">
-  <button class="tab-button" onclick="toggleTab('gameContainer')">🦈 Game</button>
-  <button class="tab-button" onclick="toggleTab('boosterContainer')">⚡ Boosters</button>
-  <button class="tab-button" onclick="toggleTab('shopContainer')">🛒 Shop</button>
+  <button class="tab-button" onclick="toggleTab('gameContainer')">🦈 Игра</button>
+  <button class="tab-button" onclick="toggleTab('boosterContainer')">⚡ Бустеры</button>
+  <button class="tab-button" onclick="toggleTab('shopContainer')">🛒 Магазин</button>
+  <button class="tab-button" onclick="openLeaderboard()">🏆 Топ</button>
 </div>
-
 <script>
 const dbUrl = "https://tralalero-fec07-default-rtdb.firebaseio.com";
-let userId = null;
-let balance = 0;
-let autoTap = 0;
-let ownedSkins = { default: true };
-let currentSkin = 'default';
+let userId = null, balance = 0, autoTap = 0, xp = 0, level = 1;
+let ownedSkins = { default: true }, currentSkin = 'default';
 
 const tokenCount = document.getElementById("tokenCount");
 const tapImage = document.getElementById("tapImage");
+const xpBar = document.getElementById("xpBar");
+const playerLevel = document.getElementById("playerLevel");
 
 function updateBalanceDisplay() {
-  tokenCount.textContent = `${balance} tokens`;
+  tokenCount.textContent = `${balance} токенов`;
+}
+
+function updateXP(amount) {
+  xp += amount;
+  const need = 20 + (level - 1) * 10;
+  if (xp >= need) { xp -= need; level++; playerLevel.textContent = `Уровень: ${level}`; }
+  const percent = Math.floor((xp / (20 + (level - 1) * 10)) * 100);
+  xpBar.style.width = percent + '%';
+}
+
+function showFloatingText(text) {
+  const floatText = document.createElement("div");
+  floatText.className = "floating-text";
+  floatText.textContent = text;
+  const rect = tapImage.getBoundingClientRect();
+  floatText.style.left = rect.left + rect.width / 2 + "px";
+  floatText.style.top = rect.top + rect.height / 2 + "px";
+  document.body.appendChild(floatText);
+  setTimeout(() => floatText.remove(), 1000);
 }
 
 function handleTap() {
   balance++;
   updateBalanceDisplay();
+  updateXP(1);
+  showFloatingText("+1");
+  tapImage.classList.add("tap-animation");
+  setTimeout(() => tapImage.classList.remove("tap-animation"), 200);
+  if (navigator.vibrate) navigator.vibrate(30);
   saveProgress();
 }
 
@@ -103,7 +142,7 @@ function saveProgress() {
   fetch(`${dbUrl}/users/${userId}.json`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ balance, currentSkin })
+    body: JSON.stringify({ balance, currentSkin, xp, level })
   });
 }
 
@@ -115,7 +154,10 @@ function loadProgress() {
       if (data) {
         balance = data.balance || 0;
         currentSkin = data.currentSkin || 'default';
+        xp = data.xp || 0;
+        level = data.level || 1;
         updateBalanceDisplay();
+        updateXP(0);
         updateSkin(currentSkin);
       }
     });
@@ -128,32 +170,26 @@ function toggleTab(id) {
   document.getElementById(id).style.display = 'flex';
 }
 
-function buyBooster(cost, power) {
-  if (balance >= cost) {
-    balance -= cost;
-    autoTap += power;
-    updateBalanceDisplay();
-    saveProgress();
-  }
-}
-
-function buySkin(skin, cost) {
-  if (ownedSkins[skin] || balance >= cost) {
-    if (!ownedSkins[skin]) {
-      balance -= cost;
-      ownedSkins[skin] = true;
-    }
-    currentSkin = skin;
-    updateSkin(skin);
-    updateBalanceDisplay();
-    saveProgress();
-  }
-}
-
 function updateSkin(skin) {
   if (skin === 'gold') tapImage.src = 'shark_skin1.png';
   else if (skin === 'leopard') tapImage.src = 'shark_skin2.png';
   else tapImage.src = 'shark.png';
+}
+
+function openLeaderboard() {
+  document.getElementById('leaderboard-modal').style.display = 'flex';
+  fetch(`${dbUrl}/users.json`).then(res => res.json()).then(data => {
+    const leaderboard = document.getElementById('leaderboardList');
+    leaderboard.innerHTML = '';
+    const users = Object.entries(data || {}).map(([id, info]) => ({ id, ...info }))
+      .sort((a, b) => b.balance - a.balance).slice(0, 10);
+    users.forEach(user => {
+      const li = document.createElement('li');
+      const name = user.first_name || `ID ${user.id.slice(-4)}`;
+      li.innerHTML = `<strong>${name}</strong>: ${user.balance}`;
+      leaderboard.appendChild(li);
+    });
+  });
 }
 
 setInterval(() => {
@@ -174,6 +210,5 @@ window.onload = () => {
   toggleTab('gameContainer');
 };
 </script>
-
 </body>
 </html>
