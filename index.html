@@ -1,16 +1,17 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Shark Tapper</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=SF+Pro+Display:wght@400;600;700&display=swap" rel="stylesheet" />
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body {
       width: 100%; height: 100%; overflow: hidden;
-      font-family: 'Segoe UI', sans-serif;
-      background: linear-gradient(160deg, #e8ecef, #cfd8dc);
+      font-family: 'SF Pro Display', 'Segoe UI', sans-serif;
+      background: linear-gradient(160deg, #f1f3f5, #dee2e6);
     }
     .loading-screen {
       position: fixed; width: 100%; height: 100%; background: #fff; z-index: 9999;
@@ -23,6 +24,9 @@
       background: white; border-radius: 24px; box-shadow: 0 6px 20px rgba(0,0,0,0.1);
       padding: 20px; display: flex; flex-direction: column; justify-content: space-between; align-items: center;
     }
+    .balance {
+      font-size: 22px; font-weight: 600; color: #111;
+    }
     .tap-image {
       max-width: 100%; border-radius: 16px; cursor: pointer;
       transition: transform 0.1s;
@@ -33,9 +37,6 @@
       50% { transform: scale(0.9); }
       100% { transform: scale(1); }
     }
-    .balance {
-      font-size: 22px; font-weight: bold; color: #111;
-    }
     .floating-text {
       position: absolute; font-size: 24px; color: #00c853; font-weight: 700;
       animation: floatUp 1s ease-out forwards; pointer-events: none;
@@ -45,13 +46,34 @@
       0% { opacity: 1; transform: translateY(0); }
       100% { opacity: 0; transform: translateY(-50px); }
     }
+    .tab-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      display: flex;
+      justify-content: space-around;
+      background: white;
+      border-top: 1px solid #ccc;
+      padding: 10px 0;
+      z-index: 1000;
+    }
+    .tab-button {
+      background: none;
+      border: none;
+      font-size: 18px;
+      font-weight: 600;
+      color: #444;
+      font-family: 'SF Pro Display';
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
   <div class="loading-screen" id="loading">
     <img src="w1.png" alt="Loading..." style="position:absolute; width:100%; height:100%; object-fit:cover; z-index:-1;">
     <div style="position:absolute; bottom:80px; width:100%; text-align:center;">
-      <div style="font-family: 'Orbitron', sans-serif; font-size: 28px; color: #fff; text-shadow: 2px 2px 8px rgba(0,0,0,0.8); margin-bottom: 16px;">Приключение года 2025</div>
+      <div style="font-family: 'Orbitron', sans-serif; font-size: 28px; color: #fff; text-shadow: 2px 2px 8px rgba(0,0,0,0.8); margin-bottom: 16px;">Adventure of the Year 2025</div>
       <div style="width: 80%; height: 14px; background: #1a1a1a; border-radius: 8px; overflow: hidden; margin: 0 auto;">
         <div id="progress-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #00ffcc, #0072ff); animation: loadProgress 5s linear forwards; box-shadow: 0 0 12px #00f5ff;"></div>
       </div>
@@ -59,21 +81,36 @@
   </div>
 
   <div class="game-container" id="gameContainer">
-    <div class="balance" id="tokenCount">0 токенов</div>
+    <div class="balance" id="tokenCount">0 tokens</div>
     <img src="shark.png" id="tapImage" class="tap-image" onclick="handleTap()" alt="Shark">
   </div>
 
+  <div class="tab-bar">
+    <button class="tab-button" onclick="alert('Game tab active')">🦈 Game</button>
+    <button class="tab-button" onclick="alert('Quests coming soon')">🎯 Quests</button>
+    <button class="tab-button" onclick="alert('Leaderboard coming soon')">🏆 Leaderboard</button>
+    <button class="tab-button" onclick="alert('Shop coming soon')">🛒 Shop</button>
+    <button class="tab-button" onclick="alert('Profile coming soon')">👤 Profile</button>
+  </div>
+
   <script>
+    const dbUrl = 'https://tralalero-fec07-default-rtdb.firebaseio.com';
+    let userId = null;
     let balance = 0;
     const tapImage = document.getElementById('tapImage');
     const tokenCount = document.getElementById('tokenCount');
 
+    function updateBalanceDisplay() {
+      tokenCount.textContent = `${balance} tokens`;
+    }
+
     function handleTap() {
       balance++;
-      tokenCount.textContent = `${balance} токенов`;
+      updateBalanceDisplay();
       tapImage.classList.add("tap-animation");
       showFloatingText('+1');
       setTimeout(() => tapImage.classList.remove("tap-animation"), 200);
+      saveProgress();
     }
 
     function showFloatingText(text) {
@@ -87,11 +124,51 @@
       setTimeout(() => floatText.remove(), 1000);
     }
 
+    function saveProgress() {
+      if (!userId) return;
+      const user = Telegram.WebApp.initDataUnsafe?.user || {};
+      const userData = {
+        balance,
+        first_name: user.first_name || "",
+        last_name: user.last_name || "",
+        username: user.username || "",
+        photo_url: user.photo_url || ""
+      };
+      fetch(`${dbUrl}/users/${userId}.json`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(userData)
+      });
+    }
+
+    function loadProgress() {
+      if (!userId) return;
+      fetch(`${dbUrl}/users/${userId}.json`)
+        .then(res => res.json())
+        .then(data => {
+          if (data) {
+            balance = data.balance || 0;
+            updateBalanceDisplay();
+          }
+        });
+    }
+
     window.addEventListener('DOMContentLoaded', () => {
       setTimeout(() => {
         document.getElementById('loading').style.display = 'none';
         document.getElementById('gameContainer').style.display = 'flex';
       }, 5000);
+
+      if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
+        Telegram.WebApp.ready();
+        Telegram.WebApp.expand();
+        userId = Telegram.WebApp.initDataUnsafe?.user?.id?.toString();
+        if (userId) {
+          loadProgress();
+        } else {
+          alert("Failed to get userId from Telegram WebApp.");
+        }
+      }
     });
   </script>
 </body>
