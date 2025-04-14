@@ -203,6 +203,7 @@
             ];
 
             const questsListElement = document.getElementById('questsList');
+            const questProgressElements = {}; // Cache for quest progress elements
 
             // Core Functions
             function init() {
@@ -347,32 +348,41 @@
 
             // Progress System
             function renderQuests() {
-                questsListElement.innerHTML = questData.map((questInfo, index) => `
-                    <div class="quest-item">
-                        <h3>${questInfo.title}</h3>
-                        <p>${questInfo.description}</p>
-                        <div class="quest-progress">
-                            <div class="quest-progress-fill" id="questProgress${index}" style="width: ${Math.min(100, (userData.dailyQuests[questInfo.type].current / questInfo.target) * 100)}%"></div>
+                questsListElement.innerHTML = questData.map((questInfo, index) => {
+                    const questId = `questProgress${index}`;
+                    return `
+                        <div class="quest-item" data-quest-type="${questInfo.type}" data-quest-index="${index}">
+                            <h3>${questInfo.title}</h3>
+                            <p>${questInfo.description}</p>
+                            <div class="quest-progress">
+                                <div class="quest-progress-fill" id="${questId}" style="width: ${Math.min(100, (userData.dailyQuests[questInfo.type].current / questInfo.target) * 100)}%"></div>
+                            </div>
+                            <div class="quest-reward">+${questInfo.reward} coins</div>
                         </div>
-                        <div class="quest-reward">+${questInfo.reward} coins</div>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
+                // Cache progress elements after rendering
+                questData.forEach((questInfo, index) => {
+                    questProgressElements[questInfo.type] = document.getElementById(`questProgress${index}`);
+                });
             }
 
             function checkQuests() {
-                questData.forEach((questInfo, i) => {
+                questData.forEach(questInfo => {
                     const quest = userData.dailyQuests[questInfo.type];
+                    const progressElement = questProgressElements[questInfo.type];
                     if (!quest.completed && quest.current >= questInfo.target) {
                         userData.dailyQuests[questInfo.type].completed = true;
                         userData.tokens += questInfo.reward;
                         showPopup(`+${questInfo.reward} (Quest!)`, '#27ae60');
                         updateDisplay();
-                        renderQuests(); // Update quest display after completion
-                    } else {
-                        const progressFill = document.getElementById(`questProgress${i}`);
-                        if (progressFill) {
-                            progressFill.style.width = `${Math.min(100, (quest.current / questInfo.target) * 100)}%`;
+                        const questItem = document.querySelector(`.quest-item[data-quest-type="${questInfo.type}"]`);
+                        if (questItem) {
+                            questItem.classList.add('completed'); // Add a class for visual indication if needed
                         }
+                        renderQuests(); // Re-render to update the UI completely after completion
+                    } else if (progressElement) {
+                        progressElement.style.width = `${Math.min(100, (quest.current / questInfo.target) * 100)}%`;
                     }
                 });
             }
