@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
   <title>Shark Tapper</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,13 +28,17 @@
       -webkit-user-select: none;
       user-select: none;
     }
-    body {
+    html, body {
       width: 100%;
       height: 100%;
       overflow: hidden;
+      touch-action: manipulation;
+    }
+    body {
       font-family: 'Rubik', sans-serif;
       background: linear-gradient(180deg, #dbeafe 0%, #f0f4f8 100%);
       color: var(--text);
+      -webkit-font-smoothing: antialiased;
       position: fixed;
     }
     #app-container {
@@ -91,6 +97,7 @@
       object-fit: cover;
       cursor: pointer;
       box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      transition: transform 0.1s ease;
     }
     .shark-gallery {
       display: flex;
@@ -110,6 +117,10 @@
       border: 2px solid var(--primary);
       object-fit: cover;
       flex-shrink: 0;
+      transition: transform 0.2s ease;
+    }
+    .shark-gallery img:hover {
+      transform: scale(1.1);
     }
     .profile-card {
       background: white;
@@ -131,6 +142,7 @@
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      max-width: 150px;
     }
     .profile-coins {
       color: var(--subtext);
@@ -142,6 +154,7 @@
       background: white;
       border-top: 1px solid var(--border);
       padding: 0.5rem 0;
+      box-shadow: 0 -4px 12px rgba(0,0,0,0.06);
     }
     nav button {
       flex: 1;
@@ -177,17 +190,29 @@
       width: 24px;
       text-align: center;
     }
+    .leaderboard-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 2px solid var(--accent);
+      object-fit: cover;
+      flex-shrink: 0;
+    }
     .leaderboard-name {
       flex: 1;
-      font-weight: 500;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      max-width: 120px;
+      font-size: 0.8rem;
     }
     .leaderboard-score {
       font-weight: 700;
       font-family: 'Press Start 2P', cursive;
       font-size: 0.7rem;
+    }
+    .current-user {
+      background: rgba(47, 128, 237, 0.1);
     }
     .coin-popup {
       position: absolute;
@@ -202,6 +227,18 @@
     @keyframes coinPopup {
       0% { transform: translateY(0); opacity: 1; }
       100% { transform: translateY(-50px); opacity: 0; }
+    }
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255,255,255,0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
     }
   </style>
 </head>
@@ -228,7 +265,7 @@
         </div>
         
         <div class="profile-card">
-          <img src="https://placehold.co/64x64" width="50" height="50" style="border-radius:50%">
+          <img src="https://placehold.co/64x64" width="50" height="50" style="border-radius:50%" id="profile-avatar">
           <div class="profile-info">
             <div class="profile-name" id="player-name">Player</div>
             <div class="profile-coins">COINS: <span id="player-coins">0</span></div>
@@ -240,7 +277,7 @@
       <div id="leaderboard" class="tab-page">
         <h2 style="text-align:center; margin:1rem;">TOP PLAYERS</h2>
         <ul class="leaderboard-list" id="leaderboard-list">
-          <!-- Filled by JavaScript -->
+          <li style="text-align:center; color: var(--subtext);">Loading...</li>
         </ul>
       </div>
     </div>
@@ -265,58 +302,61 @@
     </nav>
   </div>
 
+  <div id="loading-overlay" class="loading-overlay" style="display: none;">
+    <div style="font-family: 'Press Start 2P', cursive; font-size: 0.9rem;">Syncing data...</div>
+  </div>
+
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <script>
     document.addEventListener("DOMContentLoaded", function() {
-      // Game state
-      const gameState = {
-        coins: 326287,
-        skin: 'default',
-        leaderboard: [
-          { name: "Vigon", coins: 326287 },
-          { name: "mara", coins: 1232 },
-          { name: "PLAVER", coins: 1120 },
-          { name: "MIRANDA", coins: 111 },
-          { name: "PLAVER", coins: 89 },
-          { name: "PLAVER", coins: 1 }
-        ]
+      const dbUrl = "https://tralalero-fec07-default-rtdb.firebaseio.com";
+      let userId = null;
+      let userData = {
+        name: "Player",
+        avatar: "https://placehold.co/64x64",
+        coins: 0,
+        skin: 'default'
       };
+      let canVibrate = 'vibrate' in navigator;
+      let isSyncing = false;
 
       // DOM elements
       const sharkImage = document.getElementById('shark-image');
       const coinsDisplay = document.getElementById('coins-display');
       const playerCoins = document.getElementById('player-coins');
       const playerName = document.getElementById('player-name');
+      const profileAvatar = document.getElementById('profile-avatar');
       const leaderboardList = document.getElementById('leaderboard-list');
+      const loadingOverlay = document.getElementById('loading-overlay');
 
       // Initialize
-      updateCoinsDisplay();
-      renderLeaderboard();
-      loadTelegramUser();
+      loadFromLocalStorage();
+      setupEventListeners();
+      initTelegram();
 
       // Event listeners
-      sharkImage.addEventListener('click', handleTap);
-      document.querySelectorAll('.shark-gallery img').forEach(img => {
-        img.addEventListener('click', () => setSkin(img.dataset.skin));
-      });
-      document.querySelectorAll('nav button').forEach(btn => {
-        btn.addEventListener('click', () => showTab(btn.dataset.tab));
-      });
+      function setupEventListeners() {
+        sharkImage.addEventListener('click', handleTap);
+        document.querySelectorAll('.shark-gallery img').forEach(img => {
+          img.addEventListener('click', () => setSkin(img.dataset.skin));
+        });
+        document.querySelectorAll('nav button').forEach(btn => {
+          btn.addEventListener('click', () => showTab(btn.dataset.tab));
+        });
+      }
 
-      // Functions
+      // Handle tap on shark
       function handleTap(e) {
-        // Vibrate if supported
-        if (navigator.vibrate) navigator.vibrate(10);
+        if (canVibrate) navigator.vibrate(10);
         
-        // Add coin
-        gameState.coins++;
-        updateCoinsDisplay();
-        
-        // Animation
         sharkImage.style.transform = 'scale(0.95)';
         setTimeout(() => sharkImage.style.transform = 'scale(1)', 100);
         
-        // Coin popup effect
+        createCoinPopup(e);
+        addCoin();
+      }
+
+      function createCoinPopup(e) {
         const popup = document.createElement('div');
         popup.className = 'coin-popup';
         popup.textContent = '+1';
@@ -326,30 +366,29 @@
         setTimeout(() => popup.remove(), 1000);
       }
 
-      function updateCoinsDisplay() {
-        const formatted = gameState.coins.toLocaleString();
+      function addCoin() {
+        userData.coins++;
+        updateCoinDisplay();
+        saveToLocalStorage();
+        syncWithFirebase();
+      }
+
+      function updateCoinDisplay() {
+        const formatted = userData.coins.toLocaleString();
         coinsDisplay.textContent = formatted;
         playerCoins.textContent = formatted;
       }
 
       function setSkin(skin) {
-        gameState.skin = skin;
+        userData.skin = skin;
         const skinMap = {
           'default': 'https://sinobu1.github.io/shark-tapper/shark.png',
           'gold': 'https://sinobu1.github.io/shark-tapper/shark_skin1.png',
           'leopard': 'https://sinobu1.github.io/shark-tapper/shark_skin2.png'
         };
         sharkImage.src = skinMap[skin] || skinMap.default;
-      }
-
-      function renderLeaderboard() {
-        leaderboardList.innerHTML = gameState.leaderboard.map((player, i) => `
-          <li class="leaderboard-item">
-            <div class="leaderboard-rank">#${i + 1}</div>
-            <div class="leaderboard-name">${player.name}</div>
-            <div class="leaderboard-score">${player.coins.toLocaleString()}</div>
-          </li>
-        `).join('');
+        saveToLocalStorage();
+        syncWithFirebase();
       }
 
       function showTab(tabId) {
@@ -359,19 +398,136 @@
         document.querySelectorAll('nav button').forEach(btn => {
           btn.classList.toggle('active', btn.dataset.tab === tabId);
         });
+        
+        if (tabId === 'leaderboard') loadLeaderboard();
       }
 
-      function loadTelegramUser() {
+      // Telegram integration
+      function initTelegram() {
         if (window.Telegram && Telegram.WebApp) {
           const tgUser = Telegram.WebApp.initDataUnsafe.user;
           if (tgUser) {
-            playerName.textContent = tgUser.first_name || "Player";
-            if (tgUser.photo_url) {
-              document.querySelector('.profile-card img').src = tgUser.photo_url;
-            }
+            userId = tgUser.id.toString();
+            userData.name = tgUser.first_name || "Player";
+            userData.avatar = tgUser.photo_url || "https://placehold.co/64x64";
+            
+            updateProfileDisplay();
+            syncWithFirebase();
           }
         }
       }
+
+      function updateProfileDisplay() {
+        playerName.textContent = userData.name;
+        profileAvatar.src = userData.avatar;
+      }
+
+      // Firebase synchronization
+      function syncWithFirebase() {
+        if (!userId || isSyncing) return;
+        
+        isSyncing = true;
+        loadingOverlay.style.display = 'flex';
+        
+        const dataToSave = {
+          name: userData.name,
+          avatar: userData.avatar,
+          coins: userData.coins,
+          skin: userData.skin,
+          lastUpdated: Date.now()
+        };
+        
+        fetch(`${dbUrl}/users/${userId}.json`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(dataToSave)
+        })
+        .then(response => {
+          if (!response.ok) throw new Error('Network error');
+          return response.json();
+        })
+        .then(() => {
+          console.log('Data saved to Firebase');
+          loadLeaderboard(); // Refresh leaderboard after save
+        })
+        .catch(error => {
+          console.error('Firebase save error:', error);
+        })
+        .finally(() => {
+          isSyncing = false;
+          loadingOverlay.style.display = 'none';
+        });
+      }
+
+      function loadLeaderboard() {
+        loadingOverlay.style.display = 'flex';
+        
+        fetch(`${dbUrl}/users.json?orderBy="coins"&limitToLast=10`)
+          .then(response => {
+            if (!response.ok) throw new Error('Network error');
+            return response.json();
+          })
+          .then(data => {
+            if (!data) {
+              leaderboardList.innerHTML = '<li style="text-align:center; color: var(--subtext);">No players yet</li>';
+              return;
+            }
+            
+            const players = Object.entries(data)
+              .map(([id, user]) => ({ id, ...user }))
+              .sort((a, b) => (b.coins || 0) - (a.coins || 0))
+              .slice(0, 10);
+            
+            renderLeaderboard(players);
+          })
+          .catch(error => {
+            console.error('Leaderboard load error:', error);
+            leaderboardList.innerHTML = '<li style="text-align:center; color: var(--subtext);">Loading error</li>';
+          })
+          .finally(() => {
+            loadingOverlay.style.display = 'none';
+          });
+      }
+
+      function renderLeaderboard(players) {
+        leaderboardList.innerHTML = players.map((player, index) => {
+          const isCurrent = player.id === userId;
+          return `
+            <li class="leaderboard-item ${isCurrent ? 'current-user' : ''}">
+              <div class="leaderboard-rank">#${index + 1}</div>
+              <img src="${player.avatar || 'https://placehold.co/32x32'}" class="leaderboard-avatar">
+              <div class="leaderboard-name" title="${player.name || 'Player'}">${player.name || 'Player'}</div>
+              <div class="leaderboard-score">${(player.coins || 0).toLocaleString()} 💰</div>
+            </li>
+          `;
+        }).join('');
+      }
+
+      // Local storage
+      function loadFromLocalStorage() {
+        const saved = localStorage.getItem('sharkTapper');
+        if (saved) {
+          try {
+            const parsed = JSON.parse(saved);
+            userData.coins = parsed.coins || 0;
+            userData.skin = parsed.skin || 'default';
+            updateCoinDisplay();
+            setSkin(userData.skin);
+          } catch (e) {
+            console.error('Local storage parse error:', e);
+          }
+        }
+      }
+
+      function saveToLocalStorage() {
+        localStorage.setItem('sharkTapper', JSON.stringify({
+          coins: userData.coins,
+          skin: userData.skin
+        }));
+      }
+
+      // Initial load
+      showTab('home');
     });
   </script>
 </body>
