@@ -196,13 +196,7 @@
       </div>
     </div>
 
-    <div class="shark-gallery">
-      <img src="shark.png" alt="Shark 1" />
-      <img src="shark_skin1.png" alt="Shark 2" />
-      <img src="shark_skin2.png" alt="Shark 3" />
-      <img src="shark_skin2.png" alt="Shark 4" />
-      <img src="shark_skin2.png" alt="Shark 5" />
-    </div>
+    <div id="gallery" class="shark-gallery" style="display:none;">$1</div>
 
     <div id="profile" class="profile-card">
       <img src="https://placehold.co/64x64" alt="Avatar" id="profileAvatar">
@@ -223,25 +217,12 @@
   <button onclick="showTab('leaderboard')"><i class="fa-solid fa-list-check"></i><span>Топ</span></button>
 </nav>
 
-<div id="shop" style="margin: 2rem 1rem; background: var(--card-bg); border-radius: 1.5rem; padding: 1rem; box-shadow: 0 6px 16px rgba(0,0,0,0.08);">
-  <h2 style="font-size: 1.2rem; margin-bottom: 1rem; color: var(--primary);">🛍 Магазин</h2>
-  <div class="shop-items" style="display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center;">
-    <div class="shop-item" style="text-align: center;">
-      <img src="shark.png" alt="Default Shark" style="width: 72px; height: 72px; border-radius: 12px;" />
-      <button onclick="buySkin('default', 0)" style="margin-top: 0.5rem;">Выбрать</button>
-    </div>
-    <div class="shop-item" style="text-align: center;">
-      <img src="shark_skin2.png" alt="Leopard Shark" style="width: 72px; height: 72px; border-radius: 12px;" />
-      <button onclick="buySkin('skin2', 1000)" style="margin-top: 0.5rem;">Купить / Выбрать</button>
-    </div>
-    <div class="shop-item" style="text-align: center;">
-      <img src="shark_skin1.png" alt="Gold Shark" style="width: 72px; height: 72px; border-radius: 12px;" />
-      <button onclick="buySkin('skin3', 500)" style="margin-top: 0.5rem;">Купить / Выбрать</button>
-    </div>
-  </div>
+<div id="shop" style="display:none;">
+  <h2>🛍 Магазин</h2>
+  <p style="text-align:center; color: var(--subtext);">Скоро доступно</p>
 </div>
 
-    <div id="leaderboard" style="margin: 2rem 1rem; background: var(--card-bg); border-radius: 1.5rem; padding: 1rem; box-shadow: 0 6px 16px rgba(0,0,0,0.08);">
+<div id="leaderboard" style="display:none;"> style="margin: 2rem 1rem; background: var(--card-bg); border-radius: 1.5rem; padding: 1rem; box-shadow: 0 6px 16px rgba(0,0,0,0.08);">
       <h2 style="font-size: 1.2rem; margin-bottom: 1rem; color: var(--primary);">🏆 Лидерборд</h2>
       <ul id="leaderboardList" style="list-style: none; padding: 0; margin: 0;">
         <li style="text-align:center; color: var(--subtext);">Загрузка...</li>
@@ -279,14 +260,20 @@
       function showTab(tabId) {
   document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('active'));
   document.querySelectorAll('nav button').forEach(btn => {
-    if (btn.textContent.includes(tabId.charAt(0).toUpperCase() + tabId.slice(1))) btn.classList.add('active');
+    if (btn.textContent.toLowerCase().includes(tabId)) btn.classList.add('active');
   });
+  ['profile', 'game', 'shop', 'leaderboard', 'gallery'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = (id === tabId) ? 'block' : 'none';
+  });
+});
   ['profile', 'game', 'shop', 'leaderboard'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.style.display = (id === tabId) ? 'block' : 'none';
   });
 }
 showTab('game');
+loadUserData();
 });
 
 // Telegram WebApp + Firebase
