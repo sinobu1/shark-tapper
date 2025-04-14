@@ -167,60 +167,61 @@ body {
 
 
 
-/* Telegram-style UI */
+/* Telegram-style clean UI */
 body {
   background-color: #0d0d0d;
   color: #eee;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-button, .button {
-  background: linear-gradient(135deg, #8e44ad, #2980b9);
-  color: white;
-  border: none;
-  padding: 12px 18px;
+.button, button {
+  background: linear-gradient(135deg, #7b2ff7, #4facfe);
   border-radius: 14px;
+  border: none;
+  padding: 10px 16px;
+  color: white;
+  font-weight: bold;
   font-size: 16px;
-  font-weight: 600;
-  transition: background 0.3s ease, transform 0.1s ease;
+  transition: all 0.3s ease;
 }
-button:active, .button:active {
-  transform: scale(0.96);
+.button:active, button:active {
+  transform: scale(0.97);
   opacity: 0.9;
-}
-
-.footer {
-  position: fixed;
-  bottom: 0;
-  left: 0; right: 0;
-  display: flex;
-  justify-content: space-around;
-  background: rgba(20, 20, 20, 0.85);
-  backdrop-filter: blur(10px);
-  padding: 10px 0;
-  z-index: 100;
 }
 
 .header {
   position: fixed;
   top: 0;
   left: 0; right: 0;
+  background: rgba(20, 20, 20, 0.85);
+  backdrop-filter: blur(10px);
+  padding: 10px 16px;
+  z-index: 999;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 16px;
-  background: rgba(20, 20, 20, 0.9);
-  backdrop-filter: blur(8px);
-  z-index: 100;
+}
+.footer {
+  position: fixed;
+  bottom: 0;
+  left: 0; right: 0;
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 0;
+  background: rgba(20, 20, 20, 0.85);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid #333;
+  z-index: 999;
 }
 
 #themeToggle {
   font-size: 22px;
   background: none;
   border: none;
-  cursor: pointer;
   color: white;
+  cursor: pointer;
 }
+
 </style>
 </head>
 <body>
@@ -250,13 +251,13 @@ button:active, .button:active {
 <button onclick="buySkin('gold', 1000)">Gold (1000)</button>
 <button onclick="buySkin('leopard', 500)">Leopard (500)</button>
 </div>
-<div class="game-container" id="profileContainer" style="flex-direction: column; align-items: center; padding: 20px; gap: 12px;">
-<div style="text-align:center; max-width:320px; background:#1a1a1a; padding:20px; border-radius:16px; box-shadow:0 4px 12px rgba(0,0,0,0.4);">
-<img alt="Avatar" id="profileAvatar" src="" style="width:72px; height:72px; border-radius:50%; border:3px solid #555; margin-bottom:12px;"/>
-<h2 id="profileName">Player</h2>
-<p id="profileJoin" style="font-size:13px; color:#aaa;">Joined:</p>
-<p id="profileTokens" style="font-size:18px; font-weight:bold;">Tokens: 0</p>
-</div>
+<div class="game-container" id="profileContainer">
+<h2>Профиль</h2>
+<img alt="avatar" id="profileAvatar" src="" style="width:72px;height:72px;border-radius:50%;margin:10px 0;"/>
+<h3 id="profileName">Игрок</h3>
+<p id="profileTokens">Токенов: 0</p>
+<p id="profileLevel">Уровень: 1</p>
+<p id="profileJoin">Дата регистрации: —</p>
 </div>
 <div id="leaderboard-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,0.95);z-index:1000;flex-direction:column;align-items:center;justify-content:center;">
 <h2>🏆 Топ игроков</h2>
@@ -276,13 +277,13 @@ const tapImage = document.getElementById("tapImage");
 
 function updateBalanceDisplay() {
   tokenCount.textContent = `${balance} tokens`;
-  document.getElementById("profileTokens").textContent = `Tokens: ${balance}`;
+  document.getElementById("profileTokens").textContent = `Токенов: ${balance}`;
 }
 
 function updateProfileInfo() {
   document.getElementById("profileName").textContent = userFirstName;
   document.getElementById("profileAvatar").src = userAvatar;
-  document.getElementById("profileJoin").textContent = `Joined: ${joinDate}`;
+  document.getElementById("profileJoin").textContent = `Дата регистрации: ${joinDate}`;
   document.getElementById("profileLevel").textContent = `Уровень: ${level}`;
 }
 
@@ -312,7 +313,7 @@ function loadProgress() {
       if (data) {
         balance = data.balance || 0;
         currentSkin = data.currentSkin || 'default';
-        userFirstName = data.first_name || 'Player';
+        userFirstName = data.first_name || 'Игрок';
         userAvatar = data.photo_url || '';
         joinDate = data.joinDate || new Date().toISOString().split('T')[0];
         updateBalanceDisplay();
@@ -392,7 +393,7 @@ window.onload = () => {
     Telegram.WebApp.expand();
     const user = Telegram.WebApp.initDataUnsafe?.user || {};
     userId = user?.id?.toString();
-    userFirstName = user?.first_name || user?.username || 'Player';
+    userFirstName = user?.first_name || user?.username || 'Игрок';
     userAvatar = user?.photo_url || (user?.username ? `https://t.me/i/userpic/320/${user.username}.jpg` : 'https://via.placeholder.com/72');
     joinDate = new Date().toISOString().split('T')[0];
     if (userId) loadProgress();
@@ -443,7 +444,7 @@ function triggerVibration(ms = 30) {
 let userId = null;
 let balance = 0;
 let currentSkin = 'default';
-let userFirstName = 'Player';
+let userFirstName = 'Игрок';
 let userAvatar = '';
 let joinDate = '';
 const dbUrl = "https://tralalero-fec07-default-rtdb.firebaseio.com";
@@ -452,7 +453,7 @@ function updateBalanceDisplay() {
   const el = document.getElementById("tokenCount");
   if (el) el.textContent = balance + " tokens";
   const profile = document.getElementById("profileTokens");
-  if (profile) profile.textContent = "Tokens: " + balance;
+  if (profile) profile.textContent = "Токенов: " + balance;
 }
 
 function updateSkin(skin) {
@@ -532,7 +533,7 @@ function updateProfileInfo() {
   const pJoin = document.getElementById("profileJoin");
   if (pName) pName.textContent = userFirstName;
   if (pAvatar) pAvatar.src = userAvatar;
-  if (pJoin) pJoin.textContent = "Joined: " + joinDate;
+  if (pJoin) pJoin.textContent = "Дата регистрации: " + joinDate;
 }
 
 function openLeaderboard() {
@@ -570,37 +571,12 @@ window.addEventListener("DOMContentLoaded", () => {
     Telegram.WebApp.expand();
     const user = Telegram.WebApp.initDataUnsafe?.user || {};
     userId = user.id?.toString();
-    userFirstName = user.first_name || user.username || "Player";
+    userFirstName = user.first_name || user.username || "Игрок";
     userAvatar = user.photo_url || (user.username ? `https://t.me/i/userpic/320/${user.username}.jpg` : "https://via.placeholder.com/72");
     joinDate = new Date().toISOString().split("T")[0];
     updateProfileInfo();
     loadProgress();
   }
 });
-
-document.addEventListener("DOMContentLoaded", () => {
-  const lang = localStorage.getItem("lang") || "ru";
-  const sel = document.getElementById("langSelect");
-  if (sel) sel.value = lang;
-  sel?.addEventListener("change", () => {
-    localStorage.setItem("lang", sel.value);
-    location.reload();
-  });
-});
-</script><div class="tab-panel" id="settingsContainer" style="display:none; flex-direction:column; align-items:center; padding:20px; color:#fff;">
-<h2 style="margin-bottom:16px;">⚙️ Settings</h2>
-<div style="margin-bottom:12px;">
-<label>Theme:
-    <button id="themeToggle" onclick="toggleTheme()">🌗</button>
-</label>
-</div>
-<div style="margin-bottom:12px;">
-<label>Language:
-    <select id="langSelect">
-<option value="ru">🇷🇺 Russian</option>
-<option value="en">🇬🇧 English</option>
-</select>
-</label>
-</div>
-</div></body>
+</script></body>
 </html>
