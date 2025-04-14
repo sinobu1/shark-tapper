@@ -223,7 +223,7 @@
   <button onclick="showTab('leaderboard')"><i class="fa-solid fa-list-check"></i><span>Топ</span></button>
 </nav>
 
-<div id="shop" style="display:none;" style="margin: 2rem 1rem; background: var(--card-bg); border-radius: 1.5rem; padding: 1rem; box-shadow: 0 6px 16px rgba(0,0,0,0.08);">
+<div id="shop" style="margin: 2rem 1rem; background: var(--card-bg); border-radius: 1.5rem; padding: 1rem; box-shadow: 0 6px 16px rgba(0,0,0,0.08);">
   <h2 style="font-size: 1.2rem; margin-bottom: 1rem; color: var(--primary);">🛍 Магазин</h2>
   <div class="shop-items" style="display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center;">
     <div class="shop-item" style="text-align: center;">
@@ -241,7 +241,7 @@
   </div>
 </div>
 
-    <div id="leaderboard" style="display:none;" style="margin: 2rem 1rem; background: var(--card-bg); border-radius: 1.5rem; padding: 1rem; box-shadow: 0 6px 16px rgba(0,0,0,0.08);">
+    <div id="leaderboard" style="margin: 2rem 1rem; background: var(--card-bg); border-radius: 1.5rem; padding: 1rem; box-shadow: 0 6px 16px rgba(0,0,0,0.08);">
       <h2 style="font-size: 1.2rem; margin-bottom: 1rem; color: var(--primary);">🏆 Лидерборд</h2>
       <ul id="leaderboardList" style="list-style: none; padding: 0; margin: 0;">
         <li style="text-align:center; color: var(--subtext);">Загрузка...</li>
@@ -258,9 +258,8 @@
       }
 
               updateXPDisplay();
-loadTelegram();
-        saveProgress();
-      }
+  loadTelegram();
+}
 
       function updateXPDisplay() {
   const levelEl = document.getElementById("profileLevel");
@@ -277,8 +276,7 @@ loadTelegram();
 }
       }
 
-      updateXPDisplay();
-    function showTab(tabId) {
+      function showTab(tabId) {
   document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('active'));
   document.querySelectorAll('nav button').forEach(btn => {
     if (btn.textContent.includes(tabId.charAt(0).toUpperCase() + tabId.slice(1))) btn.classList.add('active');
@@ -385,7 +383,8 @@ function buySkin(skinId, price) {
   if (userData.tokens >= price || price === 0) {
     userData.tokens -= price;
     userData.selectedSkin = skinId;
-    document.getElementById("tapImage").src = skinId === 'skin2' ? 'shark_skin2.png' : skinId === 'skin3' ? 'shark_skin1.png' : 'shark.png';
+    const tapImage = document.getElementById("tapImage");
+    if (tapImage) tapImage.src = skinId === 'skin2' ? 'shark_skin2.png' : skinId === 'skin3' ? 'shark_skin1.png' : 'shark.png';
     document.getElementById("profileTokens").textContent = userData.tokens;
     saveProgress();
   } else {
