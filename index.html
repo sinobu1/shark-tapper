@@ -82,11 +82,14 @@
             display: inline-flex;
             align-items: center;
             gap: 0.6rem;
-            font-family: 'Press Start 2P', cursive; /* Пиксельный шрифт для счетчика */
+            font-family: 'Luckiest Guy', cursive; /* Шрифт Luckiest Guy для контейнера */
             line-height: 1.2;
         }
         .token-counter img {
             height: 18px; /* Уменьшим размер иконки монеты в счетчике */
+        }
+        .token-counter #profileTokens {
+            font-family: 'Press Start 2P', cursive; /* Пиксельный шрифт для числа */
         }
         .shark-wrapper {
             display: flex;
@@ -298,7 +301,7 @@
                         <div class="shark-tap-container">
                             <div class="token-counter" id="tokenCounter">
                                 <img src="https://sinobu1.github.io/shark-tapper/coin_icon_small.png" alt="Coin Icon" class="coin-icon" />
-                                <span id="profileTokens">0</span> coins
+                                <span id="profileTokens">0</span> <span style="font-family: 'Luckiest Guy', cursive;">coins</span>
                             </div>
                             <img src="https://sinobu1.github.io/shark-tapper/shark.png" alt="Tap Shark" class="shark-image" id="tapImage" />
                         </div>
@@ -410,7 +413,7 @@
             function handleTap(event) {
                 // Vibrate on tap if supported
                 if (canVibrate) {
-                    navigator.vibrate(50); // Увеличена продолжительность вибрации
+                    navigator.vibrate(10); // Вернули значение вибрации к 10
                 }
 
                 // Animation
