@@ -8,7 +8,7 @@
     <title>Shark Tapper</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Press+Start+2P&family=Rubik+Mono+One&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Luckiest+Guy&family=Press+Start+2P&family=Rubik+Mono+One&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         :root {
@@ -19,6 +19,7 @@
             --text: #0d1b2a;
             --subtext: #6c7787;
             --border: #e0e6ed;
+            --coin-color: #f8d030; /* Цвет монеток */
         }
         * {
             margin: 0;
@@ -35,7 +36,7 @@
             touch-action: manipulation;
         }
         body {
-            font-family: 'Bungee', cursive;
+            font-family: 'Bungee', cursive, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; /* Добавлены системные шрифты для iOS */
             background: linear-gradient(180deg, #dbeafe 0%, #f0f4f8 100%);
             color: var(--text);
             -webkit-font-smoothing: antialiased;
@@ -53,8 +54,8 @@
             color: var(--primary);
             padding: 1rem;
             text-align: center;
-            font-size: 2rem;
-            font-family: 'Rubik Mono One', sans-serif;
+            font-size: 2.5rem; /* Увеличим размер шрифта заголовка */
+            font-family: 'Luckiest Guy', cursive; /* Используем новый шрифт */
             text-shadow: -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff, 2px 2px 0 #fff;
             flex-shrink: 0;
         }
@@ -72,49 +73,52 @@
         }
         .token-counter {
             margin: 0 auto;
-            font-size: 0.8rem;
+            font-size: 0.9rem; /* Немного увеличим размер шрифта */
             color: var(--primary);
             background: var(--card-bg);
-            padding: 0.5rem 1rem;
-            border-radius: 999px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 0.6rem 1.2rem; /* Увеличим отступы */
+            border-radius: 14px; /* Сделаем углы более круглыми */
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1); /* Более мягкая тень */
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.6rem;
             font-family: 'Press Start 2P', cursive;
             line-height: 1.2;
+        }
+        .token-counter img {
+            height: 18px; /* Уменьшим размер иконки монеты в счетчике */
         }
         .shark-wrapper {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 1rem;
+            padding: 1.5rem; /* Увеличим отступ */
             flex: 1;
         }
         .shark-tap-container {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.7rem; /* Увеличим отступ */
         }
         .shark-image {
-            width: 140px;
-            height: 140px;
+            width: 150px; /* Немного увеличим размер акулы */
+            height: 150px;
             border-radius: 50%;
             border: 4px solid var(--accent);
             background: var(--card-bg);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15); /* Более выраженная тень */
             object-fit: cover;
             cursor: pointer;
             transition: transform 0.1s ease;
         }
         .shark-gallery {
-            margin: 1rem 0;
-            padding: 0.5rem;
+            margin: 1.2rem 0; /* Увеличим отступ */
+            padding: 0.6rem; /* Увеличим отступ */
             display: flex;
             justify-content: center;
-            gap: 0.75rem;
+            gap: 0.8rem; /* Увеличим отступ */
             overflow-x: auto;
             width: 100%;
             scrollbar-width: none;
@@ -123,13 +127,13 @@
             display: none;
         }
         .shark-gallery img {
-            width: 48px;
-            height: 48px;
+            width: 52px; /* Немного увеличим размер иконок скинов */
+            height: 52px;
             border-radius: 50%;
             border: 2px solid var(--primary);
             background: white;
             object-fit: cover;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.1); /* Мягкая тень */
             flex-shrink: 0;
             transition: transform 0.2s ease;
         }
@@ -138,18 +142,18 @@
         }
         .profile-card {
             background: var(--card-bg);
-            border-radius: 1.5rem;
-            padding: 1rem;
+            border-radius: 1.8rem; /* Более круглые углы */
+            padding: 1.2rem; /* Увеличим отступ */
             margin: 1rem;
             border: 1px solid var(--border);
-            box-shadow: 0 8px 16px rgba(0,0,0,0.06);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.06); /* Более мягкая тень */
             display: flex;
-            gap: 0.75rem;
+            gap: 1rem; /* Увеличим отступ */
             align-items: center;
         }
         .profile-card img {
-            width: 56px;
-            height: 56px;
+            width: 60px; /* Немного увеличим размер аватара */
+            height: 60px;
             border-radius: 50%;
             object-fit: cover;
             border: 2px solid var(--accent);
@@ -163,7 +167,7 @@
         }
         .profile-info .name {
             font-weight: 600;
-            font-size: 0.85rem;
+            font-size: 1rem; /* Увеличим размер шрифта имени */
             font-family: 'Press Start 2P', cursive;
             line-height: 1.3;
             white-space: nowrap;
@@ -171,31 +175,32 @@
             text-overflow: ellipsis;
         }
         .profile-info .sub {
-            font-size: 0.8rem;
+            font-size: 0.9rem; /* Увеличим размер шрифта подписи */
             color: var(--subtext);
             font-family: 'Bungee', cursive;
         }
         .xp-bar {
             width: 100%;
-            height: 6px;
+            height: 8px; /* Увеличим высоту полоски опыта */
             background: var(--border);
             border-radius: 999px;
             overflow: hidden;
-            margin-top: 0.5rem;
+            margin-top: 0.6rem; /* Увеличим отступ */
         }
         .xp-fill {
             height: 100%;
             width: 0%;
             background: linear-gradient(to right, var(--primary), var(--accent));
             transition: width 0.3s ease;
+            border-radius: inherit; /* Наследуем радиус от родителя */
         }
         nav {
             width: 100%;
             display: flex;
             background: var(--card-bg);
             border-top: 1px solid var(--border);
-            padding: 0.5rem 0;
-            box-shadow: 0 -4px 12px rgba(0,0,0,0.06);
+            padding: 0.7rem 0; /* Увеличим отступ */
+            box-shadow: 0 -6px 16px rgba(0,0,0,0.06); /* Более мягкая тень */
             backdrop-filter: blur(12px);
             z-index: 100;
             flex-shrink: 0;
@@ -204,16 +209,20 @@
             flex: 1;
             background: none;
             border: none;
-            font-size: 0.65rem;
+            font-size: 0.75rem; /* Увеличим размер шрифта кнопок */
             color: var(--subtext);
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 0.25rem;
+            gap: 0.3rem; /* Увеличим отступ */
             font-family: 'Bungee', cursive;
+            transition: transform 0.1s ease-in-out; /* Добавим плавную анимацию при нажатии */
+        }
+        nav button:active {
+            transform: scale(0.95);
         }
         nav button i {
-            font-size: 1.1rem;
+            font-size: 1.2rem; /* Увеличим размер иконок */
         }
         nav button.active {
             color: var(--primary);
@@ -221,9 +230,9 @@
         }
         .tap-effect {
             position: absolute;
-            width: 40px;
-            height: 40px;
-            background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%);
+            width: 50px; /* Немного увеличим размер эффекта */
+            height: 50px;
+            background: radial-gradient(circle, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 70%); /* Сделаем эффект менее интенсивным */
             border-radius: 50%;
             pointer-events: none;
             transform: translate(-50%, -50%);
@@ -231,23 +240,29 @@
             z-index: 10;
         }
         @keyframes tapAnimation {
-            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
-            100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
+            0% { transform: translate(-50%, -50%) scale(0.6); opacity: 0.8; }
+            100% { transform: translate(-50%, -50%) scale(2.2); opacity: 0; }
         }
         .coin-popup {
             position: absolute;
             font-family: 'Press Start 2P', cursive;
-            color: #f8d030;
+            color: var(--coin-color); /* Используем цвет монеток */
             text-shadow: 1px 1px 0 #b88b00, -1px -1px 0 #b88b00;
-            font-size: 0.9rem;
+            font-size: 1rem; /* Увеличим размер шрифта */
             animation: coinPopup 1s forwards;
             pointer-events: none;
             z-index: 20;
             white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        .coin-popup img {
+            height: 20px; /* Размер иконки монеты во всплывающем сообщении */
         }
         @keyframes coinPopup {
             0% { transform: translateY(0); opacity: 1; }
-            100% { transform: translateY(-50px); opacity: 0; }
+            100% { transform: translateY(-60px); opacity: 0; } /* Увеличим расстояние подъема */
         }
         .tab-page {
             display: none;
@@ -258,35 +273,17 @@
             display: flex;
         }
         .leaderboard-item {
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.6rem; /* Увеличим отступ */
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem;
-            border-radius: 12px;
+            gap: 0.7rem; /* Увеличим отступ */
+            padding: 0.7rem; /* Увеличим отступ */
+            border-radius: 14px; /* Более круглые углы */
             background: transparent;
             transition: background 0.2s ease;
         }
         .leaderboard-item.current-user {
-            background: rgba(47, 128, 237, 0.1);
-        }
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255,255,255,0.9);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        .loading-overlay.active {
-            display: flex;
-            opacity: 1;
+            background: rgba(47, 128, 237, 0.15); /* Сделаем выделение текущего пользователя чуть более заметным */
         }
     </style>
 </head>
@@ -378,6 +375,7 @@
             let lastSave = 0;
             const SAVE_INTERVAL = 5000;
             let canVibrate = 'vibrate' in navigator;
+            let tapMultiplier = 1; // Временно вернем множитель тапов
 
             // Initialize app
             function init() {
@@ -385,12 +383,6 @@
                 loadTelegram();
                 initLocalStorage();
                 showTab('home');
-                // Remove autoclicker initialization for now
-                // updateAutoclicker();
-                // Remove daily reset for now
-                // checkDailyReset();
-                // Remove quest rendering for now
-                // renderQuests();
             }
 
             // Event listeners setup
@@ -412,26 +404,6 @@
                         showTab(this.dataset.tab);
                     });
                 });
-
-                // Remove shop logic for now
-                // document.getElementById('shopItems').addEventListener('click', e => {
-                //     if (e.target.tagName === 'BUTTON') {
-                //         buyItem(e.target.dataset.item, parseInt(e.target.dataset.cost));
-                //     }
-                // });
-
-                // Remove leaderboard type switching for now
-                // document.getElementById('dailyLeaderboard').addEventListener('click', () => {
-                //     gameState.leaderboardType = 'daily';
-                //     updateLeaderboardTabs();
-                //     loadLeaderboard();
-                // });
-
-                // document.getElementById('alltimeLeaderboard').addEventListener('click', () => {
-                //     gameState.leaderboardType = 'alltime';
-                //     updateLeaderboardTabs();
-                //     loadLeaderboard();
-                // });
             }
 
             // Handle tap on shark
@@ -447,10 +419,10 @@
                 setTimeout(() => shark.style.transform = "scale(1)", 100);
 
                 createTapEffect(event);
-                createCoinPopup(event);
+                createCoinPopup(event, tapMultiplier); // Передаем множитель в функцию
 
                 // Increment coins
-                userData.tokens++;
+                userData.tokens += tapMultiplier;
                 updateDisplay();
 
                 // Save progress
@@ -461,13 +433,6 @@
                 } else {
                     saveToLocalStorage();
                 }
-                // Remove quest and achievement checks for now
-                // userData.taps++;
-                // userData.dailyQuests.taps.current++;
-                // userData.dailyQuests.coins.current = userData.tokens;
-                // checkQuests();
-                // checkAchievements();
-                // gameState.needsSave = true;
             }
 
             // Create tap visual effect
@@ -483,11 +448,11 @@
                 }, 600);
             }
 
-            // Create +1 coin popup
-            function createCoinPopup(event) {
+            // Create coin popup
+            function createCoinPopup(event, amount) {
                 const popup = document.createElement('div');
                 popup.className = 'coin-popup';
-                popup.textContent = '+1';
+                popup.innerHTML = `<img src="https://sinobu1.github.io/shark-tapper/coin_icon_small.png" alt="Coin"> +${amount}`;
                 popup.style.left = `${event.clientX}px`;
                 popup.style.top = `${event.clientY - 20}px`;
                 document.body.appendChild(popup);
@@ -512,9 +477,10 @@
                     let min = limits[limits.indexOf(max) - 1] || 0;
                     let percent = ((userData.tokens - min) / (max - min)) * 100;
                     bar.style.width = `${Math.min(100, Math.max(0, percent))}%`;
+                    // Временно вернем расчет множителя здесь
+                    const level = limits.indexOf(max);
+                    tapMultiplier = 1 + Math.floor(level / 5);
                 }
-                // Remove tap multiplier update for now
-                // gameState.tapMultiplier = 1 + Math.floor(level / 5);
             }
 
             // Show tab content
@@ -551,12 +517,6 @@
                         photo_url: userData.avatar,
                         skin: userData.skin,
                         last_update: Date.now()
-                        // Remove quest and autoclicker saving for now
-                        // taps: userData.taps,
-                        // achievements: userData.achievements,
-                        // autoclickers: userData.autoclickers,
-                        // dailyQuests: userData.dailyQuests,
-                        // lastDailyBonus: userData.lastDailyBonus
                     })
                 })
                 .then(() => saveToLocalStorage())
@@ -576,11 +536,6 @@
                         userData.skin = parsed.skin || 'default';
                         updateDisplay();
                         setSkin(userData.skin, true);
-                        // Remove loading of other data for now
-                        // userData.achievements = parsed.achievements || [];
-                        // userData.autoclickers = parsed.autoclickers || 0;
-                        // userData.dailyQuests = parsed.dailyQuests || { taps: { current: 0, target: 100, completed: false }, coins: { current: 0, target: 500, completed: false } };
-                        // userData.lastDailyBonus = parsed.lastDailyBonus || null;
                     } catch (e) {
                         console.error('Error parsing saved data', e);
                     }
@@ -592,11 +547,6 @@
                 localStorage.setItem('sharkTapperData', JSON.stringify({
                     tokens: userData.tokens,
                     skin: userData.skin
-                    // Remove saving of other data for now
-                    // achievements: userData.achievements,
-                    // autoclickers: userData.autoclickers,
-                    // dailyQuests: userData.dailyQuests,
-                    // lastDailyBonus: userData.lastDailyBonus
                 }));
             }
 
@@ -619,11 +569,6 @@
                             userData.username = data.first_name || "Player";
                             userData.avatar = data.photo_url || "https://placehold.co/64x64";
                             userData.skin = data.skin || 'default';
-                            // Remove loading of other data for now
-                            // userData.achievements = data.achievements || [];
-                            // userData.autoclickers = data.autoclickers || 0;
-                            // userData.dailyQuests = data.dailyQuests || { taps: { current: 0, target: 100, completed: false }, coins: { current: 0, target: 500, completed: false } };
-                            // userData.lastDailyBonus = data.lastDailyBonus || null;
 
                             // Update UI
                             updateDisplay();
