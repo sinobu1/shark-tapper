@@ -423,7 +423,7 @@ function toggleTheme() {
   body.classList.toggle("light-theme", isDark);
   localStorage.setItem("theme", isDark ? "light" : "dark");
   const themeBtn = document.getElementById("themeToggle");
-  if (themeBtn) themeBtn.textContent = isDark ? "🌗" : "🌞";
+  if (themeBtn) themeBtn.textContent = isDark ? "🌗" : "☀";
 }
 
 function handleTap() {
@@ -479,6 +479,7 @@ function updateProfileInfo() {
   if (pJoin) pJoin.textContent = "Дата регистрации: " + joinDate;
 }
 
+
 function openLeaderboard() {
   const modal = document.getElementById("leaderboard-modal");
   if (modal) modal.style.display = "flex";
@@ -491,35 +492,19 @@ function openLeaderboard() {
       const users = Object.entries(data || {}).map(([id, u]) => ({ id, ...u }))
         .sort((a, b) => b.balance - a.balance).slice(0, 10);
       users.forEach(user => {
-        const name = user.first_name || "User";
-        const photo = user.photo_url || "https://t.me/i/userpic/320/" + (user.username || "unknown") + ".jpg";
+        const name = user.first_name || user.username || "User";
+        let photo = user.photo_url;
+        if (!photo && user.username) {
+          photo = `https://t.me/i/userpic/320/${user.username}.jpg`;
+        }
+        if (!photo) {
+          photo = "https://via.placeholder.com/24";
+        }
         const li = document.createElement("li");
         li.innerHTML = `<img src="${photo}" style="width:24px;height:24px;border-radius:50%;margin-right:6px;" /><strong>${name}</strong>: ${user.balance}`;
         list.appendChild(li);
       });
     });
 }
-
-window.addEventListener("DOMContentLoaded", () => {
-  const theme = localStorage.getItem("theme") || "light";
-  document.body.classList.add(theme + "-theme");
-  const themeBtn = document.getElementById("themeToggle");
-  if (themeBtn) themeBtn.textContent = theme === "dark" ? "🌗" : "🌞";
-
-  toggleTab('gameContainer');
-  updateBalanceDisplay();
-
-  if (typeof Telegram !== "undefined" && Telegram.WebApp) {
-    Telegram.WebApp.ready();
-    Telegram.WebApp.expand();
-    const user = Telegram.WebApp.initDataUnsafe?.user || {};
-    userId = user.id?.toString();
-    userFirstName = user.first_name || user.username || "Игрок";
-    userAvatar = user.photo_url || (user.username ? `https://t.me/i/userpic/320/${user.username}.jpg` : "https://via.placeholder.com/72");
-    joinDate = new Date().toISOString().split("T")[0];
-    updateProfileInfo();
-    loadProgress();
-  }
-});
 </script></body>
 </html>
