@@ -213,7 +213,7 @@
         const tgUser = Telegram?.WebApp?.initDataUnsafe?.user;
         if (tgUser) {
           userId = tgUser.id?.toString();
-          userData.username = tgUser.username || tgUser.first_name || "Player";
+          userData.username = `${tgUser.first_name || ''} ${tgUser.last_name || ''}`.trim() || 'Player';
           userData.avatar = tgUser.photo_url || "https://placehold.co/64x64";
           document.getElementById("profileName").textContent = userData.username;
           document.getElementById("profileAvatar").src = userData.avatar;
