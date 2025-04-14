@@ -223,11 +223,20 @@
       <button><i class="fa-solid fa-list-check"></i><span>Задания</span></button>
     </nav>
 
+    <div id="leaderboard" style="margin: 2rem 1rem; background: var(--card-bg); border-radius: 1.5rem; padding: 1rem; box-shadow: 0 6px 16px rgba(0,0,0,0.08);">
+      <h2 style="font-size: 1.2rem; margin-bottom: 1rem; color: var(--primary);">🏆 Лидерборд</h2>
+      <ul id="leaderboardList" style="list-style: none; padding: 0; margin: 0;">
+        <li style="text-align:center; color: var(--subtext);">Загрузка...</li>
+      </ul>
+    </div>
+
     <script>
       function handleTap() {
         const counter = document.getElementById("profileTokens");
         let current = parseInt(counter.textContent);
-        counter.textContent = current + 1;
+        userData.tokens = current + 1;
+        counter.textContent = userData.tokens;
+        saveProgress();
         addXP(10);
       }
 
@@ -243,6 +252,8 @@
           xpToNext = Math.floor(xpToNext * 1.5);
         }
         updateXPDisplay();
+loadTelegram();
+        saveProgress();
       }
 
       function updateXPDisplay() {
@@ -260,25 +271,95 @@
   });
 });
 
-// Заглушки для будущего функционала
-const userData = {
-  id: "123456",
+// Telegram WebApp + Firebase
+const dbUrl = "https://tralalero-fec07-default-rtdb.firebaseio.com";
+let userId = null;
+let userData = {
   username: "Игрок",
   avatar: "https://placehold.co/64x64",
-  tokens: 0,
-  level: 1,
-  xp: 0,
-  xpToNext: 100
+  tokens: 0
 };
 
-function loadUserData() {
+function saveProgress() {
+  if (!userId) return;
+  fetch(`${dbUrl}/users/${userId}.json`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      balance: userData.tokens,
+      first_name: userData.username,
+      photo_url: userData.avatar,
+      level,
+      xp,
+      xpToNext
+    })
+  });
+}
+
+function loadProgress() {
+  if (!userId) return;
+  fetch(`${dbUrl}/users/${userId}.json`)
+    .then(res => res.json())
+    .then(data => {
+      if (data) {
+        userData.tokens = data.balance || 0;
+        userData.username = data.first_name || userData.username;
+        userData.avatar = data.photo_url || userData.avatar;
+        level = data.level || 1;
+        xp = data.xp || 0;
+        xpToNext = data.xpToNext || 100;
+      }
+      updateProfile();
+    });
+}
+
+function updateProfile() {
   document.getElementById("profileName").textContent = userData.username;
   document.getElementById("profileAvatar").src = userData.avatar;
   document.getElementById("profileTokens").textContent = userData.tokens;
   updateXPDisplay();
 }
 
-loadUserData();
+function loadUserData() {
+  loadProgress();
+  document.getElementById("profileName").textContent = userData.username;
+  document.getElementById("profileAvatar").src = userData.avatar;
+  document.getElementById("profileTokens").textContent = userData.tokens;
+  updateXPDisplay();
+}
+function loadTelegram() {
+  if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
+    Telegram.WebApp.ready();
+    Telegram.WebApp.expand();
+    const user = Telegram.WebApp.initDataUnsafe?.user || {};
+    userId = user?.id?.toString();
+    userData.username = user?.first_name || user?.username || 'Игрок';
+    userData.avatar = user?.photo_url || (user?.username ? `https://t.me/i/userpic/320/${user.username}.jpg` : 'https://via.placeholder.com/72');
+    if (userId) loadProgress();
+  }
+}
+function loadLeaderboard() {
+  fetch(`${dbUrl}/users.json`)
+    .then(res => res.json())
+    .then(data => {
+      const list = document.getElementById("leaderboardList");
+      if (!data || Object.keys(data).length === 0) return list.innerHTML = '<li style="text-align:center; color: var(--subtext);">Пока пусто</li>';
+
+      const sorted = Object.entries(data)
+        .sort((a, b) => (b[1].balance || 0) - (a[1].balance || 0))
+        .slice(0, 10);
+
+      list.innerHTML = sorted.map(([id, user], i) => `
+        <li style="margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+          <span style="font-weight: bold; color: var(--primary);">#${i + 1}</span>
+          <img src="${user.photo_url || 'https://placehold.co/32x32'}" style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--accent); object-fit: cover;">
+          <span>${user.first_name || 'Аноним'}</span>
+          <span style="margin-left:auto; color: var(--subtext);">${user.balance || 0} 💰</span>
+        </li>`).join("");
+    });
+}
+
+loadLeaderboard();
 </script>
   </div>
 </body>
