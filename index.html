@@ -10,20 +10,48 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'SF Pro Display', sans-serif;
-      background: linear-gradient(160deg, #f1f3f5, #dee2e6);
-      height: 100vh; display: flex; flex-direction: column; align-items: center;
+      background: linear-gradient(160deg, #e3f2fd, #e0f7fa);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 10px;
+    }
+    .tab-panel {
+      display: flex;
+      gap: 12px;
+      margin: 12px 0;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .tab-button {
+      background: linear-gradient(to right, #43e97b, #38f9d7);
+      border: none;
+      padding: 10px 16px;
+      font-size: 16px;
+      border-radius: 12px;
+      color: #fff;
+      font-weight: bold;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      transition: transform 0.1s ease;
+      cursor: pointer;
+    }
+    .tab-button:active {
+      transform: scale(0.97);
     }
     .game-container, #shopContainer, #boosterContainer, #profileContainer {
       display: none;
       flex-direction: column;
       align-items: center;
-      padding: 20px;
+      width: 100%;
     }
     .balance {
       font-size: 20px; margin: 10px 0;
     }
     .tap-image {
-      width: 200px;
+      width: 45vw;
+      max-width: 300px;
       border-radius: 16px;
       cursor: pointer;
       transition: transform 0.1s;
@@ -50,7 +78,7 @@
       100% { opacity: 0; transform: translateY(-50px); }
     }
     .xp-bar-container {
-      width: 80%; height: 14px; background: #ddd; border-radius: 8px; margin: 10px 0;
+      width: 90%; height: 14px; background: #cfd8dc; border-radius: 8px; margin: 10px 0;
     }
     .xp-bar {
       height: 100%; background: linear-gradient(to right, #00ffcc, #0072ff);
@@ -59,17 +87,6 @@
     #leaderboard-modal {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.95);
       display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 1000;
-    }
-    .tab-bar {
-      position: fixed;
-      bottom: 0;
-      width: 100%; display: flex;
-      justify-content: space-around;
-      background: white; border-top: 1px solid #ccc; padding: 10px 0;
-    }
-    .tab-button {
-      background: none; border: none;
-      font-size: 18px; cursor: pointer; font-weight: 600;
     }
     #playerLevel {
       display: flex; align-items: center; gap: 6px;
@@ -93,24 +110,7 @@
 <div class="balance" id="tokenCount">0 токенов</div>
 <div id="playerLevel">🏅 Уровень: 1</div>
 <div class="xp-bar-container"><div class="xp-bar" id="xpBar"></div></div>
-<div id="gameContainer" class="game-container">
-  <img id="tapImage" class="tap-image" src="shark.png" alt="Shark" onclick="handleTap()" />
-</div>
-<div id="boosterContainer">...</div>
-<div id="shopContainer">...</div>
-<div id="profileContainer">
-  <img id="profileAvatar" src="" alt="avatar" />
-  <h2 id="profileName">Игрок</h2>
-  <p id="profileTokens">Токенов: 0</p>
-  <p id="profileLevel">Уровень: 1</p>
-  <p id="profileJoin">Дата регистрации: ...</p>
-</div>
-<div id="leaderboard-modal">
-  <h2>🏆 Топ игроков</h2>
-  <ul id="leaderboardList"></ul>
-  <button onclick="document.getElementById('leaderboard-modal').style.display='none'">Закрыть</button>
-</div>
-<div class="tab-bar">
+<div class="tab-panel">
   <button class="tab-button" onclick="toggleTab('gameContainer')">🦈 Игра</button>
   <button class="tab-button" onclick="toggleTab('boosterContainer')">⚡ Бустеры</button>
   <button class="tab-button" onclick="toggleTab('shopContainer')">🛒 Магазин</button>
