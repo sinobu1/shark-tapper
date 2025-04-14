@@ -8,7 +8,7 @@
   <title>Shark Tapper</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Press+Start+2P&family=Rubik+Mono+One&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
     :root {
@@ -35,7 +35,7 @@
       touch-action: manipulation;
     }
     body {
-      font-family: 'Rubik', sans-serif;
+      font-family: 'Bungee', cursive;
       background: linear-gradient(180deg, #dbeafe 0%, #f0f4f8 100%);
       color: var(--text);
       -webkit-font-smoothing: antialiased;
@@ -46,14 +46,17 @@
       height: 100%;
       display: flex;
       flex-direction: column;
+      overflow: hidden;
     }
     header {
+      background: none;
+      color: var(--primary);
       padding: 1rem;
       text-align: center;
-      font-size: 1.8rem;
-      font-weight: 700;
-      color: var(--primary);
-      text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;
+      font-size: 2rem;
+      font-family: 'Rubik Mono One', sans-serif;
+      text-shadow: -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff, 2px 2px 0 #fff;
+      flex-shrink: 0;
     }
     .main-content {
       flex: 1;
@@ -61,50 +64,64 @@
       display: flex;
       flex-direction: column;
     }
-    .tab-page {
-      display: none;
-      height: 100%;
-      flex-direction: column;
+    .tab-content {
+      flex: 1;
       overflow-y: auto;
-    }
-    .tab-page.active {
-      display: flex;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 60px;
     }
     .token-counter {
-      margin: 0.5rem auto;
+      margin: 0 auto;
+      font-size: 0.8rem;
+      color: var(--primary);
+      background: var(--card-bg);
       padding: 0.5rem 1rem;
-      background: white;
-      border-radius: 20px;
-      font-family: 'Press Start 2P', cursive;
-      font-size: 0.7rem;
-      display: flex;
+      border-radius: 999px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      display: inline-flex;
       align-items: center;
       gap: 0.5rem;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      font-family: 'Press Start 2P', cursive;
+      line-height: 1.2;
+    }
+    .coin-icon {
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
     }
     .shark-wrapper {
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: center;
       padding: 1rem;
+      flex: 1;
+    }
+    .shark-tap-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
     }
     .shark-image {
       width: 140px;
       height: 140px;
       border-radius: 50%;
       border: 4px solid var(--accent);
-      background: white;
+      background: var(--card-bg);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
       object-fit: cover;
       cursor: pointer;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
       transition: transform 0.1s ease;
     }
     .shark-gallery {
-      display: flex;
-      gap: 0.75rem;
       margin: 1rem 0;
       padding: 0.5rem;
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
       overflow-x: auto;
+      width: 100%;
       scrollbar-width: none;
     }
     .shark-gallery::-webkit-scrollbar {
@@ -115,7 +132,9 @@
       height: 48px;
       border-radius: 50%;
       border: 2px solid var(--primary);
+      background: white;
       object-fit: cover;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
       flex-shrink: 0;
       transition: transform 0.2s ease;
     }
@@ -123,110 +142,145 @@
       transform: scale(1.1);
     }
     .profile-card {
-      background: white;
-      border-radius: 16px;
+      background: var(--card-bg);
+      border-radius: 1.5rem;
       padding: 1rem;
       margin: 1rem;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
+      border: 1px solid var(--border);
       box-shadow: 0 8px 16px rgba(0,0,0,0.06);
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+    }
+    .profile-card img {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--accent);
+      flex-shrink: 0;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
     .profile-info {
-      flex: 1;
+      display: flex;
+      flex-direction: column;
+      width: 100%;
       min-width: 0;
     }
-    .profile-name {
-      font-weight: 700;
-      font-size: 1rem;
+    .profile-info .name {
+      font-weight: 600;
+      font-size: 0.85rem;
+      font-family: 'Press Start 2P', cursive;
+      line-height: 1.3;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
       max-width: 150px;
     }
-    .profile-coins {
+    .profile-info .sub {
+      font-size: 0.8rem;
       color: var(--subtext);
-      font-size: 0.9rem;
-      font-family: 'Press Start 2P', cursive;
+      font-family: 'Bungee', cursive;
+    }
+    .xp-bar {
+      width: 100%;
+      height: 6px;
+      background: var(--border);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-top: 0.5rem;
+    }
+    .xp-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(to right, var(--primary), var(--accent));
+      transition: width 0.3s ease;
     }
     nav {
+      width: 100%;
       display: flex;
-      background: white;
+      background: var(--card-bg);
       border-top: 1px solid var(--border);
       padding: 0.5rem 0;
       box-shadow: 0 -4px 12px rgba(0,0,0,0.06);
+      backdrop-filter: blur(12px);
+      z-index: 100;
+      flex-shrink: 0;
     }
     nav button {
       flex: 1;
-      border: none;
       background: none;
+      border: none;
+      font-size: 0.65rem;
+      color: var(--subtext);
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 0.25rem;
-      font-size: 0.7rem;
+      font-family: 'Bungee', cursive;
+      padding: 8px;
+      border-radius: 8px;
+      transition: all 0.2s ease;
     }
     nav button.active {
       color: var(--primary);
       font-weight: 700;
+      border: 1px solid var(--primary);
+      transform: scale(1.05);
     }
-    .leaderboard-list {
-      list-style: none;
-      padding: 0 1rem;
+    nav button i {
+      font-size: 1.1rem;
     }
-    .leaderboard-item {
-      padding: 0.75rem;
-      margin-bottom: 0.5rem;
-      background: white;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.05);
-    }
-    .leaderboard-rank {
-      font-weight: 700;
-      color: var(--primary);
-      width: 24px;
-      text-align: center;
-    }
-    .leaderboard-avatar {
-      width: 32px;
-      height: 32px;
+    .tap-effect {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%);
       border-radius: 50%;
-      border: 2px solid var(--accent);
-      object-fit: cover;
-      flex-shrink: 0;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      animation: tapAnimation 0.6s forwards;
+      z-index: 10;
     }
-    .leaderboard-name {
-      flex: 1;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 120px;
-      font-size: 0.8rem;
-    }
-    .leaderboard-score {
-      font-weight: 700;
-      font-family: 'Press Start 2P', cursive;
-      font-size: 0.7rem;
-    }
-    .current-user {
-      background: rgba(47, 128, 237, 0.1);
+    @keyframes tapAnimation {
+      0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; }
+      100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
     }
     .coin-popup {
       position: absolute;
       font-family: 'Press Start 2P', cursive;
       color: #f8d030;
-      text-shadow: 1px 1px 0 #b88b00;
-      font-size: 0.8rem;
+      text-shadow: 1px 1px 0 #b88b00, -1px -1px 0 #b88b00;
+      font-size: 0.9rem;
       animation: coinPopup 1s forwards;
       pointer-events: none;
       z-index: 20;
+      white-space: nowrap;
     }
     @keyframes coinPopup {
       0% { transform: translateY(0); opacity: 1; }
       100% { transform: translateY(-50px); opacity: 0; }
+    }
+    .tab-page {
+      display: none;
+      height: 100%;
+      flex-direction: column;
+    }
+    .tab-page.active {
+      display: flex;
+    }
+    .leaderboard-item {
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem;
+      border-radius: 12px;
+      background: transparent;
+      transition: background 0.2s ease;
+    }
+    .leaderboard-item.current-user {
+      background: rgba(47, 128, 237, 0.1);
     }
     .loading-overlay {
       position: fixed;
@@ -234,11 +288,22 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(255,255,255,0.7);
+      background: rgba(255,255,255,0.9);
       display: flex;
       justify-content: center;
       align-items: center;
       z-index: 1000;
+      font-family: 'Press Start 2P', cursive;
+    }
+    .quests-container, .shop-container {
+      padding: 1rem;
+    }
+    .quest-item, .shop-item {
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
   </style>
 </head>
@@ -247,63 +312,104 @@
     <header>SHARK TAPPER</header>
     
     <div class="main-content">
-      <!-- Home Tab -->
-      <div id="home" class="tab-page active">
-        <div class="shark-wrapper">
-          <div class="token-counter">
-            <i class="fas fa-coins"></i>
-            <span id="coins-display">0</span> coins
+      <div class="tab-content">
+        <!-- Home Tab -->
+        <div id="home" class="tab-page active">
+          <div class="shark-wrapper">
+            <div class="shark-tap-container">
+              <div class="token-counter" id="tokenCounter">
+                <img src="https://sinobu1.github.io/shark-tapper/coin_icon_small.png" 
+                     alt="Coin Icon" 
+                     class="coin-icon" />
+                <span id="profileTokens">0</span> coins
+              </div>
+              <img src="https://sinobu1.github.io/shark-tapper/shark.png" 
+                   alt="Tap Shark" 
+                   class="shark-image" 
+                   id="tapImage" />
+            </div>
+            <div class="shark-gallery">
+              <img src="https://sinobu1.github.io/shark-tapper/shark.png" 
+                   alt="Shark 1" 
+                   data-skin="default" />
+              <img src="https://sinobu1.github.io/shark-tapper/shark_skin1.png" 
+                   alt="Gold Shark" 
+                   data-skin="skin3" />
+              <img src="https://sinobu1.github.io/shark-tapper/shark_skin2.png" 
+                   alt="Leopard Shark" 
+                   data-skin="skin2" />
+            </div>
           </div>
-          
-          <img src="https://sinobu1.github.io/shark-tapper/shark.png" class="shark-image" id="shark-image">
-          
-          <div class="shark-gallery">
-            <img src="https://sinobu1.github.io/shark-tapper/shark.png" data-skin="default">
-            <img src="https://sinobu1.github.io/shark-tapper/shark_skin1.png" data-skin="gold">
-            <img src="https://sinobu1.github.io/shark-tapper/shark_skin2.png" data-skin="leopard">
+          <div class="profile-card">
+            <img src="https://placehold.co/64x64" 
+                 alt="Avatar" 
+                 id="profileAvatar" />
+            <div class="profile-info">
+              <span class="name" id="profileName">Player</span>
+              <span class="sub" id="profileLevel">Coins: 0</span>
+              <div class="xp-bar">
+                <div class="xp-fill" id="xpBar"></div>
+              </div>
+            </div>
           </div>
         </div>
-        
-        <div class="profile-card">
-          <img src="https://placehold.co/64x64" width="50" height="50" style="border-radius:50%" id="profile-avatar">
-          <div class="profile-info">
-            <div class="profile-name" id="player-name">Player</div>
-            <div class="profile-coins">COINS: <span id="player-coins">0</span></div>
+
+        <!-- Quests Tab -->
+        <div id="quests" class="tab-page">
+          <div class="quests-container">
+            <h2>📝 Daily Quests</h2>
+            <div class="quest-item">
+              <h3>Tap Master</h3>
+              <div class="quest-progress">0/100 Taps</div>
+              <div class="quest-reward">+50 Coins</div>
+            </div>
           </div>
         </div>
-      </div>
-      
-      <!-- Leaderboard Tab -->
-      <div id="leaderboard" class="tab-page">
-        <h2 style="text-align:center; margin:1rem;">TOP PLAYERS</h2>
-        <ul class="leaderboard-list" id="leaderboard-list">
-          <li style="text-align:center; color: var(--subtext);">Loading...</li>
-        </ul>
+
+        <!-- Shop Tab -->
+        <div id="shop" class="tab-page">
+          <div class="shop-container">
+            <h2>🛍 Shark Skins</h2>
+            <div class="shop-item">
+              <img src="https://sinobu1.github.io/shark-tapper/shark_skin1.png" 
+                   class="shop-icon" 
+                   width="80" 
+                   height="80">
+              <div class="shop-price">1000 Coins</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Leaderboard Tab -->
+        <div id="leaderboard" class="tab-page">
+          <div style="padding: 1rem;">
+            <h2 style="text-align:center; margin-bottom: 1rem;">TOP PLAYERS</h2>
+            <ul id="leaderboardList" style="list-style: none; padding: 0; margin: 0;">
+              <li style="text-align:center; color: var(--subtext);">Loading...</li>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
-    
+
     <nav>
       <button class="active" data-tab="home">
-        <i class="fas fa-gamepad"></i>
-        <span>GAME</span>
+        <i class="fa-solid fa-gamepad"></i><span>Game</span>
       </button>
       <button data-tab="quests">
-        <i class="fas fa-tasks"></i>
-        <span>QUESTS</span>
+        <i class="fa-solid fa-list-check"></i><span>Quests</span>
       </button>
       <button data-tab="shop">
-        <i class="fas fa-store"></i>
-        <span>SHOP</span>
+        <i class="fa-solid fa-store"></i><span>Shop</span>
       </button>
       <button data-tab="leaderboard">
-        <i class="fas fa-trophy"></i>
-        <span>TOP</span>
+        <i class="fa-solid fa-ranking-star"></i><span>Top</span>
       </button>
     </nav>
-  </div>
 
-  <div id="loading-overlay" class="loading-overlay" style="display: none;">
-    <div style="font-family: 'Press Start 2P', cursive; font-size: 0.9rem;">Syncing data...</div>
+    <div id="loading-overlay" class="loading-overlay" style="display: none;">
+      <div>Loading...</div>
+    </div>
   </div>
 
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -317,26 +423,25 @@
         coins: 0,
         skin: 'default'
       };
+      let lastSave = Date.now();
+      const SAVE_INTERVAL = 5000;
       let canVibrate = 'vibrate' in navigator;
-      let isSyncing = false;
 
-      // DOM elements
-      const sharkImage = document.getElementById('shark-image');
-      const coinsDisplay = document.getElementById('coins-display');
-      const playerCoins = document.getElementById('player-coins');
-      const playerName = document.getElementById('player-name');
-      const profileAvatar = document.getElementById('profile-avatar');
-      const leaderboardList = document.getElementById('leaderboard-list');
+      // DOM Elements
       const loadingOverlay = document.getElementById('loading-overlay');
+      const tapImage = document.getElementById('tapImage');
+      const coinsDisplay = document.getElementById('profileTokens');
+      const profileName = document.getElementById('profileName');
+      const profileAvatar = document.getElementById('profileAvatar');
+      const leaderboardList = document.getElementById('leaderboardList');
 
       // Initialize
-      loadFromLocalStorage();
       setupEventListeners();
-      initTelegram();
+      loadTelegramUser();
+      loadFromLocalStorage();
 
-      // Event listeners
       function setupEventListeners() {
-        sharkImage.addEventListener('click', handleTap);
+        tapImage.addEventListener('click', handleTap);
         document.querySelectorAll('.shark-gallery img').forEach(img => {
           img.addEventListener('click', () => setSkin(img.dataset.skin));
         });
@@ -345,176 +450,102 @@
         });
       }
 
-      // Handle tap on shark
-      function handleTap(e) {
+      async function handleTap(event) {
         if (canVibrate) navigator.vibrate(10);
         
-        sharkImage.style.transform = 'scale(0.95)';
-        setTimeout(() => sharkImage.style.transform = 'scale(1)', 100);
+        // Animation
+        tapImage.style.transform = "scale(0.95)";
+        setTimeout(() => tapImage.style.transform = "scale(1)", 100);
         
-        createCoinPopup(e);
-        addCoin();
+        // Add coin
+        userData.coins++;
+        updateCoinDisplay();
+        
+        // Create visual effects
+        createCoinPopup(event);
+        
+        // Save data
+        if (Date.now() - lastSave > SAVE_INTERVAL) {
+          await syncWithFirebase();
+          lastSave = Date.now();
+        } else {
+          saveToLocalStorage();
+        }
       }
 
-      function createCoinPopup(e) {
+      function createCoinPopup(event) {
         const popup = document.createElement('div');
         popup.className = 'coin-popup';
         popup.textContent = '+1';
-        popup.style.left = `${e.clientX}px`;
-        popup.style.top = `${e.clientY - 20}px`;
+        popup.style.left = `${event.clientX}px`;
+        popup.style.top = `${event.clientY - 20}px`;
         document.body.appendChild(popup);
         setTimeout(() => popup.remove(), 1000);
       }
 
-      function addCoin() {
-        userData.coins++;
-        updateCoinDisplay();
-        saveToLocalStorage();
-        syncWithFirebase();
-      }
-
       function updateCoinDisplay() {
-        const formatted = userData.coins.toLocaleString();
-        coinsDisplay.textContent = formatted;
-        playerCoins.textContent = formatted;
+        coinsDisplay.textContent = userData.coins.toLocaleString();
+        document.getElementById('profileLevel').textContent = `Coins: ${userData.coins.toLocaleString()}`;
+        updateXpBar();
       }
 
-      function setSkin(skin) {
-        userData.skin = skin;
-        const skinMap = {
-          'default': 'https://sinobu1.github.io/shark-tapper/shark.png',
-          'gold': 'https://sinobu1.github.io/shark-tapper/shark_skin1.png',
-          'leopard': 'https://sinobu1.github.io/shark-tapper/shark_skin2.png'
-        };
-        sharkImage.src = skinMap[skin] || skinMap.default;
-        saveToLocalStorage();
-        syncWithFirebase();
+      function updateXpBar() {
+        const xpBar = document.getElementById('xpBar');
+        const levels = [0, 100, 500, 1000, 2500, 5000, 10000];
+        const currentLevel = levels.findIndex(l => userData.coins < l);
+        const prevLevel = levels[currentLevel - 1] || 0;
+        const nextLevel = levels[currentLevel] || levels[levels.length - 1];
+        const progress = ((userData.coins - prevLevel) / (nextLevel - prevLevel)) * 100;
+        xpBar.style.width = `${Math.min(100, Math.max(0, progress))}%`;
       }
 
-      function showTab(tabId) {
-        document.querySelectorAll('.tab-page').forEach(page => {
-          page.classList.toggle('active', page.id === tabId);
-        });
-        document.querySelectorAll('nav button').forEach(btn => {
-          btn.classList.toggle('active', btn.dataset.tab === tabId);
-        });
+      async function syncWithFirebase() {
+        if (!userId) return;
         
-        if (tabId === 'leaderboard') loadLeaderboard();
-      }
-
-      // Telegram integration
-      function initTelegram() {
-        if (window.Telegram && Telegram.WebApp) {
-          const tgUser = Telegram.WebApp.initDataUnsafe.user;
-          if (tgUser) {
-            userId = tgUser.id.toString();
-            userData.name = tgUser.first_name || "Player";
-            userData.avatar = tgUser.photo_url || "https://placehold.co/64x64";
-            
-            updateProfileDisplay();
-            syncWithFirebase();
-          }
+        loadingOverlay.style.display = 'flex';
+        try {
+          await fetch(`${dbUrl}/users/${userId}.json`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: userData.name,
+              avatar: userData.avatar,
+              coins: userData.coins,
+              skin: userData.skin,
+              lastUpdated: Date.now()
+            })
+          });
+          saveToLocalStorage();
+        } catch (error) {
+          console.error('Sync error:', error);
+        } finally {
+          loadingOverlay.style.display = 'none';
         }
       }
 
-      function updateProfileDisplay() {
-        playerName.textContent = userData.name;
-        profileAvatar.src = userData.avatar;
+      function loadTelegramUser() {
+        if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
+          const tgUser = Telegram.WebApp.initDataUnsafe.user;
+          userId = tgUser.id.toString();
+          userData.name = tgUser.first_name || "Player";
+          userData.avatar = tgUser.photo_url || userData.avatar;
+          profileName.textContent = userData.name;
+          profileAvatar.src = userData.avatar;
+          syncWithFirebase();
+        }
       }
 
-      // Firebase synchronization
-      function syncWithFirebase() {
-        if (!userId || isSyncing) return;
-        
-        isSyncing = true;
-        loadingOverlay.style.display = 'flex';
-        
-        const dataToSave = {
-          name: userData.name,
-          avatar: userData.avatar,
-          coins: userData.coins,
-          skin: userData.skin,
-          lastUpdated: Date.now()
-        };
-        
-        fetch(`${dbUrl}/users/${userId}.json`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(dataToSave)
-        })
-        .then(response => {
-          if (!response.ok) throw new Error('Network error');
-          return response.json();
-        })
-        .then(() => {
-          console.log('Data saved to Firebase');
-          loadLeaderboard(); // Refresh leaderboard after save
-        })
-        .catch(error => {
-          console.error('Firebase save error:', error);
-        })
-        .finally(() => {
-          isSyncing = false;
-          loadingOverlay.style.display = 'none';
-        });
-      }
-
-      function loadLeaderboard() {
-        loadingOverlay.style.display = 'flex';
-        
-        fetch(`${dbUrl}/users.json?orderBy="coins"&limitToLast=10`)
-          .then(response => {
-            if (!response.ok) throw new Error('Network error');
-            return response.json();
-          })
-          .then(data => {
-            if (!data) {
-              leaderboardList.innerHTML = '<li style="text-align:center; color: var(--subtext);">No players yet</li>';
-              return;
-            }
-            
-            const players = Object.entries(data)
-              .map(([id, user]) => ({ id, ...user }))
-              .sort((a, b) => (b.coins || 0) - (a.coins || 0))
-              .slice(0, 10);
-            
-            renderLeaderboard(players);
-          })
-          .catch(error => {
-            console.error('Leaderboard load error:', error);
-            leaderboardList.innerHTML = '<li style="text-align:center; color: var(--subtext);">Loading error</li>';
-          })
-          .finally(() => {
-            loadingOverlay.style.display = 'none';
-          });
-      }
-
-      function renderLeaderboard(players) {
-        leaderboardList.innerHTML = players.map((player, index) => {
-          const isCurrent = player.id === userId;
-          return `
-            <li class="leaderboard-item ${isCurrent ? 'current-user' : ''}">
-              <div class="leaderboard-rank">#${index + 1}</div>
-              <img src="${player.avatar || 'https://placehold.co/32x32'}" class="leaderboard-avatar">
-              <div class="leaderboard-name" title="${player.name || 'Player'}">${player.name || 'Player'}</div>
-              <div class="leaderboard-score">${(player.coins || 0).toLocaleString()} 💰</div>
-            </li>
-          `;
-        }).join('');
-      }
-
-      // Local storage
       function loadFromLocalStorage() {
         const saved = localStorage.getItem('sharkTapper');
         if (saved) {
           try {
-            const parsed = JSON.parse(saved);
-            userData.coins = parsed.coins || 0;
-            userData.skin = parsed.skin || 'default';
+            const data = JSON.parse(saved);
+            userData.coins = data.coins || 0;
+            userData.skin = data.skin || 'default';
             updateCoinDisplay();
             setSkin(userData.skin);
           } catch (e) {
-            console.error('Local storage parse error:', e);
+            console.error('Load error:', e);
           }
         }
       }
@@ -526,8 +557,56 @@
         }));
       }
 
-      // Initial load
-      showTab('home');
+      function setSkin(skin) {
+        const skins = {
+          'default': 'https://sinobu1.github.io/shark-tapper/shark.png',
+          'skin2': 'https://sinobu1.github.io/shark-tapper/shark_skin2.png',
+          'skin3': 'https://sinobu1.github.io/shark-tapper/shark_skin1.png'
+        };
+        if (skins[skin]) {
+          userData.skin = skin;
+          tapImage.src = skins[skin];
+          syncWithFirebase();
+        }
+      }
+
+      async function loadLeaderboard() {
+        loadingOverlay.style.display = 'flex';
+        try {
+          const response = await fetch(`${dbUrl}/users.json?orderBy="coins"&limitToLast=10`);
+          const data = await response.json();
+          const sorted = Object.entries(data)
+            .sort((a, b) => b[1].coins - a[1].coins)
+            .slice(0, 10);
+          renderLeaderboard(sorted);
+        } catch (error) {
+          console.error('Leaderboard error:', error);
+          leaderboardList.innerHTML = '<li>Error loading leaderboard</li>';
+        } finally {
+          loadingOverlay.style.display = 'none';
+        }
+      }
+
+      function renderLeaderboard(data) {
+        leaderboardList.innerHTML = data.map(([id, user], index) => `
+          <li class="leaderboard-item ${id === userId ? 'current-user' : ''}">
+            <div class="leaderboard-rank">#${index + 1}</div>
+            <img src="${user.avatar || 'https://placehold.co/32x32'}" 
+                 class="leaderboard-avatar">
+            <div class="leaderboard-name">${user.name || 'Player'}</div>
+            <div class="leaderboard-score">${(user.coins || 0).toLocaleString()} 💰</div>
+          </li>
+        `).join('');
+      }
+
+      function showTab(tabId) {
+        document.querySelectorAll('.tab-page').forEach(page => 
+          page.classList.toggle('active', page.id === tabId));
+        document.querySelectorAll('nav button').forEach(btn => 
+          btn.classList.toggle('active', btn.dataset.tab === tabId));
+        
+        if (tabId === 'leaderboard') loadLeaderboard();
+      }
     });
   </script>
 </body>
