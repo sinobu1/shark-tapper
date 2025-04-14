@@ -230,19 +230,24 @@
     </div>
 
     <script>
-      function handleTap() {
+// Основные переменные
+const dbUrl = "https://tralalero-fec07-default-rtdb.firebaseio.com";
+let userId = null;
+let userData = {
+  username: "Игрок",
+  avatar: "https://placehold.co/64x64",
+  tokens: 0
+};
+
+function handleTap() {
   const counter = document.getElementById("profileTokens");
   userData.tokens++;
   counter.textContent = userData.tokens;
   updateXPDisplay();
   saveProgress();
-      }
-
-              updateXPDisplay();
-  loadTelegram();
 }
 
-      function updateXPDisplay() {
+function updateXPDisplay() {
   const levelEl = document.getElementById("profileLevel");
   if (levelEl) levelEl.textContent = `Монет: ${userData.tokens}`;
   const bar = document.getElementById("xpBar");
@@ -255,9 +260,8 @@
     bar.style.width = `${percent}%`;
   }
 }
-      }
 
-      function showTab(tabId) {
+function showTab(tabId) {
   document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('active'));
   document.querySelectorAll('nav button').forEach(btn => {
     if (btn.textContent.toLowerCase().includes(tabId)) btn.classList.add('active');
@@ -266,24 +270,7 @@
     const el = document.getElementById(id);
     if (el) el.style.display = (id === tabId) ? 'block' : 'none';
   });
-});
-  ['profile', 'game', 'shop', 'leaderboard'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.style.display = (id === tabId) ? 'block' : 'none';
-  });
 }
-showTab('game');
-loadUserData();
-});
-
-// Telegram WebApp + Firebase
-const dbUrl = "https://tralalero-fec07-default-rtdb.firebaseio.com";
-let userId = null;
-let userData = {
-  username: "Игрок",
-  avatar: "https://placehold.co/64x64",
-  tokens: 0
-};
 
 function saveProgress() {
   if (!userId) return;
@@ -293,10 +280,7 @@ function saveProgress() {
     body: JSON.stringify({
       balance: userData.tokens,
       first_name: userData.username,
-      photo_url: userData.avatar,
-      level,
-      xp,
-      xpToNext
+      photo_url: userData.avatar
     })
   });
 }
@@ -310,9 +294,6 @@ function loadProgress() {
         userData.tokens = data.balance || 0;
         userData.username = data.first_name || userData.username;
         userData.avatar = data.photo_url || userData.avatar;
-        level = data.level || 1;
-        xp = data.xp || 0;
-        xpToNext = data.xpToNext || 100;
       }
       updateProfile();
     });
@@ -327,11 +308,9 @@ function updateProfile() {
 
 function loadUserData() {
   loadProgress();
-  document.getElementById("profileName").textContent = userData.username;
-  document.getElementById("profileAvatar").src = userData.avatar;
-  document.getElementById("profileTokens").textContent = userData.tokens;
-  updateXPDisplay();
+  updateProfile();
 }
+
 function loadTelegram() {
   if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
     Telegram.WebApp.ready();
@@ -343,6 +322,7 @@ function loadTelegram() {
     if (userId) loadProgress();
   }
 }
+
 function loadLeaderboard() {
   fetch(`${dbUrl}/users.json`)
     .then(res => res.json())
@@ -364,7 +344,6 @@ function loadLeaderboard() {
     });
 }
 
-loadLeaderboard();
 function buySkin(skinId, price) {
   if (!userId) return;
   if (userData.tokens >= price || price === 0) {
@@ -378,6 +357,12 @@ function buySkin(skinId, price) {
     alert("Недостаточно монет!");
   }
 }
+
+// Инициализация
+loadTelegram();
+showTab('game');
+loadUserData();
+loadLeaderboard();
 </script>
   </div>
 </body>
