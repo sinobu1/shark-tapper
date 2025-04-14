@@ -133,10 +133,10 @@ body {
 <button data-action="toggleTheme" id="themeToggle" style="font-size: 22px; background: none; border: none; cursor: pointer;">🌗</button>
 </div>
 <div class="tab-panel">
-<button class="tab-button" data-action="toggleTab('gameContainer'">🦈 Игра</button>
-<button class="tab-button" data-action="toggleTab('boosterContainer'">⚡ Бустеры</button>
-<button class="tab-button" data-action="toggleTab('shopContainer'">🛒 Магазин</button>
-<button class="tab-button" data-action="toggleTab('profileContainer'">👤 Профиль</button>
+<button class="tab-button" data-tab="gameContainer">🦈 Игра</button>
+<button class="tab-button" data-tab="boosterContainer">⚡ Бустеры</button>
+<button class="tab-button" data-tab="shopContainer">🛒 Магазин</button>
+<button class="tab-button" data-tab="profileContainer">👤 Профиль</button>
 <button class="tab-button" data-action="openLeaderboard">🏆 Топ</button>
 </div>
 <div class="balance" id="tokenCount">0 tokens</div>
@@ -385,13 +385,27 @@ function triggerVibration(ms = 30) {
 
 
 
+// === GLOBAL FUNCTION BINDINGS ===
+window.toggleTab = toggleTab;
+window.handleTap = handleTap;
+window.buyBooster = buyBooster;
+window.buySkin = buySkin;
+window.openLeaderboard = openLeaderboard;
+window.toggleTheme = toggleTheme;
+
 document.addEventListener("DOMContentLoaded", () => {
-  // Привязка кнопок
+  // обычные действия
   document.querySelectorAll("button[data-action]").forEach(btn => {
     const action = btn.getAttribute("data-action");
     if (typeof window[action] === "function") {
       btn.addEventListener("click", () => window[action]());
     }
+  });
+
+  // вкладки по data-tab
+  document.querySelectorAll("button[data-tab]").forEach(btn => {
+    const tab = btn.getAttribute("data-tab");
+    btn.addEventListener("click", () => toggleTab(tab));
   });
 
   // Telegram init
