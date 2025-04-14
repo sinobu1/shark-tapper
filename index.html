@@ -5,7 +5,46 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
 <title>Shark Tapper Fusion Final</title>
+<script src="https://telegram.org/js/telegram-web-app.js">
+function toggleTheme() {
+  const body = document.body;
+  const current = body.classList.contains("dark-theme") ? "dark" : "light";
+  const next = current === "dark" ? "light" : "dark";
+  body.classList.remove(current + "-theme");
+  body.classList.add(next + "-theme");
+  localStorage.setItem("theme", next);
+  document.getElementById("themeToggle").textContent = next === "dark" ? "☀️" : "🌙";
+}
 
+(function applyStoredTheme() {
+  const stored = localStorage.getItem("theme") || "light";
+  document.body.classList.add(stored + "-theme");
+  const icon = stored === "dark" ? "☀️" : "🌙";
+  window.addEventListener("DOMContentLoaded", () => {
+    const btn = document.getElementById("themeToggle");
+    if (btn) btn.textContent = icon;
+  });
+})();
+
+
+function triggerVibration(ms = 30) {
+  try {
+    if (Telegram && Telegram.WebApp && Telegram.WebApp.HapticFeedback) {
+      Telegram.WebApp.HapticFeedback.impactOccurred('light');
+    }
+    if (navigator.vibrate) navigator.vibrate(ms);
+  try {
+    if (window.navigator && navigator.vibrate) {
+      navigator.vibrate(ms);
+    } else if (Telegram && Telegram.WebApp && Telegram.WebApp.HapticFeedback) {
+      Telegram.WebApp.HapticFeedback.impactOccurred('light');
+    }
+  } catch (e) {
+    console.warn("Vibration failed:", e);
+  }
+}
+
+</script>
 <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body {
@@ -140,7 +179,7 @@ body {
 <button class="tab-button" onclick="openLeaderboard()">🏆 Топ</button>
 </div>
 <div class="balance" id="tokenCount">0 tokens</div>
-<div class="game-container" id="gameContainer" style="display:flex; flex-direction:column; align-items:center; width:100%; margin-top:20px;">
+<div class="game-container" id="gameContainer">
 <img alt="Shark" class="tap-image" id="tapImage" onclick="handleTap()" src="shark.png"/>
 </div>
 <div class="game-container" id="boosterContainer">
@@ -168,7 +207,182 @@ body {
 <ul id="leaderboardList"></ul>
 <button onclick="document.getElementById('leaderboard-modal').style.display='none'">Закрыть</button>
 </div>
+<script>
+const dbUrl = "https://tralalero-fec07-default-rtdb.firebaseio.com";
+let userId = null;
+let balance = 0, autoTap = 0, level = 1, xp = 0;
+let ownedSkins = { default: true };
+let currentSkin = 'default';
+let userFirstName = '', userAvatar = '', joinDate = '';
 
+const tokenCount = document.getElementById("tokenCount");
+const tapImage = document.getElementById("tapImage");
+
+function updateBalanceDisplay() {
+  tokenCount.textContent = `${balance} tokens`;
+  document.getElementById("profileTokens").textContent = `Токенов: ${balance}`;
+}
+
+function updateProfileInfo() {
+  document.getElementById("profileName").textContent = userFirstName;
+  document.getElementById("profileAvatar").src = userAvatar;
+  document.getElementById("profileJoin").textContent = `Дата регистрации: ${joinDate}`;
+  document.getElementById("profileLevel").textContent = `Уровень: ${level}`;
+}
+
+function handleTap() {
+  balance++;
+  updateBalanceDisplay();
+  tapImage.classList.add("tap-animation");
+  setTimeout(() => tapImage.classList.remove("tap-animation"), 200);
+  if (navigator.vibrate) triggerVibration(30);
+  saveProgress();
+}
+
+function saveProgress() {
+  if (!userId) return;
+  fetch(`${dbUrl}/users/${userId}.json`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ balance, currentSkin, first_name: userFirstName, photo_url: userAvatar, joinDate })
+  });
+}
+
+function loadProgress() {
+  if (!userId) return;
+  fetch(`${dbUrl}/users/${userId}.json`)
+    .then(res => res.json())
+    .then(data => {
+      if (data) {
+        balance = data.balance || 0;
+        currentSkin = data.currentSkin || 'default';
+        userFirstName = data.first_name || 'Игрок';
+        userAvatar = data.photo_url || '';
+        joinDate = data.joinDate || new Date().toISOString().split('T')[0];
+        updateBalanceDisplay();
+        updateSkin(currentSkin);
+        updateProfileInfo();
+      }
+    });
+}
+
+function toggleTab(id) {
+  ['gameContainer', 'shopContainer', 'boosterContainer', 'profileContainer'].forEach(el => {
+    const element = document.getElementById(el);
+    if (element) element.style.display = 'none';
+  });
+  const selected = document.getElementById(id);
+  if (selected) selected.style.display = 'flex';
+}
+
+function buyBooster(cost, power) {
+  if (balance >= cost) {
+    balance -= cost;
+    autoTap += power;
+    updateBalanceDisplay();
+    saveProgress();
+  }
+}
+
+function buySkin(skin, cost) {
+  if (ownedSkins[skin] || balance >= cost) {
+    if (!ownedSkins[skin]) {
+      balance -= cost;
+      ownedSkins[skin] = true;
+    }
+    currentSkin = skin;
+    updateSkin(skin);
+    updateBalanceDisplay();
+    saveProgress();
+  }
+}
+
+function updateSkin(skin) {
+  if (skin === 'gold') tapImage.src = 'shark_skin1.png';
+  else if (skin === 'leopard') tapImage.src = 'shark_skin2.png';
+  else tapImage.src = 'shark.png';
+}
+
+function openLeaderboard() {
+  document.getElementById('leaderboard-modal').style.display = 'flex';
+  fetch(`${dbUrl}/users.json`)
+    .then(res => res.json())
+    .then(data => {
+      const leaderboard = document.getElementById('leaderboardList');
+      leaderboard.innerHTML = '';
+      const users = Object.entries(data || {}).map(([id, info]) => ({ id, ...info }))
+        .sort((a, b) => b.balance - a.balance).slice(0, 10);
+      users.forEach(user => {
+        const name = user.first_name || `ID ${user.id.slice(-4)}`;
+        const avatar = user.photo_url ? `<img src="${user.photo_url}" style="width:20px;height:20px;border-radius:50%;margin-right:6px;" />` : '';
+        const li = document.createElement('li');
+        li.innerHTML = `${avatar}<strong>${name}</strong>: ${user.balance}`;
+        leaderboard.appendChild(li);
+      });
+    });
+}
+
+setInterval(() => {
+  if (autoTap > 0) {
+    balance += autoTap;
+    updateBalanceDisplay();
+    saveProgress();
+  }
+}, 1000);
+
+window.onload = () => {
+  if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
+    Telegram.WebApp.ready();
+    Telegram.WebApp.expand();
+    const user = Telegram.WebApp.initDataUnsafe?.user || {};
+    userId = user?.id?.toString();
+    userFirstName = user?.first_name || user?.username || 'Игрок';
+    userAvatar = user?.photo_url || (user?.username ? `https://t.me/i/userpic/320/${user.username}.jpg` : 'https://via.placeholder.com/72');
+    joinDate = new Date().toISOString().split('T')[0];
+    if (userId) loadProgress();
+  }
+  toggleTab('gameContainer');
+};
+
+function toggleTheme() {
+  const body = document.body;
+  const current = body.classList.contains("dark-theme") ? "dark" : "light";
+  const next = current === "dark" ? "light" : "dark";
+  body.classList.remove(current + "-theme");
+  body.classList.add(next + "-theme");
+  localStorage.setItem("theme", next);
+  document.getElementById("themeToggle").textContent = next === "dark" ? "☀️" : "🌙";
+}
+
+(function applyStoredTheme() {
+  const stored = localStorage.getItem("theme") || "light";
+  document.body.classList.add(stored + "-theme");
+  const icon = stored === "dark" ? "☀️" : "🌙";
+  window.addEventListener("DOMContentLoaded", () => {
+    const btn = document.getElementById("themeToggle");
+    if (btn) btn.textContent = icon;
+  });
+})();
+
+
+function triggerVibration(ms = 30) {
+  try {
+    if (Telegram && Telegram.WebApp && Telegram.WebApp.HapticFeedback) {
+      Telegram.WebApp.HapticFeedback.impactOccurred('light');
+    }
+    if (navigator.vibrate) navigator.vibrate(ms);
+  try {
+    if (window.navigator && navigator.vibrate) {
+      navigator.vibrate(ms);
+    } else if (Telegram && Telegram.WebApp && Telegram.WebApp.HapticFeedback) {
+      Telegram.WebApp.HapticFeedback.impactOccurred('light');
+    }
+  } catch (e) {
+    console.warn("Vibration failed:", e);
+  }
+}
+
+</script>
 <script>
 let userId = null;
 let balance = 0;
@@ -209,7 +423,7 @@ function toggleTheme() {
   body.classList.toggle("light-theme", isDark);
   localStorage.setItem("theme", isDark ? "light" : "dark");
   const themeBtn = document.getElementById("themeToggle");
-  if (themeBtn) themeBtn.textContent = isDark ? "🌙" : "☀️";
+  if (themeBtn) themeBtn.textContent = isDark ? "🌗" : "🌞";
 }
 
 function handleTap() {
@@ -220,7 +434,49 @@ function handleTap() {
     tapImage.classList.add("tap-animation");
     setTimeout(() => tapImage.classList.remove("tap-animation"), 200);
   }
-  if (navigator.vibrate) navigator.vibrate(30);
+  try {
+    if (Telegram?.WebApp?.HapticFeedback) {
+      Telegram.WebApp.HapticFeedback.impactOccurred("light");
+    }
+    if (navigator.vibrate) navigator.vibrate(30);
+  } catch(e) {}
+  saveProgress();
+}
+
+function saveProgress() {
+  if (!userId) return;
+  fetch(`${dbUrl}/users/${userId}.json`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ balance, currentSkin, first_name: userFirstName, photo_url: userAvatar, joinDate })
+  });
+}
+
+function loadProgress() {
+  if (!userId) return;
+  fetch(`${dbUrl}/users/${userId}.json`)
+    .then(r => r.json())
+    .then(data => {
+      if (data) {
+        balance = data.balance || 0;
+        currentSkin = data.currentSkin || 'default';
+        userFirstName = data.first_name || userFirstName;
+        userAvatar = data.photo_url || userAvatar;
+        joinDate = data.joinDate || joinDate;
+        updateBalanceDisplay();
+        updateSkin(currentSkin);
+        updateProfileInfo();
+      }
+    });
+}
+
+function updateProfileInfo() {
+  const pName = document.getElementById("profileName");
+  const pAvatar = document.getElementById("profileAvatar");
+  const pJoin = document.getElementById("profileJoin");
+  if (pName) pName.textContent = userFirstName;
+  if (pAvatar) pAvatar.src = userAvatar;
+  if (pJoin) pJoin.textContent = "Дата регистрации: " + joinDate;
 }
 
 function openLeaderboard() {
@@ -236,7 +492,7 @@ function openLeaderboard() {
         .sort((a, b) => b.balance - a.balance).slice(0, 10);
       users.forEach(user => {
         const name = user.first_name || "User";
-        const photo = user.photo_url || "https://via.placeholder.com/24";
+        const photo = user.photo_url || "https://t.me/i/userpic/320/" + (user.username || "unknown") + ".jpg";
         const li = document.createElement("li");
         li.innerHTML = `<img src="${photo}" style="width:24px;height:24px;border-radius:50%;margin-right:6px;" /><strong>${name}</strong>: ${user.balance}`;
         list.appendChild(li);
@@ -248,7 +504,7 @@ window.addEventListener("DOMContentLoaded", () => {
   const theme = localStorage.getItem("theme") || "light";
   document.body.classList.add(theme + "-theme");
   const themeBtn = document.getElementById("themeToggle");
-  if (themeBtn) themeBtn.textContent = theme === "dark" ? "☀️" : "🌙";
+  if (themeBtn) themeBtn.textContent = theme === "dark" ? "🌗" : "🌞";
 
   toggleTab('gameContainer');
   updateBalanceDisplay();
@@ -261,12 +517,8 @@ window.addEventListener("DOMContentLoaded", () => {
     userFirstName = user.first_name || user.username || "Игрок";
     userAvatar = user.photo_url || (user.username ? `https://t.me/i/userpic/320/${user.username}.jpg` : "https://via.placeholder.com/72");
     joinDate = new Date().toISOString().split("T")[0];
-    const pName = document.getElementById("profileName");
-    const pAvatar = document.getElementById("profileAvatar");
-    const pJoin = document.getElementById("profileJoin");
-    if (pName) pName.textContent = userFirstName;
-    if (pAvatar) pAvatar.src = userAvatar;
-    if (pJoin) pJoin.textContent = "Дата регистрации: " + joinDate;
+    updateProfileInfo();
+    loadProgress();
   }
 });
 </script></body>
