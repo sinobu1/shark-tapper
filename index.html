@@ -136,7 +136,11 @@ function updateBalanceDisplay() {
 function updateXP(amount) {
   xp += amount;
   const need = 20 + (level - 1) * 10;
-  if (xp >= need) { xp -= need; level++; playerLevel.innerHTML = `🏅 Уровень: ${level}`; }
+  if (xp >= need) {
+    xp -= need;
+    level++;
+    playerLevel.innerHTML = `🏅 Уровень: ${level}`;
+  }
   const percent = Math.floor((xp / (20 + (level - 1) * 10)) * 100);
   xpBar.style.width = percent + '%';
   document.getElementById("profileLevel").textContent = `Уровень: ${level}`;
@@ -251,5 +255,3 @@ window.onload = () => {
   toggleTab('gameContainer');
 };
 </script>
-</body>
-</html>
