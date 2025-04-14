@@ -6,7 +6,7 @@
   <title>Shark Tapper</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Montserrat:wght@600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
     :root {
@@ -20,7 +20,7 @@
     }
     body {
       margin: 0;
-      font-family: 'Luckiest Guy', cursive;
+      font-family: 'Montserrat', sans-serif;
       background: linear-gradient(180deg, #dbeafe 0%, #f0f4f8 100%);
       background-size: cover;
       color: var(--text);
@@ -49,121 +49,9 @@
       align-items: center;
       gap: 0.5rem;
     }
-    .shark-wrapper {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      z-index: 2;
-    }
-    .shark-image {
-      width: 160px;
-      height: 160px;
-      border-radius: 50%;
-      border: 4px solid var(--accent);
-      background: var(--card-bg);
-      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
-      object-fit: cover;
-      cursor: pointer;
-    }
-    .shark-gallery {
-      margin: 1rem auto;
-      padding: 0 1rem;
-      display: flex;
-      justify-content: center;
-      overflow-x: auto;
-      gap: 0.75rem;
-      scroll-snap-type: x mandatory;
-    }
-    .shark-gallery img {
-      width: 52px;
-      height: 52px;
-      border-radius: 50%;
-      border: 2px solid var(--primary);
-      background: white;
-      object-fit: cover;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-      flex-shrink: 0;
-    }
-    .profile-card {
-      background: var(--card-bg);
-      border-radius: 2rem;
-      padding: 1.25rem;
-      margin: 1.5rem 1rem;
-      border: 1px solid var(--border);
-      box-shadow: 0 12px 24px rgba(0,0,0,0.06);
-      display: flex;
-      gap: 1rem;
-      align-items: center;
-    }
-    .profile-card img {
-      width: 64px;
-      height: 64px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 2px solid var(--accent);
-    }
-    .profile-info {
-      display: flex;
-      flex-direction: column;
-      width: 100%;
-    }
-    .profile-info .name {
-      font-weight: 600;
-      font-size: 1.2rem;
-    }
     .profile-info .sub {
       font-size: 0.9rem;
       color: var(--subtext);
-    }
-    .xp-bar {
-      width: 100%;
-      height: 8px;
-      background: var(--border);
-      border-radius: 999px;
-      overflow: hidden;
-      margin-top: 0.25rem;
-    }
-    .xp-fill {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(to right, var(--primary), var(--accent));
-      transition: width 0.3s ease;
-    }
-    nav {
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-      display: flex;
-      background: var(--card-bg);
-      border-top: 1px solid var(--border);
-      padding: 0.75rem 0;
-      box-shadow: 0 -6px 20px rgba(0,0,0,0.06);
-      backdrop-filter: blur(12px);
-      z-index: 100;
-    }
-    nav button {
-      flex: 1;
-      background: none;
-      border: none;
-      font-size: 0.8rem;
-      color: var(--subtext);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.25rem;
-    }
-    nav button i {
-      font-size: 1.3rem;
-    }
-    nav button.active {
-      color: var(--primary);
-      font-weight: 700;
-    }
-    .app-wrapper {
-      position: relative;
-      z-index: 1;
-      padding-bottom: 60px;
     }
   </style>
 </head>
@@ -188,18 +76,18 @@
       <div class="profile-card">
         <img src="https://placehold.co/64x64" alt="Avatar" id="profileAvatar">
         <div class="profile-info">
-          <span class="name" id="profileName">Игрок</span>
+          <span class="name" id="profileName">Player</span>
           <span class="sub" id="profileLevel">Coins: 0</span>
           <div class="xp-bar">
             <div class="xp-fill" id="xpBar"></div>
           </div>
-          <span class="sub" id="profileJoin">С нами с 2025</span>
+          <span class="sub" id="profileJoin">Since 2025</span>
         </div>
       </div>
       <div id="leaderboard" style="display: none;">
-        <h2 style="text-align:center;">Топ игроков</h2>
+        <h2 style="text-align:center;">Leaderboard</h2>
         <ul id="leaderboardList" style="list-style: none; padding: 0; margin: 0;">
-          <li style="text-align:center; color: var(--subtext);">Загрузка...</li>
+          <li style="text-align:center; color: var(--subtext);">Loading...</li>
         </ul>
       </div>
     </div>
@@ -208,22 +96,22 @@
         <i class="fa-solid fa-gamepad"></i><span>Game</span>
       </button>
       <button onclick="showTab('quests')">
-        <i class="fa-solid fa-list-check"></i><span>Задания</span>
+        <i class="fa-solid fa-list-check"></i><span>Quests</span>
       </button>
       <button onclick="showTab('shop')">
-        <i class="fa-solid fa-store"></i><span>Магазин</span>
+        <i class="fa-solid fa-store"></i><span>Shop</span>
       </button>
       <button onclick="showTab('leaderboard')">
-        <i class="fa-solid fa-ranking-star"></i><span>Топ</span>
+        <i class="fa-solid fa-ranking-star"></i><span>Top</span>
       </button>
     </nav>
     <div id="quests" style="display:none; padding: 1rem; text-align: center;">
-      <h2>📝 Задания</h2>
-      <p style="color: var(--subtext);">Скоро появятся увлекательные задания!</p>
+      <h2>📝 Quests</h2>
+      <p style="color: var(--subtext);">Coming soon!</p>
     </div>
     <div id="shop" style="display:none;">
-      <h2>🛍 Магазин</h2>
-      <p style="text-align:center; color: var(--subtext);">Скоро доступно</p>
+      <h2>🛍 Shop</h2>
+      <p style="text-align:center; color: var(--subtext);">Coming soon</p>
     </div>
   </div>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
@@ -232,7 +120,7 @@
       const dbUrl = "https://tralalero-fec07-default-rtdb.firebaseio.com";
       let userId = null;
       let userData = {
-        username: "Игрок",
+        username: "Player",
         avatar: "https://placehold.co/64x64",
         tokens: 0
       };
@@ -292,7 +180,7 @@
           .then(data => {
             if (data) {
               userData.tokens = data.balance || 0;
-              userData.username = data.first_name || "Игрок";
+              userData.username = data.first_name || "Player";
               userData.avatar = data.photo_url || "https://placehold.co/64x64";
               document.getElementById("profileTokens").textContent = userData.tokens;
               document.getElementById("profileName").textContent = userData.username;
@@ -308,13 +196,13 @@
           .then(res => res.json())
           .then(data => {
             const list = document.getElementById("leaderboardList");
-            if (!data || Object.keys(data).length === 0) return list.innerHTML = '<li style="text-align:center; color: var(--subtext);">Пока пусто</li>';
+            if (!data || Object.keys(data).length === 0) return list.innerHTML = '<li style="text-align:center; color: var(--subtext);">No data</li>';
             const sorted = Object.entries(data).sort((a, b) => (b[1].balance || 0) - (a[1].balance || 0)).slice(0, 10);
             list.innerHTML = sorted.map(([id, user], i) => `
               <li style="margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
                 <span style="font-weight: bold; color: var(--primary);">#${i + 1}</span>
                 <img src="${user.photo_url || 'https://placehold.co/32x32'}" style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--accent); object-fit: cover;">
-                <span>${user.first_name || 'Аноним'}</span>
+                <span>${user.first_name || 'Anonymous'}</span>
                 <span style="margin-left:auto; color: var(--subtext);">${user.balance || 0} 💰</span>
               </li>`).join("");
           })
@@ -325,7 +213,7 @@
         const tgUser = Telegram?.WebApp?.initDataUnsafe?.user;
         if (tgUser) {
           userId = tgUser.id?.toString();
-          userData.username = tgUser.first_name || "Игрок";
+          userData.username = tgUser.username || tgUser.first_name || "Player";
           userData.avatar = tgUser.photo_url || "https://placehold.co/64x64";
           document.getElementById("profileName").textContent = userData.username;
           document.getElementById("profileAvatar").src = userData.avatar;
