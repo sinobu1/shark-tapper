@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Shark Tapper Fusion</title>
+  <title>Shark Tapper Fusion Final</title>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -74,6 +74,7 @@
   <button class="tab-button" onclick="toggleTab('boosterContainer')">⚡ Бустеры</button>
   <button class="tab-button" onclick="toggleTab('shopContainer')">🛒 Магазин</button>
   <button class="tab-button" onclick="toggleTab('profileContainer')">👤 Профиль</button>
+  <button class="tab-button" onclick="openLeaderboard()">🏆 Топ</button>
 </div>
 
 <div class="balance" id="tokenCount">0 tokens</div>
@@ -98,22 +99,40 @@
 
 <div id="profileContainer" class="game-container">
   <h2>Профиль</h2>
-  <p>Информация о пользователе, токены и скин</p>
+  <img id="profileAvatar" src="" alt="avatar" style="width:72px;height:72px;border-radius:50%;margin:10px 0;" />
+  <h3 id="profileName">Игрок</h3>
+  <p id="profileTokens">Токенов: 0</p>
+  <p id="profileLevel">Уровень: 1</p>
+  <p id="profileJoin">Дата регистрации: —</p>
+</div>
+
+<div id="leaderboard-modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,0.95);z-index:1000;flex-direction:column;align-items:center;justify-content:center;">
+  <h2>🏆 Топ игроков</h2>
+  <ul id="leaderboardList"></ul>
+  <button onclick="document.getElementById('leaderboard-modal').style.display='none'">Закрыть</button>
 </div>
 
 <script>
 const dbUrl = "https://tralalero-fec07-default-rtdb.firebaseio.com";
 let userId = null;
-let balance = 0;
-let autoTap = 0;
+let balance = 0, autoTap = 0, level = 1, xp = 0;
 let ownedSkins = { default: true };
 let currentSkin = 'default';
+let userFirstName = '', userAvatar = '', joinDate = '';
 
 const tokenCount = document.getElementById("tokenCount");
 const tapImage = document.getElementById("tapImage");
 
 function updateBalanceDisplay() {
   tokenCount.textContent = `${balance} tokens`;
+  document.getElementById("profileTokens").textContent = `Токенов: ${balance}`;
+}
+
+function updateProfileInfo() {
+  document.getElementById("profileName").textContent = userFirstName;
+  document.getElementById("profileAvatar").src = userAvatar;
+  document.getElementById("profileJoin").textContent = `Дата регистрации: ${joinDate}`;
+  document.getElementById("profileLevel").textContent = `Уровень: ${level}`;
 }
 
 function handleTap() {
@@ -130,7 +149,7 @@ function saveProgress() {
   fetch(`${dbUrl}/users/${userId}.json`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ balance, currentSkin })
+    body: JSON.stringify({ balance, currentSkin, first_name: userFirstName, photo_url: userAvatar, joinDate })
   });
 }
 
@@ -142,8 +161,12 @@ function loadProgress() {
       if (data) {
         balance = data.balance || 0;
         currentSkin = data.currentSkin || 'default';
+        userFirstName = data.first_name || 'Игрок';
+        userAvatar = data.photo_url || '';
+        joinDate = data.joinDate || new Date().toISOString().split('T')[0];
         updateBalanceDisplay();
         updateSkin(currentSkin);
+        updateProfileInfo();
       }
     });
 }
@@ -185,6 +208,25 @@ function updateSkin(skin) {
   else tapImage.src = 'shark.png';
 }
 
+function openLeaderboard() {
+  document.getElementById('leaderboard-modal').style.display = 'flex';
+  fetch(`${dbUrl}/users.json`)
+    .then(res => res.json())
+    .then(data => {
+      const leaderboard = document.getElementById('leaderboardList');
+      leaderboard.innerHTML = '';
+      const users = Object.entries(data || {}).map(([id, info]) => ({ id, ...info }))
+        .sort((a, b) => b.balance - a.balance).slice(0, 10);
+      users.forEach(user => {
+        const name = user.first_name || `ID ${user.id.slice(-4)}`;
+        const avatar = user.photo_url ? `<img src="${user.photo_url}" style="width:20px;height:20px;border-radius:50%;margin-right:6px;" />` : '';
+        const li = document.createElement('li');
+        li.innerHTML = `${avatar}<strong>${name}</strong>: ${user.balance}`;
+        leaderboard.appendChild(li);
+      });
+    });
+}
+
 setInterval(() => {
   if (autoTap > 0) {
     balance += autoTap;
@@ -197,7 +239,11 @@ window.onload = () => {
   if (typeof Telegram !== 'undefined' && Telegram.WebApp) {
     Telegram.WebApp.ready();
     Telegram.WebApp.expand();
-    userId = Telegram.WebApp.initDataUnsafe?.user?.id?.toString();
+    const user = Telegram.WebApp.initDataUnsafe?.user || {};
+    userId = user?.id?.toString();
+    userFirstName = user?.first_name || 'Игрок';
+    userAvatar = user?.photo_url || '';
+    joinDate = new Date().toISOString().split('T')[0];
     if (userId) loadProgress();
   }
   toggleTab('gameContainer');
