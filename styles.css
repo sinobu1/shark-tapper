@@ -1,0 +1,647 @@
+
+
+:root {
+        --primary: #2f80ed;
+        --accent: #56ccf2;
+        --bg: #f2f5f9;
+        --card-bg: #ffffff;
+        --text: #0d1b2a;
+        --subtext: #6c7787;
+        --border: #e0e6ed;
+        --coin-color: #f8d030; /* Цвет монеток */
+    }
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+        -webkit-user-select: none;
+        user-select: none;
+    }
+    html, 
+    
+    #app-container {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+    header {
+        background: none;
+        color: var(--primary);
+        padding: 1rem;
+        text-align: center;
+        font-size: 2.5rem; /* Увеличим размер шрифта заголовка */
+         /* Используем новый шрифт */
+        text-shadow: -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff, 2px 2px 0 #fff;
+        flex-shrink: 0;
+    }
+    .main-content {
+        flex: 1;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+    .tab-content {
+        flex: 1;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 60px;
+    }
+    .token-counter {
+        margin: 0 auto;
+        font-size: 0.9rem; /* Немного увеличим размер шрифта */
+        color: var(--primary);
+        background: var(--card-bg);
+        padding: 0.6rem 1.2rem; /* Увеличим отступы */
+        border-radius: 14px; /* Сделаем углы более круглыми */
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1); /* Более мягкая тень */
+        display: inline-flex;
+        align-items: center;
+        gap: 0.6rem;
+         /* Шрифт Luckiest Guy для контейнера */
+        line-height: 1.2;
+    }
+    .token-counter img {
+        height: 18px; /* Уменьшим размер иконки монеты в счетчике */
+    }
+    .token-counter #profileTokens {
+         /* Пиксельный шрифт для числа */
+    }
+    .shark-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem; /* Увеличим отступ */
+        flex: 1;
+    }
+    .shark-tap-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.7rem; /* Увеличим отступ */
+    }
+    .shark-image {
+        width: 150px; /* Немного увеличим размер акулы */
+        height: 150px;
+        border-radius: 50%;
+        border: 4px solid var(--accent);
+        background: var(--card-bg);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15); /* Более выраженная тень */
+        object-fit: cover;
+        cursor: pointer;
+        transition: transform 0.1s ease;
+        will-change: transform; /* Добавлено для производительности анимации */
+    }
+    .shark-gallery {
+        margin: 1.2rem 0; /* Увеличим отступ */
+        padding: 0.6rem; /* Увеличим отступ */
+        display: flex;
+        justify-content: center;
+        gap: 0.8rem; /* Увеличим отступ */
+        overflow-x: auto;
+        width: 100%;
+        scrollbar-width: none;
+    }
+    .shark-gallery::-webkit-scrollbar {
+        display: none;
+    }
+    .shark-gallery img {
+        width: 52px; /* Немного увеличим размер иконок скинов */
+        height: 52px;
+        border-radius: 50%;
+        border: 2px solid var(--primary);
+        background: white;
+        object-fit: cover;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.1); /* Мягкая тень */
+        flex-shrink: 0;
+        transition: transform 0.2s ease;
+        will-change: transform; /* Добавлено для производительности анимации */
+        cursor: pointer; /* Добавим курсор, чтобы показать, что они кликабельны */
+    }
+    .shark-gallery img:hover {
+        transform: scale(1.1);
+    }
+    .profile-card {
+        background: var(--card-bg);
+        border-radius: 1.8rem; /* Более круглые углы */
+        padding: 1.2rem; /* Увеличим отступ */
+        margin: 1rem;
+        border: 1px solid var(--border);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.06); /* Более мягкая тень */
+        display: flex;
+        gap: 1rem; /* Увеличим отступ */
+        align-items: center;
+    }
+    .profile-card img {
+        width: 60px; /* Немного увеличим размер аватара */
+        height: 60px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid var(--accent);
+        flex-shrink: 0;
+    }
+    .profile-info {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        min-width: 0;
+    }
+    .profile-info .name {
+        font-weight: 600;
+        font-size: 1rem; /* Увеличим размер шрифта имени */
+        
+        line-height: 1.3;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .profile-info .sub {
+        font-size: 0.9rem; /* Увеличим размер шрифта подписи */
+        color: var(--subtext);
+        
+    }
+    .xp-bar {
+        width: 100%;
+        height: 8px; /* Увеличим высоту полоски опыта */
+        background: var(--border);
+        border-radius: 999px;
+        overflow: hidden;
+        margin-top: 0.6rem; /* Увеличим отступ */
+    }
+    .xp-fill {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(to right, var(--primary), var(--accent));
+        transition: width 0.3s ease;
+        border-radius: inherit; /* Наследуем радиус от родителя */
+    }
+    nav {
+        width: 100%;
+        display: flex;
+        background: var(--card-bg);
+        border-top: 1px solid var(--border);
+        padding: 0.7rem 0; /* Увеличим отступ */
+        box-shadow: 0 -6px 16px rgba(0,0,0,0.06); /* Более мягкая тень */
+        backdrop-filter: blur(12px);
+        z-index: 100;
+        flex-shrink: 0;
+    }
+    nav button {
+        flex: 1;
+        background: none;
+        border: none;
+        font-size: 0.75rem; /* Увеличим размер шрифта кнопок */
+        color: var(--subtext);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.3rem; /* Увеличим отступ */
+        
+        transition: transform 0.1s ease-in-out; /* Добавим плавную анимацию при нажатии */
+    }
+    nav button:active {
+        transform: scale(0.95);
+    }
+    nav button i {
+        font-size: 1.2rem; /* Увеличим размер иконок */
+    }
+    nav button.active {
+        color: var(--primary);
+        font-weight: 700;
+    }
+    nav button#buyTapUpgradeNav {
+        flex-direction: row; /* Размещаем иконку и текст в ряд */
+        justify-content: center; /* Центрируем содержимое */
+        align-items: center;
+        gap: 0.5rem; /* Расстояние между иконкой и текстом */
+        color: var(--accent); /* Цвет текста улучшения */
+        font-weight: bold; /* Делаем текст жирным */
+    }
+    nav button#buyTapUpgradeNav span {
+        display: flex; /* Чтобы span мог содержать flex элементы */
+        align-items: center;
+        gap: 0.3rem;
+    }
+    nav button#buyTapUpgradeNav i {
+        font-size: 1rem; /* Уменьшаем размер иконки улучшения */
+    }
+    nav button#buyTapUpgradeNav.disabled {
+        color: var(--subtext); /* Цвет, когда недостаточно монет */
+        cursor: not-allowed;
+    }
+    .tap-effect {
+        position: absolute;
+        width: 50px; /* Немного увеличим размер эффекта */
+        height: 50px;
+        background: radial-gradient(circle, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0) 70%); /* Сделаем эффект менее интенсивным */
+        border-radius: 50%;
+        pointer-events: none;
+        transform: translate(-50%, -50%);
+        animation: tapAnimation 0.6s forwards;
+        z-index: 10;
+    }
+    @keyframes tapAnimation {
+        0% { transform: translate(-50%, -50%) scale(0.6); opacity: 0.8; }
+        100% { transform: translate(-50%, -50%) scale(2.2); opacity: 0; }
+    }
+    .coin-popup {
+        position: absolute;
+        
+        color: var(--coin-color); /* Используем цвет монеток */
+        text-shadow: 1px 1px 0 #b88b00, -1px -1px 0 #b88b00;
+        font-size: 1rem; /* Увеличим размер шрифта */
+        animation: coinPopup 1s forwards;
+        pointer-events: none;
+        z-index: 20;
+        white-space: nowrap;
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+    .coin-popup img {
+        height: 20px; /* Размер иконки монеты во всплывающем сообщении */
+    }
+    @keyframes coinPopup {
+        0% { transform: translateY(0); opacity: 1; }
+        100% { transform: translateY(-60px); opacity: 0; } /* Увеличим расстояние подъема */
+    }
+    .tab-page {
+        display: none;
+        height: 100%;
+        flex-direction: column;
+    }
+    .tab-page.active {
+        display: flex;
+    }
+    .leaderboard-item {
+        margin-bottom: 0.6rem; /* Увеличим отступ */
+        display: flex;
+        align-items: center;
+        gap: 0.7rem; /* Увеличим отступ */
+        padding: 0.7rem; /* Увеличим отступ */
+        border-radius: 14px; /* Более круглые углы */
+        background: transparent;
+        transition: background 0.2s ease;
+    }
+    .leaderboard-item.current-user {
+        background: rgba(47, 128, 237, 0.15); /* Сделаем выделение текущего пользователя чуть более заметным */
+    }
+
+    /* --- Стили для кнопки улучшения под профилем --- */
+    .upgrade-button-container {
+        display: flex;
+        justify-content: center; /* To center the button */
+        margin-top: 1rem; /* Add some space above the button */
+        padding: 0 1rem; /* Add some padding on the sides */
+    }
+
+    .upgrade-button {
+        background: linear-gradient(135deg, var(--accent), #81ecec); /* Добавляем градиент */
+        color: white;
+         /* Используем шрифт Rubik Mono One */
+        font-weight: bold;
+        border: none;
+        border-radius: 24px; /* Увеличиваем радиус скругления */
+        padding: 0.8rem 1.5rem;
+        font-size: 0.9rem;
+        cursor: pointer;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2); /* Усиливаем тень под градиент */
+        transition: background-color 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        -webkit-tap-highlight-color: transparent; /* Remove highlight on tap */
+        -webkit-user-select: none;
+        user-select: none;
+    }
+
+    .upgrade-button:hover {
+        background: linear-gradient(135deg, #81ecec, var(--accent)); /* Инвертируем градиент на hover */
+    }
+
+    .upgrade-button:active {
+        transform: scale(0.98);
+    }
+
+    .upgrade-button i {
+        font-size: 1rem;
+    }
+
+    .upgrade-button img {
+        height: 16px;
+        vertical-align: middle;
+    }
+
+    .upgrade-button.disabled {
+        background-color: var(--subtext);
+        color: #ddd;
+        cursor: not-allowed;
+    }
+
+    .upgrade-button.disabled:hover {
+        background-color: var(--subtext);
+    }
+
+    .profile-card img.level-animated-gradient-frame {
+        border: 3px solid transparent;
+        border-radius: 50%;
+        background: linear-gradient(to right, var(--primary), var(--accent));
+        background-clip: border-box;
+        animation: gradientShift 5s infinite linear;
+    }
+
+    @keyframes gradientShift {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    /* Стили для модальных окон */
+    .modal {
+        display: none; /* Скрыто по умолчанию */
+        position: fixed; /* Остается на месте */
+        z-index: 1; /* Сидит поверх всего */
+        left: 0;
+        top: 0;
+        width: 100%; /* Полная ширина */
+        height: 100%; /* Полная высота */
+        overflow: auto; /* Включить прокрутку, если контент слишком большой */
+        background-color: rgba(0,0,0,0.4); /* Черный с прозрачностью */
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto; /* 15% сверху и по центру */
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%; /* Можно настроить ширину */
+        border-radius: 1rem;
+        position: relative;
+    }
+
+    .close-button {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    .close-button:hover,
+    .close-button:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    /* Стили для раздела помощников внутри модального окна */
+    .helpers-container {
+        padding: 0.8rem;
+    }
+
+    .helper-item {
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 0.8rem;
+        padding: 0.6rem;
+        margin-bottom: 0.6rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        display: flex;
+        flex-direction: column; /* Элементы внутри располагаем вертикально */
+        gap: 0.4rem; /* Уменьшим зазор между основными блоками */
+    }
+
+    .helper-top-info {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        margin-bottom: 0.4rem; /* Добавим немного отступа до описания */
+    }
+
+    .helper-emoji-frame {
+        width: 30px;
+        height: 30px;
+        border: 1px solid var(--border);
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 1rem;
+        flex-shrink: 0; /* Чтобы не сжимался */
+    }
+
+    .helper-name-description {
+        flex-grow: 1;
+        min-width: 0;
+        margin-left: 0.4rem; /* Уменьшим отступ слева */
+    }
+
+    .helper-name {
+        font-weight: bold;
+        
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-size: 0.65rem; /* Еще немного уменьшим шрифт, если нужно будет */
+        margin-bottom: 0.2rem; /* Небольшой отступ между именем и описанием */
+    }
+
+    .helper-description {
+        color: var(--subtext);
+        font-size: 0.6rem;
+        
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .helper-bottom-actions {
+        display: flex;
+        align-items: center;
+        justify-content: space-between; /* Размещаем кнопку слева, доход справа */
+        gap: 0.5rem; /* Небольшой зазор между элементами */
+    }
+
+    .buy-button {
+        background-color: var(--accent);
+        color: white;
+        border: none;
+        border-radius: 0.4rem;
+        padding: 0.15rem 0.3rem; /* Уменьшим отступы кнопки */
+        cursor: pointer;
+        font-size: 0.45rem; /* Уменьшим шрифт кнопки */
+        transition: background-color 0.2s ease;
+        white-space: nowrap;
+    }
+
+    .buy-button:hover {
+        background-color: #42b8d4;
+    }
+
+    .buy-button.disabled {
+        background-color: var(--subtext);
+        cursor: not-allowed;
+    }
+
+    .helper-income {
+        font-size: 0.6rem;
+        display: flex;
+        gap: 0.1rem; /* Уменьшим основной зазор */
+        align-items: center;
+        
+        flex-direction: column; /* Размещаем доход и "Куплено" вертикально */
+        align-items: flex-end; /* Выравниваем по правому краю */
+    }
+
+    .helper-income span {
+        display: flex; /* Чтобы разместить текст и иконку в одну строку */
+        align-items: center;
+        gap: 0.1rem;
+    }
+
+    .helper-income img {
+        height: 9px; /* Уменьшим размер иконки */
+        margin-right: 0.1rem; /* Небольшой отступ справа от иконки */
+    }
+
+    .income-text {
+        
+        font-size: 0.6rem; /* Используем тот же шрифт, что и для дохода */
+        white-space: nowrap;
+        display: flex;
+        align-items: center;
+    }
+
+    .owned-text {
+        
+        font-size: 0.45rem; /* Уменьшим шрифт */
+        white-space: nowrap;
+        margin-top: 0.1rem; /* Уменьшим отступ снизу */
+        text-align: right; /* Выравниваем по правому краю */
+    }
+
+    .helpers-list {
+        margin-top: 0.8rem;
+    }
+
+    .helpers-list h3 {
+        
+        margin-bottom: 0.4rem;
+        text-align: center;
+        font-size: 0.9rem;
+    }
+/* ✅ Selected skin style */
+.skin-option.selected {
+    outline: 3px solid var(--accent);
+    border-radius: 12px;
+    position: relative;
+}
+
+.skin-option .skin-selected-label {
+    position: absolute;
+    bottom: 6px;
+    right: 6px;
+    background: var(--accent);
+    color: white;
+    font-size: 0.65rem;
+    padding: 2px 6px;
+    border-radius: 6px;
+    
+}
+
+@keyframes fadeOut {
+  0% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.3); }
+}
+
+/* XP-бары с анимацией */
+.xp-fill {
+  transition: width 0.4s ease-in-out, background-color 0.4s ease-in-out;
+}
+
+
+
+/* 🔧 Уменьшенный профиль */
+.profile-info {
+    font-size: 0.85rem;
+    padding: 0.3rem 0.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+}
+
+.profile-info .sub {
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.boosters-container {
+    margin-top: 1rem;
+}
+
+
+/* Основной шрифт: TT Gertika (через Rubik) */
+
+
+/* Заголовки / Кнопки: Mansfield (Mansalva) */
+h1, h2, h3, .tab-button, .buy-button {
+    
+}
+
+/* Доход / XP / цифры */
+#passiveIncomeDisplay, .helper-income, .xp-bar, .xp-fill {
+    
+    font-size: 0.85rem;
+    font-weight: 400;
+}
+
+
+/* Стандартный шрифт */
+
+
+/* Заголовки и кнопки */
+h1, h2, h3, .tab-button, .buy-button, .modal h2, .modal-title {
+    
+}
+
+/* Доход / XP / цифры */
+#passiveIncomeDisplay, .helper-income, .xp-bar, .xp-fill {
+    
+    font-size: 0.85rem;
+    font-weight: 400;
+}
+
+
+/* Основной шрифт */
+
+
+/* Цифры / Доход / XP */
+#passiveIncomeDisplay, .helper-income, .xp-bar, .xp-fill {
+    
+    font-size: 0.85rem;
+    font-weight: 400;
+}
+
+
+/* Основной шрифт Inter SemiBold */
+body, h1, h2, h3, h4, h5, h6, .tab-button, .buy-button, .modal-title, .profile-info, .helper-name, .sub {
+    
+    font-weight: 600;
+}
+
+
+/* 💎 Чистый стиль с только допустимыми шрифтами */
+
+/* Интерфейс: Inter SemiBold */
+body, h1, h2, h3, h4, h5, h6, .tab-button, .buy-button, .modal-title, .profile-info, .helper-name, .sub {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+}
+
+/* Цифры / Доход / XP: Press Start 2P */
+#passiveIncomeDisplay, .helper-income, .xp-bar, .xp-fill {
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.85rem;
+    font-weight: 400;
+}
