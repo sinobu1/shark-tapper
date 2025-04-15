@@ -1,0 +1,17 @@
+
+/* 🎮 Игровые шрифты */
+body {
+    font-family: 'Orbitron', sans-serif;
+}
+
+.sub, .profile-info, .xp-bar, .xp-fill {
+    font-family: 'Orbitron', sans-serif;
+}
+
+#profileTokens, #passiveIncomeDisplay, .helper-income, .owned-text {
+    font-family: 'Press Start 2P', cursive;
+}
+
+nav button, .buy-button, .upgrade-button {
+    font-family: 'Bungee', cursive;
+}
