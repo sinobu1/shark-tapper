@@ -518,6 +518,7 @@
 
         .helper-income img {
             height: 10px;
+            margin-left: 0.2rem; /* Добавим небольшой отступ слева от иконки */
         }
 
         .owned-text {
@@ -774,8 +775,8 @@
                                     Купить (${helper.cost} <img src="${COIN_ICON_URL}" alt="Coin" style="height: 14px; vertical-align: middle;">)
                                 </button>
                                 <div class="helper-income">
+                                    <span>${helper.income}</span>
                                     <img src="${COIN_ICON_URL}" alt="Coin" style="height: 12px; vertical-align: middle;">
-                                    <span>${helper.income} в секунду</span>
                                     <div class="owned-text">Куплено: ${owned}</div>
                                 </div>
                             </div>
