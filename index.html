@@ -466,7 +466,7 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            font-size: 0.7rem; /* Вернем немного больший размер шрифта */
+            font-size: 0.65rem; /* Еще немного уменьшим шрифт */
             margin-bottom: 0.2rem; /* Небольшой отступ между именем и описанием */
         }
 
@@ -512,6 +512,8 @@
             gap: 0.2rem;
             align-items: center;
             font-family: 'Press Start 2P', cursive;
+            flex-direction: column; /* Размещаем доход и "Куплено" вертикально */
+            align-items: flex-end; /* Выравниваем по правому краю */
         }
 
         .helper-income img {
@@ -523,7 +525,7 @@
             font-size: 0.5rem;
             white-space: nowrap;
             margin-top: 0.2rem; /* Небольшой отступ снизу */
-            text-align: left; /* Выравниваем по левому краю */
+            text-align: right; /* Выравниваем по правому краю */
         }
 
         .helpers-list {
@@ -665,7 +667,7 @@
             const SHARK_SKIN3_URL = "https://sinobu1.github.io/shark-tapper/shark_skin1.png";
             const LOCAL_STORAGE_KEY = 'sharkTapperData';
             const SAVE_INTERVAL = 5000;
-            const TAP_VIBRATION_DURATION = 50; // Увеличим длительность вибрации для теста
+            const TAP_VIBRATION_DURATION = 10; // Вернем стандартную длительность
             const TAP_ANIMATION_DURATION = 100;
             const TAP_EFFECT_DURATION = 600;
             const COIN_POPUP_DURATION = 1000;
@@ -774,9 +776,9 @@
                                 <div class="helper-income">
                                     <img src="${COIN_ICON_URL}" alt="Coin" style="height: 12px; vertical-align: middle;">
                                     <span>${helper.income} в секунду</span>
+                                    <div class="owned-text">Куплено: ${owned}</div>
                                 </div>
                             </div>
-                            <div class="owned-text">Куплено: ${owned}</div>
                         `;
                         helpersListUI.appendChild(listItem);
                     }
@@ -931,11 +933,12 @@
             // --- Обработчики событий ---
 
             function handleTap(event) {
+                console.log("handleTap function called"); // Проверка вызова функции
                 if (canVibrate) {
                     navigator.vibrate(TAP_VIBRATION_DURATION);
                     console.log("Вибрация включена");
                 } else {
-                    console.log("Вибрация не поддерживается");
+                    console.log("Вибрация не поддерживается, canVibrate:", canVibrate);
                 }
 
                 const shark = document.getElementById("tapImage");
