@@ -671,6 +671,31 @@
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
+        function feedback() {
+            // 1. Вибрация (если поддерживается)
+            if ('vibrate' in navigator) {
+                navigator.vibrate([30]);
+            }
+
+            // 2. Звук тапа
+            try {
+                const tapSound = new Audio("https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-jump-coin-216.wav");
+                tapSound.volume = 0.2;
+                tapSound.play().catch(() => {}); // Без ошибки на авто-play
+            } catch (e) {
+                console.log("Не удалось воспроизвести звук:", e);
+            }
+
+            // 3. Быстрая анимация "scale"
+            const shark = document.getElementById("tapImage");
+            if (shark) {
+                shark.style.transform = "scale(0.9)";
+                setTimeout(() => {
+                    shark.style.transform = "scale(1)";
+                }, 100);
+            }
+        }
+
         document.addEventListener("DOMContentLoaded", function() {
             // --- Константы ---
             const DB_URL = "https://tralalero-fec07-default-rtdb.firebaseio.com";
@@ -949,27 +974,11 @@
             // --- Обработчики событий ---
 
             function handleTap(event) {
-                console.log("handleTap function called"); // Проверка вызова функции
-                if (canVibrate) {
-                    navigator.vibrate(TAP_VIBRATION_DURATION);
-                    console.log("Вибрация включена, длительность:", TAP_VIBRATION_DURATION);
-                    if (navigator.userAgent.includes('iPhone')) {
-                        console.log("Запущен вибро на iPhone");
-                    }
-                } else {
-                    console.log("Вибрация не поддерживается, canVibrate:", canVibrate);
-                }
-
-                const shark = document.getElementById("tapImage");
-                shark.style.transform = "scale(0.95)";
-                setTimeout(() => shark.style.transform = "scale(1)", TAP_ANIMATION_DURATION);
-
+                feedback(); // 👈 вот она
                 createTapEffect(event);
                 createCoinPopup(event, tapMultiplier);
-
                 userData.tokens += tapMultiplier;
                 updateDisplay();
-
                 const now = Date.now();
                 if (now - lastSave > SAVE_INTERVAL) {
                     saveProgress();
