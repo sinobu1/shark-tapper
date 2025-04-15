@@ -547,6 +547,7 @@
 
 
 #passiveIncomeDisplay {
+    font-family: 'Orbitron', sans-serif;
     display: inline-flex;
     align-items: center;
     font-size: 0.85rem;
@@ -556,7 +557,7 @@
     gap: 0.4rem;
 }
 
-#passiveIncomeDisplay::before {
+/* удалено ::before */ {
     content: "💰";
     font-size: 1.1rem;
     margin-right: 0.3rem;
