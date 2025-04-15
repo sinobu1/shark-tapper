@@ -321,12 +321,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
             // --- Обработчики событий ---
 
-// 🔒 Anti-spam flag
-let lastTapTime = 0;
             function handleTap(event) {
-    const now = Date.now();
-    if (now - lastTapTime < 100) return;  // Защита от спама (100мс задержка)
-    lastTapTime = now;
                 feedback(); // 👈 вот она
                 createTapEffect(event);
                 createCoinPopup(event, tapMultiplier);
@@ -380,25 +375,6 @@ let lastTapTime = 0;
                 if (currentLevel > previousLevel) {
                     userData.level = currentLevel;
                     console.log(`Уровень повышен! Новый уровень: ${userData.level}`);
-
-        // Показываем popup "Level Up!"
-        const popup = document.createElement('div');
-        popup.textContent = `LEVEL ${userData.level} UP! 🎉`;
-        popup.style.position = 'fixed';
-        popup.style.top = '50%';
-        popup.style.left = '50%';
-        popup.style.transform = 'translate(-50%, -50%)';
-        popup.style.padding = '1rem 2rem';
-        popup.style.background = 'linear-gradient(45deg, var(--primary), var(--accent))';
-        popup.style.color = '#fff';
-        popup.style.fontFamily = 'Rubik Mono One, sans-serif';
-        popup.style.fontSize = '1.2rem';
-        popup.style.borderRadius = '16px';
-        popup.style.boxShadow = '0 10px 30px rgba(0,0,0,0.2)';
-        popup.style.zIndex = 9999;
-        document.body.appendChild(popup);
-        setTimeout(() => popup.remove(), 2000);
-        
                     updateAvatarFrameStyle(userData.level);
                     // Здесь можно добавить логику для отображения уведомления о повышении уровня
                 }
