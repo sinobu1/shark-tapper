@@ -320,16 +320,16 @@
         }
 
         .upgrade-button {
-            background-color: var(--accent); /* Use your accent color */
+            background: linear-gradient(135deg, var(--accent), #81ecec); /* Добавляем градиент */
             color: white;
-            font-family: 'Bungee', cursive;
+            font-family: 'Rubik Mono One', sans-serif; /* Используем шрифт Rubik Mono One */
             font-weight: bold;
             border: none;
-            border-radius: 14px; /* Match the token counter */
+            border-radius: 24px; /* Увеличиваем радиус скругления */
             padding: 0.8rem 1.5rem;
             font-size: 0.9rem;
             cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2); /* Усиливаем тень под градиент */
             transition: background-color 0.2s ease;
             display: flex;
             align-items: center;
@@ -340,7 +340,7 @@
         }
 
         .upgrade-button:hover {
-            background-color: #46b3d9; /* Slightly darker shade on hover */
+            background: linear-gradient(135deg, #81ecec, var(--accent)); /* Инвертируем градиент на hover */
         }
 
         .upgrade-button:active {
@@ -400,7 +400,7 @@
                     </div>
                     <div class="upgrade-button-container">
                         <button id="buyTapUpgradeNav" class="upgrade-button">
-                            <i class="fa-solid fa-arrow-up"></i><span>Улучшить (+1) - <span id="tapUpgradeCostNav">50</span> <img src="https://sinobu1.github.io/shark-tapper/coin_icon_small.png" alt="Coin" style="height: 14px; vertical-align: middle;"></span>
+                            <i class="fa-solid fa-rocket"></i><span>Boost +<span id="tapMultiplierDisplay">1</span> - <span id="tapUpgradeCostNav">50</span> <img src="https://sinobu1.github.io/shark-tapper/coin_icon_small.png" alt="Coin" style="height: 14px; vertical-align: middle;"></span>
                         </button>
                     </div>
                 </div>
@@ -598,6 +598,9 @@
                     const percent = ((userData.tokens - min) / (max - min)) * 100;
                     bar.style.width = `${Math.min(100, Math.max(0, percent))}%`;
                 }
+
+                const tapMultiplierDisplay = document.getElementById('tapMultiplierDisplay');
+                if (tapMultiplierDisplay) tapMultiplierDisplay.textContent = tapMultiplier;
 
                 const buyTapUpgradeButtonNav = document.getElementById('buyTapUpgradeNav');
                 if (buyTapUpgradeButtonNav) {
