@@ -366,13 +366,93 @@
             background-color: var(--subtext);
         }
 
-        .profile-card img.level-pulsate-effect {
-            animation: pulseBorder 2s infinite alternate;
+        .profile-card img.level-animated-gradient-frame {
+            border: 3px solid transparent;
+            border-radius: 50%;
+            background: linear-gradient(to right, var(--primary), var(--accent));
+            background-clip: border-box;
+            animation: gradientShift 5s infinite linear;
         }
 
-        @keyframes pulseBorder {
-            from { opacity: 0.8; }
-            to { opacity: 1; }
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Стили для раздела помощников */
+        .helpers-container {
+            padding: 1rem;
+        }
+
+        .helper-item {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 0.8rem;
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        }
+
+        .helper-info {
+            flex-grow: 1;
+        }
+
+        .helper-name {
+            font-weight: bold;
+            margin-bottom: 0.2rem;
+        }
+
+        .helper-description {
+            color: var(--subtext);
+            font-size: 0.85rem;
+        }
+
+        .helper-details {
+            font-size: 0.9rem;
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .helper-details img {
+            height: 16px;
+        }
+
+        .buy-button {
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            padding: 0.5rem 0.8rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.2s ease;
+        }
+
+        .buy-button:hover {
+            background-color: #42b8d4;
+        }
+
+        .buy-button.disabled {
+            background-color: var(--subtext);
+            cursor: not-allowed;
+        }
+
+        .helpers-list {
+            margin-top: 1rem;
+        }
+
+        .helpers-list h3 {
+            font-family: 'Rubik Mono One', sans-serif;
+            margin-bottom: 0.5rem;
+        }
+
+        #helpersSection {
+            display: none; /* Скрываем раздел помощников по умолчанию */
         }
     </style>
 </head>
@@ -422,10 +502,19 @@
                 </div>
 
                 <div id="shop" class="tab-page">
-                    <div style="padding: 1rem; text-align: center; height: 100%; display: flex; flex-direction: column; justify-content: center;">
-                        <h2 style="font-family: 'Rubik Mono One', sans-serif; margin-bottom: 1rem;">🛍 Shop</h2>
-                        <p style="color: var(--subtext);">Awesome items coming soon!</p>
-                    </div>
+                    <div style="padding: 1rem;">
+                        <h2 style="font-family: 'Rubik Mono One', sans-serif; margin-bottom: 1rem; text-align: center;">🛍 Shop</h2>
+                        <button class="upgrade-button" id="openHelpersShop">
+                            <i class="fa-solid fa-users"></i> Помощники
+                        </button>
+                        <div id="helpersSection" class="helpers-container">
+                            <div class="helpers-list">
+                                <h3>Наши помощники:</h3>
+                                <ul id="helpersListUI" style="list-style: none; padding: 0; margin-top: 0.5rem;">
+                                    </ul>
+                            </div>
+                        </div>
+                        </div>
                 </div>
 
                 <div id="leaderboard" class="tab-page">
@@ -483,13 +572,28 @@
                 avatar: DEFAULT_AVATAR_URL,
                 tokens: 0,
                 skin: 'default',
-                level: 0
+                level: 0,
+                helpers: {} // Объект для хранения количества купленных помощников
             };
             const profileAvatar = document.getElementById('profileAvatar');
             let lastSave = 0;
             let canVibrate = 'vibrate' in navigator;
             let tapMultiplier = 1;
             let tapUpgradeCost = 50;
+            const passiveIncomeInterval = 1000; // Интервал для начисления пассивного дохода (1 секунда)
+            let lastPassiveIncomeTime = Date.now();
+
+            const helpersData = {
+                'tinyFish': { name: 'Маленькая рыбка', description: 'Привлекает мелкие монетки.', cost: 1000, income: 1, upgradeMultiplier: 1.2 },
+                'seaAnemone': { name: 'Морской анемон', description: 'Фильтрует воду в поисках ценных блестяшек.', cost: 5000, income: 5, upgradeMultiplier: 1.3 },
+                'hermitCrab': { name: 'Краб-отшельник', description: 'Собирает упавшие монеты.', cost: 15000, income: 15, upgradeMultiplier: 1.4 },
+                'starfish': { name: 'Морская звезда', description: 'Ее сияние привлекает монетки.', cost: 50000, income: 50, upgradeMultiplier: 1.5 },
+                'jellyfish': { name: 'Медуза', description: 'Собирает затерянные сокровища.', cost: 150000, income: 150, upgradeMultiplier: 1.6 },
+                'babyTurtle': { name: 'Черепашонок', description: 'Приносит спрятанные богатства.', cost: 500000, income: 500, upgradeMultiplier: 1.7 },
+                'dolphinPup': { name: 'Дельфиненок', description: 'Быстро собирает разбросанные монеты.', cost: 1500000, income: 1500, upgradeMultiplier: 1.8 },
+                'smallOctopus': { name: 'Маленький осьминог', description: 'Находит затерянные монеты.', cost: 5000000, income: 5000, upgradeMultiplier: 1.9 },
+                'friendlySeal': { name: 'Дружелюбный тюлень', description: 'Любит приносить монетки.', cost: 15000000, income: 15000, upgradeMultiplier: 2.0 }
+            };
 
             // --- Вспомогательные функции ---
 
@@ -519,32 +623,68 @@
                 } else if (level === 1) {
                     profileAvatar.style.borderColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
                 } else if (level >= 2) {
-                    if (level % 5 === 2) {
-                        profileAvatar.style.backgroundImage = `linear-gradient(to right, var(--primary), var(--accent))`;
-                    } else if (level % 5 === 3) {
-                        profileAvatar.style.backgroundImage = `linear-gradient(to right, var(--accent), lightgreen)`;
-                    } else if (level % 5 === 4) {
-                        profileAvatar.style.backgroundImage = `linear-gradient(to right, var(--primary), purple)`;
-                    } else if (level % 5 === 0) {
-                        profileAvatar.style.backgroundImage = `linear-gradient(to right, var(--accent), orange)`;
-                    } else if (level % 5 === 1) {
-                        profileAvatar.style.backgroundImage = `linear-gradient(135deg, var(--primary), var(--accent), lightyellow)`;
-                    }
-                    profileAvatar.style.border = '3px solid transparent';
-                    profileAvatar.style.borderRadius = '50%';
-                    profileAvatar.style.backgroundClip = 'border-box';
+                    profileAvatar.classList.add('level-animated-gradient-frame');
+                }
+            }
 
-                    if (level >= 2 && level <= 4) {
-                        profileAvatar.classList.add('level-pulsate-effect');
+            function getPassiveIncome() {
+                let totalIncome = 0;
+                for (const helperId in userData.helpers) {
+                    if (userData.helpers.hasOwnProperty(helperId) && helpersData.hasOwnProperty(helperId)) {
+                        totalIncome += userData.helpers[helperId] * helpersData[helperId].income;
                     }
-                    // Убираем эффект свечения на этих уровнях
-                    // if (level >= 5 && level < 10) {
-                    //     profileAvatar.style.boxShadow = `0 0 8px ${getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()}`;
-                    // } else if (level >= 10 && level < 15) {
-                    //     profileAvatar.style.boxShadow = `0 0 12px ${getComputedStyle(document.documentElement).getPropertyValue('--primary').trim()}`;
-                    // } else if (level >= 15) {
-                    //     profileAvatar.style.boxShadow = `0 0 16px ${getComputedStyle(document.documentElement).getPropertyValue('--coin-color').trim()}`;
-                    // }
+                }
+                return totalIncome;
+            }
+
+            function displayHelpers() {
+                const helpersListUI = document.getElementById('helpersListUI');
+                if (!helpersListUI) return;
+                helpersListUI.innerHTML = '';
+
+                for (const helperId in helpersData) {
+                    if (helpersData.hasOwnProperty(helperId)) {
+                        const helper = helpersData[helperId];
+                        const owned = userData.helpers[helperId] || 0;
+                        const listItem = document.createElement('li');
+                        listItem.className = 'helper-item';
+                        listItem.innerHTML = `
+                            <div class="helper-info">
+                                <div class="helper-name">${helper.name}</div>
+                                <div class="helper-description">${helper.description}</div>
+                                <div class="helper-details">
+                                    <img src="${COIN_ICON_URL}" alt="Coin"> ${helper.income} в секунду
+                                </div>
+                            </div>
+                            <button class="buy-button ${userData.tokens < helper.cost ? 'disabled' : ''}" data-helper-id="${helperId}">
+                                Купить (${helper.cost} <img src="${COIN_ICON_URL}" alt="Coin" style="height: 14px; vertical-align: middle;">)
+                            </button>
+                            <div>Куплено: ${owned}</div>
+                        `;
+                        helpersListUI.appendChild(listItem);
+                    }
+                }
+
+                // Добавляем обработчики событий для кнопок "Купить"
+                document.querySelectorAll('.buy-button').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const helperId = this.dataset.helperId;
+                        buyHelper(helperId);
+                    });
+                });
+            }
+
+            function buyHelper(helperId) {
+                if (!helpersData.hasOwnProperty(helperId)) return;
+                const helper = helpersData[helperId];
+                if (userData.tokens >= helper.cost) {
+                    userData.tokens -= helper.cost;
+                    userData.helpers[helperId] = (userData.helpers[helperId] || 0) + 1;
+                    updateDisplay();
+                    displayHelpers(); // Обновляем отображение помощников после покупки
+                    saveProgress();
+                } else {
+                    console.log("Недостаточно монет для покупки " + helper.name);
                 }
             }
 
@@ -556,6 +696,8 @@
                 initLocalStorage();
                 updateDisplay();
                 showTab('home');
+                displayHelpers(); // Отображаем список помощников при инициализации
+                setInterval(addPassiveIncome, passiveIncomeInterval); // Запускаем интервал для пассивного дохода
             }
 
             function setupEventListeners() {
@@ -564,6 +706,16 @@
 
                 const buyTapUpgradeButton = document.getElementById('buyTapUpgradeNav');
                 buyTapUpgradeButton.addEventListener('click', buyTapUpgrade);
+
+                const openHelpersShopButton = document.getElementById('openHelpersShop');
+                if (openHelpersShopButton) {
+                    openHelpersShopButton.addEventListener('click', function() {
+                        const helpersSection = document.getElementById('helpersSection');
+                        if (helpersSection) {
+                            helpersSection.style.display = 'block';
+                        }
+                    });
+                }
 
                 document.querySelectorAll('.shark-gallery img').forEach(img => {
                     img.addEventListener('click', function() {
@@ -574,6 +726,17 @@
                 document.querySelectorAll('nav button').forEach(btn => {
                     btn.addEventListener('click', function() {
                         showTab(this.dataset.tab);
+                        if (this.dataset.tab === 'shop') {
+                            const helpersSection = document.getElementById('helpersSection');
+                            if (helpersSection) {
+                                helpersSection.style.display = 'block'; // Показываем раздел помощников при открытии вкладки "Магазин"
+                            }
+                        } else {
+                            const helpersSection = document.getElementById('helpersSection');
+                            if (helpersSection) {
+                                helpersSection.style.display = 'none'; // Скрываем раздел помощников при переходе на другие вкладки
+                            }
+                        }
                     });
                 });
             }
@@ -633,7 +796,7 @@
 
             function updateDisplay() {
                 const counter = document.getElementById("profileTokens");
-                if (counter) counter.textContent = userData.tokens;
+                if (counter) counter.textContent = Math.floor(userData.tokens);
 
                 const previousLevel = userData.level;
                 const currentLevel = calculateLevel(userData.tokens);
@@ -645,7 +808,7 @@
                 }
 
                 const levelEl = document.getElementById("profileLevel");
-                if (levelEl) levelEl.textContent = `Level: ${userData.level} | Coins: ${userData.tokens}`;
+                if (levelEl) levelEl.textContent = `Level: ${userData.level} | Coins: ${Math.floor(userData.tokens)}`;
 
                 const bar = document.getElementById("xpBar");
                 if (bar) {
@@ -666,7 +829,16 @@
                         buyTapUpgradeButtonNav.classList.remove('disabled');
                     }
                 }
-                // tapMultiplier = calculateTapMultiplier(userData.tokens); // Временно убрал, так как теперь есть улучшение
+
+                // Обновляем состояние кнопок покупки помощников
+                document.querySelectorAll('.buy-button').forEach(button => {
+                    const helperId = button.dataset.helperId;
+                    if (userData.tokens < helpersData[helperId].cost) {
+                        button.classList.add('disabled');
+                    } else {
+                        button.classList.remove('disabled');
+                    }
+                });
             }
 
             function showTab(tabId) {
@@ -680,6 +852,29 @@
 
                 if (tabId === 'leaderboard') {
                     loadLeaderboard();
+                }
+                if (tabId === 'shop') {
+                    const helpersSection = document.getElementById('helpersSection');
+                    if (helpersSection) {
+                        helpersSection.style.display = 'block';
+                    }
+                } else {
+                    const helpersSection = document.getElementById('helpersSection');
+                    if (helpersSection) {
+                        helpersSection.style.display = 'none';
+                    }
+                }
+            }
+
+            // --- Пассивный доход ---
+            function addPassiveIncome() {
+                const now = Date.now();
+                if (now - lastPassiveIncomeTime >= passiveIncomeInterval) {
+                    const income = getPassiveIncome();
+                    userData.tokens += income;
+                    updateDisplay();
+                    lastPassiveIncomeTime = now;
+                    saveToLocalStorage(); // Сохраняем прогресс после получения пассивного дохода
                 }
             }
 
@@ -702,7 +897,8 @@
                         last_update: Date.now(),
                         tapMultiplier: tapMultiplier,
                         tapUpgradeCost: tapUpgradeCost,
-                        level: userData.level
+                        level: userData.level,
+                        helpers: userData.helpers
                     })
                 })
                 .then(() => saveToLocalStorage())
@@ -722,21 +918,25 @@
                         tapMultiplier = parsed.tapMultiplier || 1;
                         tapUpgradeCost = parsed.tapUpgradeCost || 50;
                         userData.level = parsed.level || 0;
+                        userData.helpers = parsed.helpers || {};
                         updateDisplay();
                         setSkin(userData.skin, true);
                         updateUpgradeUI();
                         updateAvatarFrameStyle(userData.level);
+                        displayHelpers();
                     } catch (e) {
                         console.error('Ошибка при парсинге сохраненных данных', e);
                         userData.level = calculateLevel(userData.tokens);
                         updateDisplay();
                         updateAvatarFrameStyle(userData.level);
+                        displayHelpers();
                     }
                 } else {
                     userData.level = calculateLevel(userData.tokens);
                     updateDisplay();
                     updateUpgradeUI();
                     updateAvatarFrameStyle(userData.level);
+                    displayHelpers();
                 }
             }
 
@@ -746,7 +946,8 @@
                     skin: userData.skin,
                     tapMultiplier: tapMultiplier,
                     tapUpgradeCost: tapUpgradeCost,
-                    level: userData.level
+                    level: userData.level,
+                    helpers: userData.helpers
                 }));
             }
 
@@ -768,6 +969,7 @@
                             tapMultiplier = data.tapMultiplier || 1;
                             tapUpgradeCost = data.tapUpgradeCost || 50;
                             userData.level = data.level || calculateLevel(userData.tokens);
+                            userData.helpers = data.helpers || {};
                             updateUpgradeUI();
                             updateDisplay();
                             document.getElementById("profileName").textContent = userData.username;
@@ -775,11 +977,13 @@
                             setSkin(userData.skin, true);
                             saveToLocalStorage();
                             updateAvatarFrameStyle(userData.level);
+                            displayHelpers();
                         } else {
                             userData.level = calculateLevel(userData.tokens);
                             updateUpgradeUI();
                             updateDisplay();
                             updateAvatarFrameStyle(userData.level);
+                            displayHelpers();
                         }
                     })
                     .catch(err => {
@@ -788,6 +992,7 @@
                         updateUpgradeUI();
                         updateDisplay();
                         updateAvatarFrameStyle(userData.level);
+                        displayHelpers();
                     });
             }
 
@@ -869,6 +1074,7 @@
                     initLocalStorage();
                     updateDisplay();
                     updateAvatarFrameStyle(userData.level);
+                    displayHelpers();
                 }
             }
 
