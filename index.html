@@ -429,47 +429,50 @@
             padding: 0.8rem;
             margin-bottom: 0.8rem;
             display: flex;
-            align-items: center;
-            gap: 1rem;
+            gap: 0.8rem; /* Уменьшим зазор между элементами */
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            align-items: center; /* Выравниваем элементы по вертикали по центру */
         }
 
         .helper-info {
             flex-grow: 1;
-            min-width: 0; /* Добавляем, чтобы предотвратить переполнение */
+            min-width: 0; /* Важно для предотвращения переполнения */
+            display: flex;
+            flex-direction: column; /* Размещаем имя и описание вертикально */
+            gap: 0.3rem; /* Зазор между именем и описанием */
         }
 
         .helper-name {
             font-weight: bold;
-            margin-bottom: 0.2rem;
-            font-family: 'Rubik Mono One', sans-serif; /* Используем шрифт Rubik Mono One для названий */
-            white-space: nowrap; /* Предотвращаем перенос длинных названий */
+            font-family: 'Rubik Mono One', sans-serif;
+            white-space: nowrap;
             overflow: hidden;
-            text-overflow: ellipsis; /* Добавляем многоточие при переполнении */
+            text-overflow: ellipsis;
+            font-size: 0.8rem; /* Немного уменьшим размер имени */
         }
 
         .helper-description {
             color: var(--subtext);
-            font-size: 0.75rem; /* Уменьшаем размер шрифта описания */
-            font-family: sans-serif; /* Используем стандартный шрифт sans-serif для описаний */
+            font-size: 0.7rem; /* Еще немного уменьшим размер описания */
+            font-family: sans-serif;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
         .helper-details {
-            font-size: 0.8rem; /* Уменьшаем размер шрифта */
+            font-size: 0.7rem; /* Уменьшим размер шрифта */
             display: flex;
-            gap: 0.5rem;
+            gap: 0.3rem;
             align-items: center;
         }
 
         .helper-details img {
-            height: 14px; /* Уменьшаем размер иконки */
+            height: 12px; /* Уменьшим размер иконки */
         }
 
         .helper-details .income-text {
-            font-family: 'Press Start 2P', cursive; /* Другой шрифт для "в секунду" */
-            font-size: 0.7rem; /* Уменьшаем размер шрифта */
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.6rem; /* Уменьшим размер шрифта */
         }
 
         .buy-button {
@@ -477,11 +480,11 @@
             color: white;
             border: none;
             border-radius: 0.5rem;
-            padding: 0.4rem 0.6rem; /* Уменьшаем отступы кнопки */
+            padding: 0.3rem 0.5rem; /* Уменьшим отступы кнопки */
             cursor: pointer;
-            font-size: 0.7rem; /* Уменьшаем размер шрифта кнопки */
+            font-size: 0.6rem; /* Уменьшим размер шрифта кнопки */
             transition: background-color 0.2s ease;
-            white-space: nowrap; /* Предотвращаем перенос текста на кнопке */
+            white-space: nowrap;
         }
 
         .buy-button:hover {
@@ -493,6 +496,12 @@
             cursor: not-allowed;
         }
 
+        .owned-text {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.6rem; /* Уменьшим размер шрифта */
+            white-space: nowrap;
+        }
+
         .helpers-list {
             margin-top: 1rem;
         }
@@ -500,12 +509,8 @@
         .helpers-list h3 {
             font-family: 'Rubik Mono One', sans-serif;
             margin-bottom: 0.5rem;
-            text-align: center; /* Добавляем центрирование */
-        }
-
-        .owned-text {
-            font-family: 'Press Start 2P', cursive; /* Другой шрифт для "Куплено" */
-            font-size: 0.7rem; /* Уменьшаем размер шрифта */
+            text-align: center;
+            font-size: 1rem; /* Уменьшим размер заголовка */
         }
     </style>
 </head>
@@ -835,8 +840,19 @@
                 if (skinsGalleryModal) {
                     skinsGalleryModal.querySelectorAll('.shark-gallery img').forEach(img => {
                         img.addEventListener('click', function() {
-                            setSkin(this.dataset.skin);
+                            const selectedSkin = this.dataset.skin;
+                            setSkin(selectedSkin);
                             skinsModal.style.display = "none"; // Закрываем модальное окно после выбора скина
+
+                            // Обновляем подсветку в галерее на главной странице
+                            const mainGalleryImages = document.querySelectorAll('#home .shark-gallery img');
+                            mainGalleryImages.forEach(mainImg => {
+                                if (mainImg.dataset.skin === selectedSkin) {
+                                    mainImg.style.border = '2px solid var(--accent)';
+                                } else {
+                                    mainImg.style.border = '2px solid var(--primary)';
+                                }
+                            });
                         });
                     });
                 }
@@ -1181,7 +1197,7 @@
                     if (!silent) saveProgress();
 
                     // Обновляем подсветку в галерее скинов на главной странице
-                    const galleryImages = document.querySelectorAll('.shark-gallery img');
+                    const galleryImages = document.querySelectorAll('#home .shark-gallery img');
                     galleryImages.forEach(img => {
                         if (img.dataset.skin === skin) {
                             img.style.border = '2px solid var(--accent)'; // Или другой стиль подсветки
