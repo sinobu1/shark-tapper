@@ -141,6 +141,7 @@
             flex-shrink: 0;
             transition: transform 0.2s ease;
             will-change: transform; /* Добавлено для производительности анимации */
+            cursor: pointer; /* Добавим курсор, чтобы показать, что они кликабельны */
         }
         .shark-gallery img:hover {
             transform: scale(1.1);
@@ -450,11 +451,13 @@
             justify-content: center;
             align-items: center;
             font-size: 1rem;
+            flex-shrink: 0; /* Чтобы не сжимался */
         }
 
         .helper-name-description {
             flex-grow: 1;
             min-width: 0;
+            margin-left: 0.4rem; /* Уменьшим отступ слева */
         }
 
         .helper-name {
@@ -463,7 +466,7 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            font-size: 0.7rem;
+            font-size: 0.7rem; /* Вернем немного больший размер шрифта */
             margin-bottom: 0.2rem; /* Небольшой отступ между именем и описанием */
         }
 
@@ -520,6 +523,7 @@
             font-size: 0.5rem;
             white-space: nowrap;
             margin-top: 0.2rem; /* Небольшой отступ снизу */
+            text-align: left; /* Выравниваем по левому краю */
         }
 
         .helpers-list {
@@ -661,7 +665,7 @@
             const SHARK_SKIN3_URL = "https://sinobu1.github.io/shark-tapper/shark_skin1.png";
             const LOCAL_STORAGE_KEY = 'sharkTapperData';
             const SAVE_INTERVAL = 5000;
-            const TAP_VIBRATION_DURATION = 10;
+            const TAP_VIBRATION_DURATION = 50; // Увеличим длительность вибрации для теста
             const TAP_ANIMATION_DURATION = 100;
             const TAP_EFFECT_DURATION = 600;
             const COIN_POPUP_DURATION = 1000;
@@ -878,27 +882,19 @@
                     }
                 });
 
-                // Обработчики для скинов теперь будут внутри модального окна
-                const skinsGalleryModal = document.getElementById('skinsModal');
-                if (skinsGalleryModal) {
-                    skinsGalleryModal.querySelectorAll('.shark-gallery img').forEach(img => {
-                        img.addEventListener('click', function() {
-                            const selectedSkin = this.dataset.skin;
-                            setSkin(selectedSkin);
-                            skinsModal.style.display = "none"; // Закрываем модальное окно после выбора скина
-
-                            // Обновляем подсветку в галерее на главной странице
-                            const mainGalleryImages = document.querySelectorAll('#home .shark-gallery img');
-                            mainGalleryImages.forEach(mainImg => {
-                                if (mainImg.dataset.skin === selectedSkin) {
-                                    mainImg.style.border = '2px solid var(--accent)';
-                                } else {
-                                    mainImg.style.border = '2px solid var(--primary)';
-                                }
-                            });
-                        });
+                // Обработчики для скинов теперь будут и для главной страницы и для модального окна
+                const skinsGallery = document.querySelectorAll('#home .shark-gallery img, #skinsModal .shark-gallery img');
+                skinsGallery.forEach(img => {
+                    img.addEventListener('click', function() {
+                        const selectedSkin = this.dataset.skin;
+                        setSkin(selectedSkin);
+                        if (this.closest('#skinsModal')) {
+                            skinsModal.style.display = "none"; // Закрываем модальное окно после выбора скина, если клик был в нем
+                        }
+                        // Обновление подсветки галереи на главной странице происходит в setSkin
+                        console.log(`Скин ${selectedSkin} выбран`); // Проверка клика
                     });
-                }
+                });
 
                 const inviteFriendQuestButton = document.getElementById('inviteFriendQuest');
                 const referralLinkContainer = document.getElementById('referralLinkContainer');
@@ -937,6 +933,9 @@
             function handleTap(event) {
                 if (canVibrate) {
                     navigator.vibrate(TAP_VIBRATION_DURATION);
+                    console.log("Вибрация включена");
+                } else {
+                    console.log("Вибрация не поддерживается");
                 }
 
                 const shark = document.getElementById("tapImage");
