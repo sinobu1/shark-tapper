@@ -436,29 +436,40 @@
 
         .helper-info {
             flex-grow: 1;
+            min-width: 0; /* Добавляем, чтобы предотвратить переполнение */
         }
 
         .helper-name {
             font-weight: bold;
             margin-bottom: 0.2rem;
             font-family: 'Rubik Mono One', sans-serif; /* Используем шрифт Rubik Mono One для названий */
+            white-space: nowrap; /* Предотвращаем перенос длинных названий */
+            overflow: hidden;
+            text-overflow: ellipsis; /* Добавляем многоточие при переполнении */
         }
 
         .helper-description {
             color: var(--subtext);
-            font-size: 0.85rem;
+            font-size: 0.75rem; /* Уменьшаем размер шрифта описания */
             font-family: sans-serif; /* Используем стандартный шрифт sans-serif для описаний */
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .helper-details {
-            font-size: 0.9rem;
+            font-size: 0.8rem; /* Уменьшаем размер шрифта */
             display: flex;
             gap: 0.5rem;
             align-items: center;
         }
 
         .helper-details img {
-            height: 16px;
+            height: 14px; /* Уменьшаем размер иконки */
+        }
+
+        .helper-details .income-text {
+            font-family: 'Press Start 2P', cursive; /* Другой шрифт для "в секунду" */
+            font-size: 0.7rem; /* Уменьшаем размер шрифта */
         }
 
         .buy-button {
@@ -466,10 +477,11 @@
             color: white;
             border: none;
             border-radius: 0.5rem;
-            padding: 0.5rem 0.8rem;
+            padding: 0.4rem 0.6rem; /* Уменьшаем отступы кнопки */
             cursor: pointer;
-            font-size: 0.9rem;
+            font-size: 0.7rem; /* Уменьшаем размер шрифта кнопки */
             transition: background-color 0.2s ease;
+            white-space: nowrap; /* Предотвращаем перенос текста на кнопке */
         }
 
         .buy-button:hover {
@@ -489,6 +501,11 @@
             font-family: 'Rubik Mono One', sans-serif;
             margin-bottom: 0.5rem;
             text-align: center; /* Добавляем центрирование */
+        }
+
+        .owned-text {
+            font-family: 'Press Start 2P', cursive; /* Другой шрифт для "Куплено" */
+            font-size: 0.7rem; /* Уменьшаем размер шрифта */
         }
     </style>
 </head>
@@ -531,9 +548,14 @@
                 </div>
 
                 <div id="quests" class="tab-page">
-                    <div style="padding: 1rem; text-align: center; height: 100%; display: flex; flex-direction: column; justify-content: center;">
+                    <div style="padding: 1rem; text-align: center; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem;">
                         <h2 style="font-family: 'Rubik Mono One', sans-serif; margin-bottom: 1rem;">📝 Quests</h2>
-                        <p style="color: var(--subtext);">Exciting quests coming soon!</p>
+                        <button class="upgrade-button" id="inviteFriendQuest">
+                            <i class="fa-solid fa-user-plus"></i> Приведи друга за 100 монет
+                        </button>
+                        <p style="color: var(--subtext);">Больше квестов появится позже!</p>
+                        <div id="referralLinkContainer" style="margin-top: 1rem;">
+                            </div>
                     </div>
                 </div>
 
@@ -711,13 +733,13 @@
                                 <div class="helper-name">${helper.name}</div>
                                 <div class="helper-description">${helper.description}</div>
                                 <div class="helper-details">
-                                    <img src="${COIN_ICON_URL}" alt="Coin"> ${helper.income} в секунду
+                                    <img src="${COIN_ICON_URL}" alt="Coin"> <span class="income-text">${helper.income} в секунду</span>
                                 </div>
                             </div>
                             <button class="buy-button ${userData.tokens < helper.cost ? 'disabled' : ''}" data-helper-id="${helperId}">
                                 Купить (${helper.cost} <img src="${COIN_ICON_URL}" alt="Coin" style="height: 14px; vertical-align: middle;">)
                             </button>
-                            <div>Куплено: ${owned}</div>
+                            <div class="owned-text">Куплено: ${owned}</div>
                         `;
                         helpersListUI.appendChild(listItem);
                     }
@@ -809,13 +831,38 @@
                 });
 
                 // Обработчики для скинов теперь будут внутри модального окна
-                const skinsGallery = document.getElementById('skinsModal');
-                if (skinsGallery) {
-                    skinsGallery.querySelectorAll('.shark-gallery img').forEach(img => {
+                const skinsGalleryModal = document.getElementById('skinsModal');
+                if (skinsGalleryModal) {
+                    skinsGalleryModal.querySelectorAll('.shark-gallery img').forEach(img => {
                         img.addEventListener('click', function() {
                             setSkin(this.dataset.skin);
                             skinsModal.style.display = "none"; // Закрываем модальное окно после выбора скина
                         });
+                    });
+                }
+
+                const inviteFriendQuestButton = document.getElementById('inviteFriendQuest');
+                const referralLinkContainer = document.getElementById('referralLinkContainer');
+
+                if (inviteFriendQuestButton) {
+                    inviteFriendQuestButton.addEventListener('click', () => {
+                        if (Telegram && Telegram.WebApp) {
+                            const initData = Telegram.WebApp.initDataUnsafe;
+                            const userId = initData?.user?.id;
+                            if (userId) {
+                                const referralLink = `https://t.me/ваше_бот_имя?start=${userId}`; // Замените "ваше_бот_имя" на имя вашего Telegram-бота
+                                referralLinkContainer.innerHTML = `<p style="color: var(--primary);">Поделись этой ссылкой:</p><p><a href="${referralLink}" target="_blank">${referralLink}</a></p>`;
+                                // В реальной системе вам нужно будет отслеживать переходы по этой ссылке и начисление монет.
+                                // Для примера, можно просто начислить монеты сразу после нажатия кнопки (без реальной проверки).
+                                userData.tokens += 100;
+                                updateDisplay();
+                                saveProgress();
+                            } else {
+                                referralLinkContainer.innerHTML = '<p style="color: var(--subtext);">Не удалось получить ID пользователя.</p>';
+                            }
+                        } else {
+                            referralLinkContainer.innerHTML = '<p style="color: var(--subtext);">Telegram Web Apps недоступны.</p>';
+                        }
                     });
                 }
 
@@ -997,7 +1044,7 @@
                         userData.level = parsed.level || 0;
                         userData.helpers = parsed.helpers || {};
                         updateDisplay();
-                        setSkin(userData.skin, true);
+                        setSkin(userData.skin, true); // Обновляем подсветку галереи
                         updateUpgradeUI();
                         updateAvatarFrameStyle(userData.level);
                         displayHelpers();
@@ -1051,7 +1098,7 @@
                             updateDisplay();
                             document.getElementById("profileName").textContent = userData.username;
                             document.getElementById("profileAvatar").src = userData.avatar;
-                            setSkin(userData.skin, true);
+                            setSkin(userData.skin, true); // Обновляем подсветку галереи
                             saveToLocalStorage();
                             updateAvatarFrameStyle(userData.level);
                             displayHelpers();
@@ -1132,6 +1179,16 @@
                     userData.skin = skin;
                     document.getElementById('tapImage').src = skins[skin];
                     if (!silent) saveProgress();
+
+                    // Обновляем подсветку в галерее скинов на главной странице
+                    const galleryImages = document.querySelectorAll('.shark-gallery img');
+                    galleryImages.forEach(img => {
+                        if (img.dataset.skin === skin) {
+                            img.style.border = '2px solid var(--accent)'; // Или другой стиль подсветки
+                        } else {
+                            img.style.border = '2px solid var(--primary)'; // Возвращаем стандартный стиль
+                        }
+                    });
                 }
             }
 
@@ -1181,49 +1238,6 @@
                 const tapUpgradeCostElementNav = document.getElementById('tapUpgradeCostNav');
                 if (tapUpgradeCostElementNav) tapUpgradeCostElementNav.textContent = tapUpgradeCost;
             }
-
-            const openHelpersModalButton = document.getElementById('openHelpersModal');
-            const closeHelpersModalButton = document.getElementById('closeHelpersModal');
-            const helpersModal = document.getElementById('helpersModal');
-
-            const openSkinsModalButton = document.getElementById('openSkinsModal');
-            const closeSkinsModalButton = document.getElementById('closeSkinsModal');
-            const skinsModal = document.getElementById('skinsModal');
-
-            if (openHelpersModalButton) {
-                openHelpersModalButton.addEventListener('click', () => {
-                    helpersModal.style.display = "block";
-                    displayHelpers(); // Загружаем список помощников при открытии модального окна
-                });
-            }
-
-            if (closeHelpersModalButton) {
-                closeHelpersModalButton.addEventListener('click', () => {
-                    helpersModal.style.display = "none";
-                });
-            }
-
-            if (openSkinsModalButton) {
-                openSkinsModalButton.addEventListener('click', () => {
-                    skinsModal.style.display = "block";
-                });
-            }
-
-            if (closeSkinsModalButton) {
-                closeSkinsModalButton.addEventListener('click', () => {
-                    skinsModal.style.display = "none";
-                });
-            }
-
-            // Закрытие модального окна при клике вне его
-            window.addEventListener('click', (event) => {
-                if (event.target === helpersModal) {
-                    helpersModal.style.display = "none";
-                }
-                if (event.target === skinsModal) {
-                    skinsModal.style.display = "none";
-                }
-            });
 
             // --- Запуск приложения ---
             init();
