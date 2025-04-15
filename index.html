@@ -310,6 +310,61 @@
         .leaderboard-item.current-user {
             background: rgba(47, 128, 237, 0.15); /* Сделаем выделение текущего пользователя чуть более заметным */
         }
+
+        /* --- Стили для кнопки улучшения под профилем --- */
+        .upgrade-button-container {
+            display: flex;
+            justify-content: center; /* To center the button */
+            margin-top: 1rem; /* Add some space above the button */
+            padding: 0 1rem; /* Add some padding on the sides */
+        }
+
+        .upgrade-button {
+            background-color: var(--accent); /* Use your accent color */
+            color: white;
+            font-family: 'Bungee', cursive;
+            font-weight: bold;
+            border: none;
+            border-radius: 14px; /* Match the token counter */
+            padding: 0.8rem 1.5rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            transition: background-color 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            -webkit-tap-highlight-color: transparent; /* Remove highlight on tap */
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .upgrade-button:hover {
+            background-color: #46b3d9; /* Slightly darker shade on hover */
+        }
+
+        .upgrade-button:active {
+            transform: scale(0.98);
+        }
+
+        .upgrade-button i {
+            font-size: 1rem;
+        }
+
+        .upgrade-button img {
+            height: 16px;
+            vertical-align: middle;
+        }
+
+        .upgrade-button.disabled {
+            background-color: var(--subtext);
+            color: #ddd;
+            cursor: not-allowed;
+        }
+
+        .upgrade-button.disabled:hover {
+            background-color: var(--subtext);
+        }
     </style>
 </head>
 <body>
@@ -343,6 +398,11 @@
                             </div>
                         </div>
                     </div>
+                    <div class="upgrade-button-container">
+                        <button id="buyTapUpgradeNav" class="upgrade-button">
+                            <i class="fa-solid fa-arrow-up"></i><span>Улучшить (+1) - <span id="tapUpgradeCostNav">50</span> <img src="https://sinobu1.github.io/shark-tapper/coin_icon_small.png" alt="Coin" style="height: 14px; vertical-align: middle;"></span>
+                        </button>
+                    </div>
                 </div>
 
                 <div id="quests" class="tab-page">
@@ -373,9 +433,6 @@
         <nav>
             <button class="active" data-tab="home">
                 <i class="fa-solid fa-gamepad"></i><span>Games</span>
-            </button>
-            <button id="buyTapUpgradeNav">
-                <i class="fa-solid fa-arrow-up"></i><span>Улучшить (+1) - <span id="tapUpgradeCostNav">50</span> <img src="https://sinobu1.github.io/shark-tapper/coin_icon_small.png" alt="Coin" style="height: 14px; vertical-align: middle;"></span>
             </button>
             <button data-tab="quests">
                 <i class="fa-solid fa-list-check"></i><span>Quests</span>
@@ -699,17 +756,17 @@
                 list.innerHTML = data.map(([id, user], i) => {
                     const isCurrentUser = id === userId?.toString();
                     return `
-                        <li class="leaderboard-item ${isCurrentUser ? 'current-user' : ''}">
-                            <span style="font-weight: bold; color: var(--primary); width: 24px; text-align: center;">#${i + 1}</span>
-                            <img src="${user.photo_url || DEFAULT_AVATAR_URL}"
-                                 style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--accent); object-fit: cover;">
-                            <span style="flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                ${user.first_name || 'Player'}
-                            </span>
-                            <span style="color: var(--subtext); font-family: 'Press Start 2P', cursive; font-size: 0.7rem;">
-                                ${user.balance || 0} 💰
-                            </span>
-                        </li>`;
+                                <li class="leaderboard-item ${isCurrentUser ? 'current-user' : ''}">
+                                    <span style="font-weight: bold; color: var(--primary); width: 24px; text-align: center;">#${i + 1}</span>
+                                    <img src="${user.photo_url || DEFAULT_AVATAR_URL}"
+                                         style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--accent); object-fit: cover;">
+                                    <span style="flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                        ${user.first_name || 'Player'}
+                                    </span>
+                                    <span style="color: var(--subtext); font-family: 'Press Start 2P', cursive; font-size: 0.7rem;">
+                                        ${user.balance || 0} 💰
+                                    </span>
+                                </li>`;
                 }).join("");
             }
 
