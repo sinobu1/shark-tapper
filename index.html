@@ -419,27 +419,42 @@
 
         /* Стили для раздела помощников внутри модального окна */
         .helpers-container {
-            padding: 0.8rem; /* Уменьшим внутренний отступ контейнера */
+            padding: 0.8rem;
         }
 
         .helper-item {
             background: var(--card-bg);
             border: 1px solid var(--border);
-            border-radius: 0.8rem; /* Уменьшим радиус скругления */
-            padding: 0.6rem; /* Уменьшим внутренний отступ элемента */
-            margin-bottom: 0.6rem; /* Уменьшим нижний отступ */
+            border-radius: 0.8rem;
+            padding: 0.6rem;
+            margin-bottom: 0.6rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
             display: flex;
-            gap: 0.6rem; /* Уменьшим зазор между элементами */
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); /* Уменьшим тень */
-            align-items: center;
+            flex-direction: column; /* Элементы внутри располагаем вертикально */
+            gap: 0.4rem; /* Уменьшим зазор между основными блоками */
         }
 
-        .helper-info {
+        .helper-top-info {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 0.4rem; /* Добавим немного отступа до описания */
+        }
+
+        .helper-emoji-frame {
+            width: 30px;
+            height: 30px;
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1rem;
+        }
+
+        .helper-name-description {
             flex-grow: 1;
             min-width: 0;
-            display: flex;
-            flex-direction: column;
-            gap: 0.2rem; /* Уменьшим зазор между именем и описанием */
         }
 
         .helper-name {
@@ -448,41 +463,33 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            font-size: 0.7rem; /* Уменьшим размер имени */
+            font-size: 0.7rem;
+            margin-bottom: 0.2rem; /* Небольшой отступ между именем и описанием */
         }
 
         .helper-description {
             color: var(--subtext);
-            font-size: 0.6rem; /* Уменьшим размер описания */
+            font-size: 0.6rem;
             font-family: sans-serif;
             overflow: hidden;
             text-overflow: ellipsis;
         }
 
-        .helper-details {
-            font-size: 0.6rem; /* Уменьшим размер шрифта */
+        .helper-bottom-actions {
             display: flex;
-            gap: 0.2rem;
             align-items: center;
-        }
-
-        .helper-details img {
-            height: 10px; /* Уменьшим размер иконки */
-        }
-
-        .helper-details .income-text {
-            font-family: 'Press Start 2P', cursive;
-            font-size: 0.5rem; /* Уменьшим размер шрифта */
+            justify-content: space-between; /* Размещаем кнопку слева, доход справа */
+            gap: 0.5rem; /* Небольшой зазор между элементами */
         }
 
         .buy-button {
             background-color: var(--accent);
             color: white;
             border: none;
-            border-radius: 0.4rem; /* Уменьшим радиус скругления */
-            padding: 0.2rem 0.4rem; /* Уменьшим отступы кнопки */
+            border-radius: 0.4rem;
+            padding: 0.2rem 0.4rem;
             cursor: pointer;
-            font-size: 0.5rem; /* Уменьшим размер шрифта кнопки */
+            font-size: 0.5rem;
             transition: background-color 0.2s ease;
             white-space: nowrap;
         }
@@ -496,21 +503,34 @@
             cursor: not-allowed;
         }
 
+        .helper-income {
+            font-size: 0.6rem;
+            display: flex;
+            gap: 0.2rem;
+            align-items: center;
+            font-family: 'Press Start 2P', cursive;
+        }
+
+        .helper-income img {
+            height: 10px;
+        }
+
         .owned-text {
             font-family: 'Press Start 2P', cursive;
-            font-size: 0.5rem; /* Уменьшим размер шрифта */
+            font-size: 0.5rem;
             white-space: nowrap;
+            margin-top: 0.2rem; /* Небольшой отступ снизу */
         }
 
         .helpers-list {
-            margin-top: 0.8rem; /* Уменьшим верхний отступ */
+            margin-top: 0.8rem;
         }
 
         .helpers-list h3 {
             font-family: 'Rubik Mono One', sans-serif;
-            margin-bottom: 0.4rem; /* Уменьшим нижний отступ */
+            margin-bottom: 0.4rem;
             text-align: center;
-            font-size: 0.9rem; /* Уменьшим размер заголовка */
+            font-size: 0.9rem;
         }
     </style>
 </head>
@@ -734,17 +754,24 @@
                         const listItem = document.createElement('li');
                         listItem.className = 'helper-item';
                         listItem.innerHTML = `
-                            <div class="helper-info">
-                                <div class="helper-name">${helper.name}</div>
-                                <div class="helper-description">${helper.description}</div>
-                                <div class="helper-details">
-                                    <img src="${COIN_ICON_URL}" alt="Coin">
-                                    <span class="income-text">${helper.income} в секунду</span>
+                            <div class="helper-top-info">
+                                <div class="helper-emoji-frame">
+                                    <span>${getHelperEmoji(helperId)}</span>
+                                </div>
+                                <div class="helper-name-description">
+                                    <div class="helper-name">${helper.name}</div>
+                                    <div class="helper-description">${helper.description}</div>
                                 </div>
                             </div>
-                            <button class="buy-button ${userData.tokens < helper.cost ? 'disabled' : ''}" data-helper-id="${helperId}">
-                                Купить (${helper.cost} <img src="${COIN_ICON_URL}" alt="Coin" style="height: 14px; vertical-align: middle;">)
-                            </button>
+                            <div class="helper-bottom-actions">
+                                <button class="buy-button ${userData.tokens < helper.cost ? 'disabled' : ''}" data-helper-id="${helperId}">
+                                    Купить (${helper.cost} <img src="${COIN_ICON_URL}" alt="Coin" style="height: 14px; vertical-align: middle;">)
+                                </button>
+                                <div class="helper-income">
+                                    <img src="${COIN_ICON_URL}" alt="Coin" style="height: 12px; vertical-align: middle;">
+                                    <span>${helper.income} в секунду</span>
+                                </div>
+                            </div>
                             <div class="owned-text">Куплено: ${owned}</div>
                         `;
                         helpersListUI.appendChild(listItem);
@@ -758,6 +785,21 @@
                         buyHelper(helperId);
                     });
                 });
+            }
+
+            function getHelperEmoji(helperId) {
+                switch (helperId) {
+                    case 'tinyFish': return '🐟';
+                    case 'seaAnemone': return '🌸';
+                    case 'hermitCrab': return '🦀';
+                    case 'starfish': return '⭐';
+                    case 'jellyfish': return '💧';
+                    case 'babyTurtle': return '🐢';
+                    case 'dolphinPup': return '🐬';
+                    case 'smallOctopus': return '🐙';
+                    case 'friendlySeal': return '🦭';
+                    default: return '';
+                }
             }
 
             function buyHelper(helperId) {
