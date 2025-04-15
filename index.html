@@ -342,11 +342,7 @@
         .upgrade-button:hover {
             background: linear-gradient(135deg, #81ecec, var(--accent)); /* Инвертируем градиент на hover */
         }
-        .upgrade-button {
-    /* ... другие стили ... */
-    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.3); /* Добавляем легкую тень */
-    /* ... остальные стили ... */
-}
+
         .upgrade-button:active {
             transform: scale(0.98);
         }
@@ -676,9 +672,12 @@
                         tapUpgradeCost = parsed.tapUpgradeCost || 50; // Загружаем стоимость
                         updateDisplay();
                         setSkin(userData.skin, true);
+                        updateUpgradeUI(); // <--- Добавлено
                     } catch (e) {
                         console.error('Ошибка при парсинге сохраненных данных', e);
                     }
+                } else {
+                    updateUpgradeUI(); // Убедитесь, что UI обновляется и при отсутствии сохраненных данных (по умолчанию 50)
                 }
             }
 
@@ -713,6 +712,7 @@
                             userData.skin = data.skin || 'default';
                             tapMultiplier = data.tapMultiplier || 1; // Загружаем множитель, по умолчанию 1
                             tapUpgradeCost = data.tapUpgradeCost || 50; // Загружаем стоимость, по умолчанию 50
+                            updateUpgradeUI(); // <--- Добавлено
 
                             // Обновление UI
                             updateDisplay();
@@ -721,10 +721,13 @@
                             setSkin(userData.skin, true);
                             // Сохранение объединенных данных
                             saveToLocalStorage();
+                        } else {
+                            updateUpgradeUI(); // Обновляем UI, даже если данные с сервера не пришли (используем значение по умолчанию или из локального хранилища)
                         }
                     })
                     .catch(err => {
                         console.error('Ошибка загрузки:', err);
+                        updateUpgradeUI(); // Обновляем UI при ошибке загрузки (используем значение по умолчанию или из локального хранилища)
                     });
             }
 
