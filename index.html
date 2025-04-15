@@ -365,6 +365,15 @@
         .upgrade-button.disabled:hover {
             background-color: var(--subtext);
         }
+
+        .profile-card img.level-pulsate-effect {
+            animation: pulseBorder 2s infinite alternate;
+        }
+
+        @keyframes pulseBorder {
+            from { opacity: 0.8; }
+            to { opacity: 1; }
+        }
     </style>
 </head>
 <body>
@@ -392,7 +401,7 @@
                         <img src="https://placehold.co/64x64" alt="Avatar" id="profileAvatar">
                         <div class="profile-info">
                             <span class="name" id="profileName">Player</span>
-                            <span class="sub" id="profileLevel">Coins: 0</span>
+                            <span class="sub" id="profileLevel">Level: 0 | Coins: 0</span>
                             <div class="xp-bar">
                                 <div class="xp-fill" id="xpBar"></div>
                             </div>
@@ -464,58 +473,104 @@
             const COIN_POPUP_DURATION = 1000;
             const LEADERBOARD_SIZE = 10;
             const AUTO_SAVE_INTERVAL = 30000;
-            const XP_LEVEL_LIMITS = [0, 100, 500, 1000, 2500, 5000, 10000];
+            const XP_LEVEL_LIMITS = [
+                0, 100, 500, 1000, 2500, 5000, 10000, 50000, 100000, 250000, 500000, 1000000, 2000000, 4000000, 8000000, 16000000, 32000000, 64000000, 100000000
+            ];
 
             let userId = null;
             let userData = {
                 username: "Player",
                 avatar: DEFAULT_AVATAR_URL,
                 tokens: 0,
-                skin: 'default'
+                skin: 'default',
+                level: 0
             };
+            const profileAvatar = document.getElementById('profileAvatar');
             let lastSave = 0;
             let canVibrate = 'vibrate' in navigator;
-            let tapMultiplier = 1; // Начальный множитель тапа
-            let tapUpgradeCost = 50; // Начальная стоимость улучшения
+            let tapMultiplier = 1;
+            let tapUpgradeCost = 50;
 
             // --- Вспомогательные функции ---
 
-            // Рассчитывает множитель тапов на основе количества токенов
+            function calculateLevel(tokens) {
+                for (let i = XP_LEVEL_LIMITS.length - 1; i >= 0; i--) {
+                    if (tokens >= XP_LEVEL_LIMITS[i]) {
+                        return i;
+                    }
+                }
+                return 0;
+            }
+
             function calculateTapMultiplier(tokens) {
-                const max = XP_LEVEL_LIMITS.find(l => tokens < l) || 10000;
+                const max = XP_LEVEL_LIMITS.find(l => tokens < l) || 100000000;
                 const level = XP_LEVEL_LIMITS.indexOf(max);
                 return 1 + Math.floor(level / 5);
             }
 
+            function updateAvatarFrameStyle(level) {
+                profileAvatar.style.border = '';
+                profileAvatar.style.backgroundImage = '';
+                profileAvatar.style.boxShadow = '';
+                profileAvatar.className = 'profile-avatar-frame';
+
+                if (level === 0) {
+                    profileAvatar.style.borderColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+                } else if (level === 1) {
+                    profileAvatar.style.borderColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
+                } else if (level >= 2) {
+                    if (level % 5 === 2) {
+                        profileAvatar.style.backgroundImage = `linear-gradient(to right, var(--primary), var(--accent))`;
+                    } else if (level % 5 === 3) {
+                        profileAvatar.style.backgroundImage = `linear-gradient(to right, var(--accent), lightgreen)`;
+                    } else if (level % 5 === 4) {
+                        profileAvatar.style.backgroundImage = `linear-gradient(to right, var(--primary), purple)`;
+                    } else if (level % 5 === 0) {
+                        profileAvatar.style.backgroundImage = `linear-gradient(to right, var(--accent), orange)`;
+                    } else if (level % 5 === 1) {
+                        profileAvatar.style.backgroundImage = `linear-gradient(135deg, var(--primary), var(--accent), lightyellow)`;
+                    }
+                    profileAvatar.style.border = '3px solid transparent';
+                    profileAvatar.style.borderRadius = '50%';
+                    profileAvatar.style.backgroundClip = 'border-box';
+
+                    if (level >= 2 && level <= 4) {
+                        profileAvatar.classList.add('level-pulsate-effect');
+                    }
+                    // Убираем эффект свечения на этих уровнях
+                    // if (level >= 5 && level < 10) {
+                    //     profileAvatar.style.boxShadow = `0 0 8px ${getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()}`;
+                    // } else if (level >= 10 && level < 15) {
+                    //     profileAvatar.style.boxShadow = `0 0 12px ${getComputedStyle(document.documentElement).getPropertyValue('--primary').trim()}`;
+                    // } else if (level >= 15) {
+                    //     profileAvatar.style.boxShadow = `0 0 16px ${getComputedStyle(document.documentElement).getPropertyValue('--coin-color').trim()}`;
+                    // }
+                }
+            }
+
             // --- Инициализация ---
 
-            // Инициализация приложения
             function init() {
                 setupEventListeners();
-                loadTelegram(); // Загружаем данные Telegram как можно раньше
+                loadTelegram();
                 initLocalStorage();
                 updateDisplay();
                 showTab('home');
             }
 
-            // Настройка слушателей событий
             function setupEventListeners() {
-                // Обработка нажатия на акулу
                 const tapImage = document.getElementById('tapImage');
                 tapImage.addEventListener('click', handleTap);
 
-                // Покупка улучшения тапа (теперь из навигации)
                 const buyTapUpgradeButton = document.getElementById('buyTapUpgradeNav');
                 buyTapUpgradeButton.addEventListener('click', buyTapUpgrade);
 
-                // Выбор скина акулы
                 document.querySelectorAll('.shark-gallery img').forEach(img => {
                     img.addEventListener('click', function() {
                         setSkin(this.dataset.skin);
                     });
                 });
 
-                // Переключение между вкладками навигации
                 document.querySelectorAll('nav button').forEach(btn => {
                     btn.addEventListener('click', function() {
                         showTab(this.dataset.tab);
@@ -525,26 +580,21 @@
 
             // --- Обработчики событий ---
 
-            // Обработка нажатия на акулу
             function handleTap(event) {
-                // Вибрация при нажатии, если поддерживается
                 if (canVibrate) {
                     navigator.vibrate(TAP_VIBRATION_DURATION);
                 }
 
-                // Анимация нажатия на акулу
                 const shark = document.getElementById("tapImage");
                 shark.style.transform = "scale(0.95)";
                 setTimeout(() => shark.style.transform = "scale(1)", TAP_ANIMATION_DURATION);
 
                 createTapEffect(event);
-                createCoinPopup(event, tapMultiplier); // Теперь передаем tapMultiplier для отображения
+                createCoinPopup(event, tapMultiplier);
 
-                // Увеличение количества монет
                 userData.tokens += tapMultiplier;
                 updateDisplay();
 
-                // Сохранение прогресса
                 const now = Date.now();
                 if (now - lastSave > SAVE_INTERVAL) {
                     saveProgress();
@@ -554,7 +604,6 @@
                 }
             }
 
-            // Создание визуального эффекта нажатия
             function createTapEffect(event) {
                 const effect = document.createElement('div');
                 effect.className = 'tap-effect';
@@ -567,7 +616,6 @@
                 }, TAP_EFFECT_DURATION);
             }
 
-            // Создание всплывающего сообщения с монетами
             function createCoinPopup(event, amount) {
                 const popup = document.createElement('div');
                 popup.className = 'coin-popup';
@@ -583,17 +631,25 @@
 
             // --- Обновление интерфейса ---
 
-            // Обновление отображения UI
             function updateDisplay() {
                 const counter = document.getElementById("profileTokens");
                 if (counter) counter.textContent = userData.tokens;
 
+                const previousLevel = userData.level;
+                const currentLevel = calculateLevel(userData.tokens);
+                if (currentLevel > previousLevel) {
+                    userData.level = currentLevel;
+                    console.log(`Уровень повышен! Новый уровень: ${userData.level}`);
+                    updateAvatarFrameStyle(userData.level);
+                    // Здесь можно добавить логику для отображения уведомления о повышении уровня
+                }
+
                 const levelEl = document.getElementById("profileLevel");
-                if (levelEl) levelEl.textContent = `Coins: ${userData.tokens}`;
+                if (levelEl) levelEl.textContent = `Level: ${userData.level} | Coins: ${userData.tokens}`;
 
                 const bar = document.getElementById("xpBar");
                 if (bar) {
-                    const max = XP_LEVEL_LIMITS.find(l => userData.tokens < l) || 10000;
+                    const max = XP_LEVEL_LIMITS.find(l => userData.tokens < l) || 100000000;
                     const min = XP_LEVEL_LIMITS[XP_LEVEL_LIMITS.indexOf(max) - 1] || 0;
                     const percent = ((userData.tokens - min) / (max - min)) * 100;
                     bar.style.width = `${Math.min(100, Math.max(0, percent))}%`;
@@ -613,19 +669,15 @@
                 // tapMultiplier = calculateTapMultiplier(userData.tokens); // Временно убрал, так как теперь есть улучшение
             }
 
-            // Отображение выбранной вкладки
             function showTab(tabId) {
-                // Обновление активного состояния кнопок навигации
                 document.querySelectorAll('nav button').forEach(btn => {
                     btn.classList.toggle('active', btn.dataset.tab === tabId);
                 });
 
-                // Отображение содержимого выбранной вкладки
                 document.querySelectorAll('.tab-page').forEach(page => {
                     page.classList.toggle('active', page.id === tabId);
                 });
 
-                // Загрузка таблицы лидеров при необходимости
                 if (tabId === 'leaderboard') {
                     loadLeaderboard();
                 }
@@ -633,7 +685,6 @@
 
             // --- Сохранение и загрузка данных ---
 
-            // Сохранение прогресса на сервере и в локальном хранилище
             function saveProgress() {
                 if (!userId) {
                     saveToLocalStorage();
@@ -649,8 +700,9 @@
                         photo_url: userData.avatar,
                         skin: userData.skin,
                         last_update: Date.now(),
-                        tapMultiplier: tapMultiplier, // Сохраняем множитель
-                        tapUpgradeCost: tapUpgradeCost // Сохраняем стоимость следующего улучшения
+                        tapMultiplier: tapMultiplier,
+                        tapUpgradeCost: tapUpgradeCost,
+                        level: userData.level
                     })
                 })
                 .then(() => saveToLocalStorage())
@@ -660,7 +712,6 @@
                 });
             }
 
-            // Загрузка данных из локального хранилища
             function initLocalStorage() {
                 const savedData = localStorage.getItem(LOCAL_STORAGE_KEY);
                 if (savedData) {
@@ -668,30 +719,37 @@
                         const parsed = JSON.parse(savedData);
                         userData.tokens = parsed.tokens || 0;
                         userData.skin = parsed.skin || 'default';
-                        tapMultiplier = parsed.tapMultiplier || 1; // Загружаем множитель
-                        tapUpgradeCost = parsed.tapUpgradeCost || 50; // Загружаем стоимость
+                        tapMultiplier = parsed.tapMultiplier || 1;
+                        tapUpgradeCost = parsed.tapUpgradeCost || 50;
+                        userData.level = parsed.level || 0;
                         updateDisplay();
                         setSkin(userData.skin, true);
-                        updateUpgradeUI(); // <--- Добавлено
+                        updateUpgradeUI();
+                        updateAvatarFrameStyle(userData.level);
                     } catch (e) {
                         console.error('Ошибка при парсинге сохраненных данных', e);
+                        userData.level = calculateLevel(userData.tokens);
+                        updateDisplay();
+                        updateAvatarFrameStyle(userData.level);
                     }
                 } else {
-                    updateUpgradeUI(); // Убедитесь, что UI обновляется и при отсутствии сохраненных данных (по умолчанию 50)
+                    userData.level = calculateLevel(userData.tokens);
+                    updateDisplay();
+                    updateUpgradeUI();
+                    updateAvatarFrameStyle(userData.level);
                 }
             }
 
-            // Сохранение данных в локальное хранилище
             function saveToLocalStorage() {
                 localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({
                     tokens: userData.tokens,
                     skin: userData.skin,
-                    tapMultiplier: tapMultiplier, // Сохраняем множитель
-                    tapUpgradeCost: tapUpgradeCost // Сохраняем стоимость
+                    tapMultiplier: tapMultiplier,
+                    tapUpgradeCost: tapUpgradeCost,
+                    level: userData.level
                 }));
             }
 
-            // Загрузка прогресса с сервера
             function loadProgress() {
                 if (!userId) return;
 
@@ -702,38 +760,39 @@
                     })
                     .then(data => {
                         if (data) {
-                            // Используем большее значение между сервером и локальным хранилищем
                             const serverTokens = data.balance || 0;
                             userData.tokens = Math.max(serverTokens, userData.tokens);
-
-                            // Обновление данных пользователя
                             userData.username = data.first_name || "Player";
                             userData.avatar = data.photo_url || DEFAULT_AVATAR_URL;
                             userData.skin = data.skin || 'default';
-                            tapMultiplier = data.tapMultiplier || 1; // Загружаем множитель, по умолчанию 1
-                            tapUpgradeCost = data.tapUpgradeCost || 50; // Загружаем стоимость, по умолчанию 50
-                            updateUpgradeUI(); // <--- Добавлено
-
-                            // Обновление UI
+                            tapMultiplier = data.tapMultiplier || 1;
+                            tapUpgradeCost = data.tapUpgradeCost || 50;
+                            userData.level = data.level || calculateLevel(userData.tokens);
+                            updateUpgradeUI();
                             updateDisplay();
                             document.getElementById("profileName").textContent = userData.username;
                             document.getElementById("profileAvatar").src = userData.avatar;
                             setSkin(userData.skin, true);
-                            // Сохранение объединенных данных
                             saveToLocalStorage();
+                            updateAvatarFrameStyle(userData.level);
                         } else {
-                            updateUpgradeUI(); // Обновляем UI, даже если данные с сервера не пришли (используем значение по умолчанию или из локального хранилища)
+                            userData.level = calculateLevel(userData.tokens);
+                            updateUpgradeUI();
+                            updateDisplay();
+                            updateAvatarFrameStyle(userData.level);
                         }
                     })
                     .catch(err => {
                         console.error('Ошибка загрузки:', err);
-                        updateUpgradeUI(); // Обновляем UI при ошибке загрузки (используем значение по умолчанию или из локального хранилища)
+                        userData.level = calculateLevel(userData.tokens);
+                        updateUpgradeUI();
+                        updateDisplay();
+                        updateAvatarFrameStyle(userData.level);
                     });
             }
 
             // --- Таблица лидеров ---
 
-            // Загрузка таблицы лидеров
             function loadLeaderboard() {
                 fetch(`${DB_URL}/users.json`)
                     .then(res => {
@@ -746,7 +805,6 @@
                             return list.innerHTML = '<li style="text-align:center; color: var(--subtext);">Пока нет игроков</li>';
                         }
 
-                        // Сортировка по балансу и выбор топ-10
                         const sorted = Object.entries(data)
                             .sort((a, b) => (b[1].balance || 0) - (a[1].balance || 0))
                             .slice(0, LEADERBOARD_SIZE);
@@ -760,7 +818,6 @@
                     });
             }
 
-            // Отрисовка таблицы лидеров
             function renderLeaderboard(data) {
                 const list = document.getElementById("leaderboardList");
                 list.innerHTML = data.map(([id, user], i) => {
@@ -782,7 +839,6 @@
 
             // --- Скины ---
 
-            // Установка скина акулы
             function setSkin(skin, silent = false) {
                 const skins = {
                     'default': SHARK_DEFAULT_SKIN_URL,
@@ -799,7 +855,6 @@
 
             // --- Интеграция с Telegram Web Apps ---
 
-            // Загрузка данных пользователя Telegram
             function loadTelegram() {
                 const tgUser = Telegram?.WebApp?.initDataUnsafe?.user;
                 if (tgUser) {
@@ -813,12 +868,12 @@
                     document.getElementById("profileName").textContent = "Player";
                     initLocalStorage();
                     updateDisplay();
+                    updateAvatarFrameStyle(userData.level);
                 }
             }
 
             // --- Автоматическое сохранение ---
 
-            // Автоматическое сохранение каждые 30 секунд
             setInterval(() => {
                 if (userData.tokens > 0) {
                     saveProgress();
@@ -832,7 +887,7 @@
                     tapMultiplier++;
                     tapUpgradeCost = Math.round(tapUpgradeCost * 1.5);
                     updateDisplay();
-                    updateUpgradeUI(); // Обновляем стоимость в навигации
+                    updateUpgradeUI();
                 } else {
                     console.log("Недостаточно монет!");
                 }
