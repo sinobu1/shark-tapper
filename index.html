@@ -525,6 +525,15 @@
             height: 9px; /* Уменьшим размер иконки */
         }
 
+        .income-text {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 0.6rem; /* Используем тот же шрифт, что и для дохода */
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 0.1rem;
+        }
+
         .owned-text {
             font-family: 'Press Start 2P', cursive;
             font-size: 0.45rem; /* Уменьшим шрифт */
@@ -672,7 +681,7 @@
             const SHARK_SKIN3_URL = "https://sinobu1.github.io/shark-tapper/shark_skin1.png";
             const LOCAL_STORAGE_KEY = 'sharkTapperData';
             const SAVE_INTERVAL = 5000;
-            const TAP_VIBRATION_DURATION = 10; // Вернем стандартную длительность
+            const TAP_VIBRATION_DURATION = 50; // Увеличим длительность вибрации
             const TAP_ANIMATION_DURATION = 100;
             const TAP_EFFECT_DURATION = 600;
             const COIN_POPUP_DURATION = 1000;
@@ -779,9 +788,11 @@
                                     Купить (${helper.cost} <img src="${COIN_ICON_URL}" alt="Coin" style="height: 12px; vertical-align: middle;">)
                                 </button>
                                 <div class="helper-income">
-                                    <span>${helper.income} <img src="${COIN_ICON_URL}" alt="Coin" style="height: 9px; vertical-align: middle;"></span>
+                                    <div class="income-text">
+                                        <span>${helper.income} <img src="${COIN_ICON_URL}" alt="Coin" style="height: 9px; vertical-align: middle;"></span>
+                                        <span style="font-size: 0.7rem; margin-left: 0.1rem;">в сек.</span>
+                                    </div>
                                     <div class="owned-text">Куплено: ${owned}</div>
-                                    <div style="font-size: 0.4rem; font-family: sans-serif; color: var(--subtext);">в сек.</div>
                                 </div>
                             </div>
                         `;
@@ -941,7 +952,10 @@
                 console.log("handleTap function called"); // Проверка вызова функции
                 if (canVibrate) {
                     navigator.vibrate(TAP_VIBRATION_DURATION);
-                    console.log("Вибрация включена");
+                    console.log("Вибрация включена, длительность:", TAP_VIBRATION_DURATION);
+                    if (navigator.userAgent.includes('iPhone')) {
+                        console.log("Запущен вибро на iPhone");
+                    }
                 } else {
                     console.log("Вибрация не поддерживается, canVibrate:", canVibrate);
                 }
