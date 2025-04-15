@@ -463,7 +463,6 @@
         .helper-name {
             font-weight: bold;
             font-family: 'Rubik Mono One', sans-serif;
-            /* white-space: nowrap; */ /* Убираем запрет на перенос строки */
             overflow: hidden;
             text-overflow: ellipsis;
             font-size: 0.65rem; /* Еще немного уменьшим шрифт, если нужно будет */
@@ -516,9 +515,14 @@
             align-items: flex-end; /* Выравниваем по правому краю */
         }
 
+        .helper-income span {
+            display: flex; /* Чтобы разместить текст и иконку в одну строку */
+            align-items: center;
+            gap: 0.1rem;
+        }
+
         .helper-income img {
             height: 9px; /* Уменьшим размер иконки */
-            margin-left: 0.2rem; /* Добавим небольшой отступ слева от иконки */
         }
 
         .owned-text {
@@ -775,9 +779,9 @@
                                     Купить (${helper.cost} <img src="${COIN_ICON_URL}" alt="Coin" style="height: 12px; vertical-align: middle;">)
                                 </button>
                                 <div class="helper-income">
-                                    <span>${helper.income}</span>
-                                    <img src="${COIN_ICON_URL}" alt="Coin" style="height: 9px; vertical-align: middle;">
+                                    <span>${helper.income} <img src="${COIN_ICON_URL}" alt="Coin" style="height: 9px; vertical-align: middle;"></span>
                                     <div class="owned-text">Куплено: ${owned}</div>
+                                    <div style="font-size: 0.4rem; font-family: sans-serif; color: var(--subtext);">в сек.</div>
                                 </div>
                             </div>
                         `;
