@@ -1,3 +1,6 @@
+// =======================================
+// 🔹 Constants & Settings
+// =======================================
 function feedback() {
             // 1. Вибрация (если поддерживается)
             if ('vibrate' in navigator) {
@@ -23,7 +26,10 @@ function feedback() {
             }
         }
 
-        document.addEventListener("DOMContentLoaded", function() {
+// =======================================
+// 🔹 App Entry Point: DOMContentLoaded
+// =======================================
+document.addEventListener("DOMContentLoaded", function() {
             // --- Константы ---
             const DB_URL = "https://tralalero-fec07-default-rtdb.firebaseio.com";
             const DEFAULT_AVATAR_URL = "https://placehold.co/64x64";
@@ -43,6 +49,9 @@ function feedback() {
                 0, 100, 500, 1000, 2500, 5000, 10000, 50000, 100000, 250000, 500000, 1000000, 2000000, 4000000, 8000000, 16000000, 32000000, 64000000, 100000000
             ];
 
+// =======================================
+// 🔹 State Variables
+// =======================================
             let userId = null;
             let userData = {
                 username: "Player",
@@ -74,6 +83,9 @@ function feedback() {
 
             // --- Вспомогательные функции ---
 
+// =======================================
+// 🔹 Core Logic (XP, Levels, Tap Multiplier)
+// =======================================
             function calculateLevel(tokens) {
                 for (let i = XP_LEVEL_LIMITS.length - 1; i >= 0; i--) {
                     if (tokens >= XP_LEVEL_LIMITS[i]) {
@@ -114,6 +126,9 @@ function feedback() {
                 return totalIncome;
             }
 
+// =======================================
+// 🔹 Helpers Logic
+// =======================================
             function displayHelpers() {
                 const helpersListUI = document.getElementById('helpersListUI');
                 if (!helpersListUI) return;
@@ -192,6 +207,9 @@ function feedback() {
 
             // --- Инициализация ---
 
+// =======================================
+// 🔹 Initialization & Setup
+// =======================================
             function init() {
                 setupEventListeners();
                 loadTelegram();
@@ -202,6 +220,9 @@ function feedback() {
                 setInterval(addPassiveIncome, passiveIncomeInterval); // Запускаем интервал для пассивного дохода
             }
 
+// =======================================
+// 🔹 Event Handlers
+// =======================================
             function setupEventListeners() {
                 const tapImage = document.getElementById('tapImage');
                 tapImage.addEventListener('click', handleTap);
@@ -342,6 +363,9 @@ function feedback() {
 
             // --- Обновление интерфейса ---
 
+// =======================================
+// 🔹 UI Updates
+// =======================================
             function updateDisplay() {
                 const counter = document.getElementById("profileTokens");
                 if (counter) counter.textContent = Math.floor(userData.tokens);
@@ -420,6 +444,9 @@ function feedback() {
 
             // --- Сохранение и загрузка данных ---
 
+// =======================================
+// 🔹 Storage (Firebase & LocalStorage)
+// =======================================
             function saveProgress() {
                 if (!userId) {
                     saveToLocalStorage();
@@ -538,6 +565,9 @@ function feedback() {
 
             // --- Таблица лидеров ---
 
+// =======================================
+// 🔹 Leaderboard
+// =======================================
             function loadLeaderboard() {
                 fetch(`${DB_URL}/users.json`)
                     .then(res => {
@@ -584,6 +614,9 @@ function feedback() {
 
             // --- Скины ---
 
+// =======================================
+// 🔹 Skins Management
+// =======================================
             function setSkin(skin, silent = false) {
                 const skins = {
                     'default': SHARK_DEFAULT_SKIN_URL,
@@ -610,6 +643,9 @@ function feedback() {
 
             // --- Интеграция с Telegram Web Apps ---
 
+// =======================================
+// 🔹 Telegram Integration
+// =======================================
             function loadTelegram() {
                 const tgUser = Telegram?.WebApp?.initDataUnsafe?.user;
                 if (tgUser) {
