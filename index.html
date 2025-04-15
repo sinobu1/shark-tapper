@@ -290,6 +290,29 @@
         .leaderboard-item.current-user {
             background: rgba(47, 128, 237, 0.15); /* Сделаем выделение текущего пользователя чуть более заметным */
         }
+        .upgrade-container {
+            margin-top: 1rem;
+            text-align: center;
+        }
+        .upgrade-container button {
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            border: none;
+            background-color: var(--accent);
+            color: white;
+            font-family: 'Press Start 2P', cursive;
+            cursor: pointer;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+        .upgrade-container button img {
+            height: 16px;
+            vertical-align: middle;
+        }
+        .upgrade-container div {
+            font-size: 0.8rem;
+            color: var(--subtext);
+            margin-top: 0.5rem;
+        }
     </style>
 </head>
 <body>
@@ -306,6 +329,12 @@
                                 <span id="profileTokens">0</span>
                             </div>
                             <img src="https://sinobu1.github.io/shark-tapper/shark.png" alt="Tap Shark" class="shark-image" id="tapImage" />
+                        </div>
+                        <div class="upgrade-container">
+                            <button id="buyTapUpgrade">
+                                Улучшить тап (+1) - <span id="tapUpgradeCost">50</span> <img src="https://sinobu1.github.io/shark-tapper/coin_icon_small.png" alt="Coin" style="height: 16px; vertical-align: middle;">
+                            </button>
+                            <div>Текущий уровень: <span id="tapUpgradeLevel">1</span></div>
                         </div>
                         <div class="shark-gallery">
                             <img src="https://sinobu1.github.io/shark-tapper/shark.png" alt="Shark 1" data-skin="default" />
@@ -395,7 +424,9 @@
             };
             let lastSave = 0;
             let canVibrate = 'vibrate' in navigator;
-            let tapMultiplier = 1;
+            let tapMultiplier = 1; // Начальный множитель тапа
+            let tapUpgradeCost = 50; // Начальная стоимость улучшения
+            let tapUpgradeLevel = 1; // Начальный уровень улучшения
 
             // --- Вспомогательные функции ---
 
@@ -413,6 +444,8 @@
                 setupEventListeners();
                 loadTelegram(); // Загружаем данные Telegram как можно раньше
                 initLocalStorage();
+                updateDisplay();
+                updateUpgradeUI(); // Обновляем UI улучшения при инициализации
                 showTab('home');
             }
 
@@ -421,6 +454,10 @@
                 // Обработка нажатия на акулу
                 const tapImage = document.getElementById('tapImage');
                 tapImage.addEventListener('click', handleTap);
+
+                // Покупка улучшения тапа
+                const buyTapUpgradeButton = document.getElementById('buyTapUpgrade');
+                buyTapUpgradeButton.addEventListener('click', buyTapUpgrade);
 
                 // Выбор скина акулы
                 document.querySelectorAll('.shark-gallery img').forEach(img => {
@@ -452,7 +489,7 @@
                 setTimeout(() => shark.style.transform = "scale(1)", TAP_ANIMATION_DURATION);
 
                 createTapEffect(event);
-                createCoinPopup(event, tapMultiplier); // Отображаем всплывающее сообщение с количеством полученных монет
+                createCoinPopup(event, tapMultiplier); // Теперь передаем tapMultiplier для отображения
 
                 // Увеличение количества монет
                 userData.tokens += tapMultiplier;
@@ -512,7 +549,7 @@
                     const percent = ((userData.tokens - min) / (max - min)) * 100;
                     bar.style.width = `${Math.min(100, Math.max(0, percent))}%`;
                 }
-                tapMultiplier = calculateTapMultiplier(userData.tokens); // Обновляем множитель
+                // tapMultiplier = calculateTapMultiplier(userData.tokens); // Временно убрал, так как теперь есть улучшение
             }
 
             // Отображение выбранной вкладки
@@ -550,7 +587,10 @@
                         first_name: userData.username,
                         photo_url: userData.avatar,
                         skin: userData.skin,
-                        last_update: Date.now()
+                        last_update: Date.now(),
+                        tapMultiplier: tapMultiplier, // Сохраняем множитель
+                        tapUpgradeCost: tapUpgradeCost, // Сохраняем стоимость следующего улучшения
+                        tapUpgradeLevel: tapUpgradeLevel // Сохраняем уровень улучшения
                     })
                 })
                 .then(() => saveToLocalStorage())
@@ -568,8 +608,12 @@
                         const parsed = JSON.parse(savedData);
                         userData.tokens = parsed.tokens || 0;
                         userData.skin = parsed.skin || 'default';
+                        tapMultiplier = parsed.tapMultiplier || 1; // Загружаем множитель
+                        tapUpgradeCost = parsed.tapUpgradeCost || 50; // Загружаем стоимость
+                        tapUpgradeLevel = parsed.tapUpgradeLevel || 1; // Загружаем уровень
                         updateDisplay();
                         setSkin(userData.skin, true);
+                        updateUpgradeUI(); // Обновляем UI улучшения после загрузки из локального хранилища
                     } catch (e) {
                         console.error('Ошибка при парсинге сохраненных данных', e);
                     }
@@ -580,7 +624,10 @@
             function saveToLocalStorage() {
                 localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({
                     tokens: userData.tokens,
-                    skin: userData.skin
+                    skin: userData.skin,
+                    tapMultiplier: tapMultiplier, // Сохраняем множитель
+                    tapUpgradeCost: tapUpgradeCost, // Сохраняем стоимость
+                    tapUpgradeLevel: tapUpgradeLevel // Сохраняем уровень
                 }));
             }
 
@@ -603,13 +650,16 @@
                             userData.username = data.first_name || "Player";
                             userData.avatar = data.photo_url || DEFAULT_AVATAR_URL;
                             userData.skin = data.skin || 'default';
+                            tapMultiplier = data.tapMultiplier || 1; // Загружаем множитель, по умолчанию 1
+                            tapUpgradeCost = data.tapUpgradeCost || 50; // Загружаем стоимость, по умолчанию 50
+                            tapUpgradeLevel = data.tapUpgradeLevel || 1; // Загружаем уровень, по умолчанию 1
 
                             // Обновление UI
                             updateDisplay();
                             document.getElementById("profileName").textContent = userData.username;
                             document.getElementById("profileAvatar").src = userData.avatar;
                             setSkin(userData.skin, true);
-
+                            updateUpgradeUI(); // Обновляем UI улучшения после загрузки
                             // Сохранение объединенных данных
                             saveToLocalStorage();
                         }
@@ -712,6 +762,28 @@
                     saveProgress();
                 }
             }, AUTO_SAVE_INTERVAL);
+
+            // --- Функция покупки улучшения тапа ---
+            function buyTapUpgrade() {
+                if (userData.tokens >= tapUpgradeCost) {
+                    userData.tokens -= tapUpgradeCost;
+                    tapMultiplier++;
+                    tapUpgradeLevel++;
+                    tapUpgradeCost = Math.round(tapUpgradeCost * 1.5); // Увеличиваем стоимость следующего улучшения
+                    updateDisplay();
+                    updateUpgradeUI();
+                } else {
+                    console.log("Недостаточно монет!"); // Позже добавим уведомление
+                }
+            }
+
+            // --- Функция обновления UI улучшения ---
+            function updateUpgradeUI() {
+                const tapUpgradeCostElement = document.getElementById('tapUpgradeCost');
+                const tapUpgradeLevelElement = document.getElementById('tapUpgradeLevel');
+                if (tapUpgradeCostElement) tapUpgradeCostElement.textContent = tapUpgradeCost;
+                if (tapUpgradeLevelElement) tapUpgradeLevelElement.textContent = tapUpgradeLevel;
+            }
 
             // --- Запуск приложения ---
             init();
