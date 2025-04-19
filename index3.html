@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <style>
+    /* Ваши существующие CSS стили */
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Inter', sans-serif;
+      background: radial-gradient(ellipse at center, #0a0a2a 0%, #000018 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+    }
+    .container {
+      margin-top: 20px;
+      margin-bottom: 20px;
+      width: 100%;
+      max-width: 420px;
+      height: calc(100vh - 40px);
+      padding: 16px;
+      box-sizing: border-box;
+      background: rgba(255,255,255,0.02);
+      border-radius: 24px;
+      border: 1px solid rgba(0,255,255,0.1);
+      backdrop-filter: blur(8px);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .screen { display: none; flex: 1; overflow-y: auto; }
+    .screen.active { display: flex; flex-direction: column; }
+    .boost-btn {
+      width: 100%;
+      padding: 12px;
+      font-size: 13px;
+      border-radius: 999px;
+      background: rgba(0,255,255,0.1);
+      color: white;
+      border: 1px solid rgba(0,255,255,0.4);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 0 20px rgba(0,255,255,0.4);
+      margin-top: auto;
+      cursor: pointer;
+    }
+    .wave {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(ellipse at center, rgba(0, 242, 254, 0.03), transparent 70%);
+      animation: waveMove 6s ease-in-out infinite;
+      pointer-events: none;
+    }
+    @keyframes waveMove {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(10px); }
+      100% { transform: translateY(0px); }
+    }
+    .boost-btn.animate {
+      animation: shake 0.4s ease;
+    }
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      25% { transform: translateX(-3px); }
+      50% { transform: translateX(3px); }
+      75% { transform: translateX(-2px); }
+      100% { transform: translateX(0); }
+    }
+
+    #loadingIndicator {
+        position: absolute;
+        color: white;
+        font-size: 12px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        background: rgba(0,0,0,0.5);
+        border-radius: 16px;
+        z-index: 10;
+        display: flex;
+    }
+
+    #loadingIndicator i {
+        font-size: 28px;
+    }
+
+    #diceCanvas {
+        /* display: none; */ /* Управляется JS */
+        display: block; /* Убедимся, что это блочный элемент */
+        width: 100%; /* Занять всю ширину родителя */
+        height: 100%; /* Занять всю высоту родителя */
+    }
+
+    /* --- Стили для размещения блоков рядом --- */
+    .dice-and-info-row {
+        display: flex;
+        flex-direction: row;
+        justify-content: center; /* Центрируем группу кубика и текста */
+        align-items: center; /* Выравниваем по центру по вертикали */
+        gap: 10px; /* Промежуток между кубиком и текстом (ближе) */
+        width: 100%;
+        padding: 0 16px; /* Используем padding контейнера */
+        box-sizing: border-box;
+        margin-top: 10px;
+        margin-bottom: 0px;
+    }
+
+    #diceContainer {
+      position: relative;
+      width: 90px;
+      height: 90px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(0,255,255,0.2);
+      border-radius: 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 0;
+      cursor: pointer;
+    }
+
+    .dice-info {
+        /* Придаем стиль рамки как у кубика */
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(0,255,255,0.2);
+        border-radius: 16px;
+        /* Задаем размер (увеличен для текста) */
+        width: 150px; /* Увеличенная ширина рамки текста */
+        height: 90px; /* Высота рамки текста (можно настроить) */
+        padding: 8px; /* Внутренние отступы (увеличены) */
+        box-sizing: border-box; /* Включаем padding в размер */
+
+        display: flex;
+        flex-direction: column;
+        /* Выравнивание содержимого внутри рамки */
+        justify-content: center; /* Центрируем текст по вертикали внутри рамки */
+        align-items: flex-end; /* Выравниваем текст по правому краю внутри рамки */
+
+        flex-grow: 0; /* Не растягиваться */
+    }
+
+     .dice-info p {
+        margin: 1px 0; /* Уменьшаем вертикальные отступы между параграфами */
+        font-size: 12px;
+        text-align: right; /* Выравнивание текста по правому краю внутри рамки */
+        width: 100%; /* Занять всю ширину flex-элемента для text-align: right */
+     }
+
+     #diceResult { font-size: 13px; }
+     #rollsLeft { font-size: 12px; }
+     #mapEvent { font-size: 12px; }
+
+    /* Новый стиль для отображения параметров игрока */
+    #playerStats {
+        margin-top: 10px;
+        text-align: center;
+        font-size: 14px;
+        color: #9efaff;
+    }
+    #playerStats span {
+        font-weight: bold;
+    }
+    #playerHealthDisplay {
+        color: #00f2fe; /* Цвет для здоровья */
+    }
+    /* Цвет здоровья меняется на красный в JS при низком значении */
+    #playerGoldDisplay {
+        color: #ffc107; /* Цвет для золота */
+    }
+
+
+  </style>
+
+</head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Shark Tapper - Neon Deep</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/konva@9.2.0/konva.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.145.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.145.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.145.0/examples/js/loaders/GLTFLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.145.0/examples/js/loaders/RGBELoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.145.0/examples/js/pmrem/PMREMGenerator.js"></script>
+<body>
+  <div class="container">
+    <div id="screen4" class="screen active">
+      <h3 style="font-size: 14px; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; color: #9efaff; text-align: center;">
+        Карта приключений
+      </h3>
+
+      <div id="mapContainer" style="flex: 1; touch-action: none; overflow: hidden; position: relative; height: 400px;">
+        <div class="wave"></div>
+      </div>
+
+      <div class="dice-and-info-row">
+        <div id="diceContainer">
+          <canvas id="diceCanvas"></canvas>
+          <div id="loadingIndicator">
+             <i class="fas fa-spinner fa-spin"></i>
+          </div>
+        </div>
+
+        <div class="dice-info">
+          <p id="diceResult"></p>
+          <p id="rollsLeft"></p>
+          <p id="mapEvent"></p>
+        </div>
+      </div>
+      <div id="playerStats">
+          Здоровье: <span id="playerHealthDisplay"></span> | Золото: <span id="playerGoldDisplay"></span>
+      </div>
+      </div>
+  </div>
+
+  <script>
+    // =====================================================
+    // THREE.JS КОД ДЛЯ 3D КУБИКА (ЗАГРУЗКА МОДЕЛИ GLB И КАРТЫ ОКРУЖЕНИЯ)
+    // =====================================================
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera( 75, 90 / 90, 0.1, 1000 );
+    const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('diceCanvas'), alpha: true, antialias: true });
+    renderer.setSize( 90, 90 );
+    renderer.setPixelRatio( window.devicePixelRatio );
+
+    renderer.outputEncoding = THREE.sRGBEncoding;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 3.0; // Экспозиция
+
+    let dice = null;
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    const diceCanvas = document.getElementById('diceCanvas');
+
+    // Освещение
+    const ambientLight = new THREE.AmbientLight( 0xffffff, 3.0 );
+    scene.add( ambientLight );
+    const directionalLight = new THREE.DirectionalLight( 0xffffff, 5.0 );
+    directionalLight.position.set( 5, 5, 5 ).normalize();
+    scene.add( directionalLight );
+    const pointLight = new THREE.PointLight(0x00f2fe, 3.0, 100);
+    pointLight.position.set(-3, 3, -3);
+    scene.add(pointLight);
+
+    const hemisphereLight = new THREE.HemisphereLight( 0x00f2fe, 0x000018, 3.0 );
+    scene.add( hemisphereLight );
+
+
+    camera.position.z = 4;
+
+    // --- Загрузка Карты Окружения (Environment Map) ---
+    const rgbeLoader = new THREE.RGBELoader();
+    const environmentHdrUrl = 'https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/equirectangular/venice_dawn_1k.hdr';
+
+    console.log('Attempting to load environment map from:', environmentHdrUrl);
+
+    rgbeLoader.load( environmentHdrUrl, function ( environmentTexture ) {
+
+        console.log('Environment map loaded successfully');
+
+        const pmremGenerator = new THREE.PMREMGenerator( renderer );
+        pmremGenerator.compileEquirectangularShader();
+
+        const envMap = pmremGenerator.fromEquirectangular( environmentTexture ).texture;
+
+        scene.environment = envMap;
+
+        environmentTexture.dispose();
+        pmremGenerator.dispose();
+
+        console.log('Environment map applied to scene.');
+
+    }, undefined, function ( error ) {
+         console.error( 'An error occurred loading the environment map:', error );
+    } );
+    // --- Конец Загрузки Карты Окружения ---
+
+
+    // --- Загрузка GLB Модели ---
+    const glbLoader = new THREE.GLTFLoader();
+    const modelUrl = 'https://raw.githubusercontent.com/sinobu1/shark-tapper/main/d20_dice_w20_wurfel_3d_model_free.glb';
+
+    console.log('Attempting to load model from:', modelUrl);
+
+    glbLoader.load(
+        modelUrl,
+        function ( gltf ) {
+            console.log('Model loaded successfully', gltf);
+            dice = gltf.scene;
+
+            // --- Автоматическое масштабирование и центрирование модели ---
+            const box = new THREE.Box3().setFromObject(dice);
+            const size = new THREE.Vector3();
+            box.getSize(size);
+            const maxDim = Math.max(size.x, size.y, size.z);
+
+            const cameraDistance = camera.position.z;
+            const vFOV = THREE.MathUtils.degToRad(camera.fov);
+            const viewHeightAtDepth = 2 * Math.tan(vFOV / 2) * cameraDistance;
+
+            const marginFactor = 0.55;
+            const targetSize = viewHeightAtDepth * marginFactor;
+            const scale = targetSize / maxDim;
+
+            dice.scale.set(scale, scale, scale);
+
+            const center = new THREE.Vector3();
+            box.getCenter(center);
+            const positionToCenter = center.clone().multiplyScalar(-scale);
+            dice.position.copy(positionToCenter);
+            // --- Конец автоматического масштабирования и центрирования ---
+
+            // Небольшое начальное вращение
+            dice.rotation.set(0.2, 0.3, 0);
+
+            scene.add( dice );
+
+            loadingIndicator.style.display = 'none';
+            diceCanvas.style.display = 'block';
+
+            console.log('Model added to scene. Dice object:', dice);
+            console.log('Calculated Scale:', scale);
+        },
+        function ( xhr ) {
+            const progress = ( xhr.loaded / xhr.total * 100 );
+            console.log( progress.toFixed(2) + '% loaded' );
+        },
+        function ( error ) {
+            console.error( 'An error occurred loading the model:', error );
+            loadingIndicator.innerHTML = 'Ошибка загрузки 3D кубика';
+            loadingIndicator.style.color = 'red';
+            diceCanvas.style.display = 'none';
+        }
+    );
+    // --- Конец Загрузки GLB Модели ---
+
+
+    // --- Ограничение попыток броска и состояние анимации фишки ---
+    const maxRolls = 10;
+    let remainingRolls = maxRolls;
+    const rollsLeftElement = document.getElementById('rollsLeft');
+
+    let isRolling = false; // Состояние анимации кубика
+    let isTokenMoving = false; // Состояние анимации фишки
+
+    // Функция для обновления текста с количеством попыток
+    function updateRollsDisplay() {
+        rollsLeftElement.textContent = `Попыток осталось: ${remainingRolls}`;
+        if (remainingRolls <= 0) {
+            rollsLeftElement.textContent += " (Нет попыток)";
+        }
+    }
+
+    // Обновляем отображение попыток при загрузке страницы
+    updateRollsDisplay();
+    // --- Конец Ограничения попыток броска и состояния анимации фишки ---
+
+
+    // Параметры анимации броска кубика
+    let rollDuration = 1.2; // Длительность анимации (секунды)
+    let rollStartTime = 0;
+    const startQuaternion = new THREE.Quaternion();
+    const targetQuaternion = new THREE.Quaternion();
+
+    function startDiceRollAnimation() {
+        if (!dice) {
+            console.warn("Attempted to start dice roll animation before model was loaded.");
+            return;
+        }
+        isRolling = true;
+        rollStartTime = performance.now() / 1000;
+        startQuaternion.copy(dice.quaternion);
+
+        const randomAxis = new THREE.Vector3(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).normalize();
+        const randomAngle = Math.random() * Math.PI * 12 + Math.PI * 10;
+        const tempQuaternion = new THREE.Quaternion().setFromAxisAngle(randomAxis, randomAngle);
+
+        targetQuaternion.copy(startQuaternion).multiply(tempQuaternion);
+
+        const bounceQuaternion = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(Math.random()-0.5, Math.random()-0.5, Math.random()-0.5).normalize(), Math.PI * 0.7 * Math.random() + Math.PI * 0.1);
+        targetQuaternion.multiply(bounceQuaternion);
+    }
+
+    // animateTokenTravel function (модифицирована для установки isTokenMoving)
+    function animateTokenTravel(steps) {
+        if (steps <= 0) {
+            document.getElementById('mapEvent').textContent = tilePositions[currentTile].name; // Устанавливаем название клетки
+            const flash = new Konva.Circle({
+                x: token.x(),
+                y: token.y(),
+                radius: 25,
+                fill: '#ffffff',
+                opacity: 0.6
+            });
+            layer.add(flash);
+            flash.to({ opacity: 0, scaleX: 2, scaleY: 2, duration: 0.5, easing: Konva.Easings.EaseOut, onFinish: () => {
+                 flash.destroy();
+                 isTokenMoving = false;
+                 console.log("Token animation complete.");
+                 // --- Вызываем обработчик события клетки ПОСЛЕ ЗАВЕРШЕНИЯ анимации фишки ---
+                 handleTileEvent(tilePositions[currentTile]);
+                 // --- Конец вызова обработчика ---
+             }});
+            return;
+        }
+
+        currentTile = (currentTile + 1) % tilePositions.length;
+
+        token.to({
+            x: tilePositions[currentTile].x,
+            y: tilePositions[currentTile].y,
+            duration: 0.4,
+            easing: Konva.Easings.EaseInOut,
+            onFinish: () => {
+                setTimeout(() => { animateTokenTravel(steps - 1); }, 100);
+            }
+        });
+
+        token.scale({ x: 1.1, y: 1.1 });
+        token.to({ scaleX: 1, scaleY: 1, duration: 0.2 });
+    }
+
+
+    const animateDice = function (time) {
+        requestAnimationFrame( animateDice );
+
+        // --- ОТЛАДКА: Если включены OrbitControls, обновляем их ---
+        // if (controls) controls.update();
+        // --- КОНЕЦ ОТЛАДКИ ---
+
+        if (!dice) {
+             renderer.render( scene, camera );
+            return;
+        }
+
+        const elapsed = time / 1000;
+
+        if (isRolling) {
+            const progress = Math.min((elapsed - rollStartTime) / rollDuration, 1);
+            const easedProgress = 1 - Math.pow(1 - progress, 3);
+
+            dice.quaternion.slerpQuaternions(startQuaternion, targetQuaternion, easedProgress);
+
+            if (progress >= 1) {
+                isRolling = false;
+            }
+        } else {
+             dice.rotation.x += 0.001;
+             dice.rotation.y += 0.001;
+        }
+
+        renderer.render( scene, camera );
+    };
+
+    animateDice(performance.now());
+
+
+    // Обработчик клика по контейнеру кубика
+    document.getElementById('diceContainer').addEventListener('click', rollDice3D);
+
+
+    // rollDice3D function (модифицирована для проверок и сообщений)
+    function rollDice3D() {
+        // Проверяем, нельзя ли бросать: кубик вращается ИЛИ модель не загружена ИЛИ фишка движется?
+        if (isRolling || !dice || isTokenMoving) {
+             let reason = "";
+             if(isRolling) reason = "Подожди, кубик вращается!";
+             else if(!dice) reason = "Кубик не загружен...";
+             else if(isTokenMoving) reason = "Дождись фишки!";
+
+             // Отображаем временное сообщение о причине блокировки, только если еще есть попытки
+             if (remainingRolls > 0) {
+                 document.getElementById('mapEvent').textContent = reason;
+                 setTimeout(() => {
+                     // Возвращаем название клетки, только если никакая анимация не активна
+                     // и не отображается сообщение "Нет попыток"
+                     if (!isRolling && !isTokenMoving && remainingRolls > 0) {
+                          // Проверяем, что tilePositions не пустой перед доступом к нему
+                          if (tilePositions && tilePositions.length > currentTile) {
+                                document.getElementById('mapEvent').textContent = tilePositions[currentTile].name;
+                          } else {
+                                document.getElementById('mapEvent').textContent = ""; // Очищаем, если нет доступной клетки
+                          }
+                     } else if (remainingRolls <= 0) {
+                         document.getElementById('mapEvent').textContent = "Нет попыток!";
+                     }
+                 }, 1000); // Сообщение видно 1 секунду
+             } else {
+                document.getElementById('mapEvent').textContent = "Нет попыток!";
+             }
+             return; // Блокируем бросок
+        }
+
+        // --- Проверка оставшихся попыток ---
+        if (remainingRolls <= 0) {
+            console.warn("No rolls left.");
+            document.getElementById('mapEvent').textContent = "Нет попыток!"; // Убедимся, что сообщение видно сразу при клике
+            return; // Останавливаем выполнение
+        }
+        // --- Конец проверки оставшихся попыток ---
+
+
+        // Если все проверки пройдены, выполняем бросок:
+        remainingRolls--;
+        updateRollsDisplay();
+
+        const roll = Math.floor(Math.random() * 20) + 1;
+        document.getElementById('diceResult').textContent = `Ты выбросил: ${roll}`;
+        document.getElementById('mapEvent').textContent = ''; // Очищаем перед новой анимацией
+
+        startDiceRollAnimation(); // Запускает анимацию кубика (устанавливает isRolling = true)
+
+        // Запускаем анимацию фишки после завершения анимации кубика
+        setTimeout(() => {
+             isTokenMoving = true; // Устанавливаем состояние в true
+             console.log("Token animation sequence initiated.");
+             animateTokenTravel(roll); // Запускаем анимацию фишки
+        }, rollDuration * 1000 + 200); // Задержка
+    }
+
+    // =====================================================
+    // RPG МЕХАНИКИ И СОСТОЯНИЕ ИГРОКА
+    // =====================================================
+
+    // Состояние игрока
+    let playerHealth;
+    let playerMaxHealth = 100;
+    let playerGold;
+
+    // Элементы для отображения состояния игрока
+    const playerHealthDisplay = document.getElementById('playerHealthDisplay');
+    const playerGoldDisplay = document.getElementById('playerGoldDisplay');
+
+    // Инициализация состояния игрока
+    function initializePlayerStats() {
+        playerHealth = playerMaxHealth;
+        playerGold = 50; // Начальное золото
+        updateStatsDisplay(); // Обновляем отображение
+    }
+
+    // Функция для обновления отображения параметров игрока
+    function updateStatsDisplay() {
+        // Убедимся, что элементы отображения существуют перед обновлением
+        if(playerHealthDisplay) {
+             playerHealthDisplay.textContent = `${playerHealth}/${playerMaxHealth}`;
+             // Меняем цвет здоровья при низком значении
+             playerHealthDisplay.style.color = playerHealth > playerMaxHealth / 3 ? '#00f2fe' : 'red';
+             playerHealthDisplay.style.fontWeight = 'bold'; // Делаем текст жирным
+
+        }
+         if(playerGoldDisplay) {
+             playerGoldDisplay.textContent = playerGold;
+             playerGoldDisplay.style.fontWeight = 'bold'; // Делаем текст жирным
+         }
+
+
+        // Проверка на Game Over
+        if (playerHealth <= 0) {
+            // Проверяем, что элемент mapEvent существует
+            const mapEventElement = document.getElementById('mapEvent');
+            if(mapEventElement) {
+                 mapEventElement.textContent = "Game Over!";
+                 mapEventElement.style.color = 'red'; // Красный цвет для Game Over
+            }
+            // Отключаем клики по кубику
+            const diceContainerElement = document.getElementById('diceContainer');
+             if(diceContainerElement) {
+                 diceContainerElement.style.pointerEvents = 'none';
+             }
+             // Опционально, можно отключить скролл карты
+             const mapContainerElement = document.getElementById('mapContainer');
+             if(mapContainerElement) {
+                 mapContainerElement.style.pointerEvents = 'none';
+             }
+        } else {
+            // Если не Game Over, убедимся, что mapEvent имеет стандартный цвет
+             const mapEventElement = document.getElementById('mapEvent');
+             if(mapEventElement && mapEventElement.style.color === 'red') {
+                  mapEventElement.style.color = '#9efaff'; // Возвращаем стандартный цвет
+             }
+              const diceContainerElement = document.getElementById('diceContainer');
+             if(diceContainerElement && diceContainerElement.style.pointerEvents === 'none') {
+                 diceContainerElement.style.pointerEvents = 'auto'; // Включаем клики, если были отключены
+             }
+              const mapContainerElement = document.getElementById('mapContainer');
+             if(mapContainerElement && mapContainerElement.style.pointerEvents === 'none') {
+                 mapContainerElement.style.pointerEvents = 'auto'; // Включаем скролл карты, если был отключен
+             }
+        }
+    }
+
+    // Обработчик события при приземлении на клетку
+    function handleTileEvent(tileData) {
+        // Проверяем, что tileData и tileData.name существуют
+        if (!tileData || !tileData.name) {
+            console.warn("handleTileEvent called with invalid tile data:", tileData);
+            document.getElementById('mapEvent').textContent = "Неизвестная точка.";
+            return;
+        }
+
+        console.log("Landed on tile:", tileData.name);
+        let eventMessage = `Ты попал на: ${tileData.name}. `;
+
+        switch (tileData.name) {
+            case "Старт":
+                eventMessage += "Безопасная зона. Отдых.";
+                 const restHealStart = Math.floor(playerMaxHealth * 0.1);
+                 playerHealth += restHealStart;
+                 playerHealth = Math.min(playerHealth, playerMaxHealth);
+                 updateStatsDisplay();
+                break;
+            case "Сундук":
+                const foundGold = Math.floor(Math.random() * 20) + 5; // 5-24 gold
+                playerGold += foundGold;
+                eventMessage += `Ты нашел сундук! +${foundGold} золота.`;
+                updateStatsDisplay();
+                break;
+            case "Событие":
+                const randomEventType = Math.random();
+                if (randomEventType < 0.4) { // 40% шанс найти золото
+                    const smallGold = Math.floor(Math.random() * 10) + 1;
+                    playerGold += smallGold;
+                    eventMessage += `Произошло событие! Нашел ${smallGold} золота.`;
+                } else if (randomEventType < 0.8) { // 40% шанс потерять здоровье
+                    const smallDamage = Math.floor(Math.random() * 5) + 1;
+                    playerHealth -= smallDamage;
+                    eventMessage += `Произошло событие! Потерял ${smallDamage} здоровья.`;
+                } else { // 20% шанс ничего особенного
+                    eventMessage += `Произошло событие! Ничего особенного не случилось.`;
+                }
+                playerHealth = Math.max(0, playerHealth); // Здоровье не может быть меньше 0
+                updateStatsDisplay();
+                break;
+            case "Магазин":
+                const potionCost = 15; // Цена зелья
+                const potionHeal = 30; // Лечение зелья
+                if (playerGold >= potionCost) {
+                    playerGold -= potionCost;
+                    playerHealth += potionHeal;
+                    playerHealth = Math.min(playerHealth, playerMaxHealth); // Здоровье не может превышать максимум
+                    eventMessage += `Ты встретил торговца! Купил зелье за ${potionCost} золота. Восстановлено ${potionHeal} здоровья.`;
+                } else {
+                    eventMessage += `Ты встретил торговца! Не хватает золота для покупки зелья (${potionCost}).`;
+                }
+                updateStatsDisplay();
+                break;
+            case "Квест":
+                eventMessage += "Ты взял новый квест (механика пока не реализована).";
+                break;
+            case "Битва":
+                const winChance = 0.6; // 60% шанс победить
+                const enemyDamage = Math.floor(Math.random() * 10) + 5; // 5-14 урона при поражении
+                const battleReward = Math.floor(Math.random() * 15) + 10; // 10-24 золота при победе
+
+                if (Math.random() < winChance) {
+                    playerGold += battleReward;
+                    eventMessage += `Битва! Ты победил! +${battleReward} золота.`;
+                } else {
+                    playerHealth -= enemyDamage;
+                    eventMessage += `Битва! Ты проиграл и потерял ${enemyDamage} здоровья.`;
+                }
+                playerHealth = Math.max(0, playerHealth);
+                updateStatsDisplay();
+                break;
+             case "Храм":
+                 const healAmount = Math.floor(playerMaxHealth * 0.8); // Восстановить 80% макс здоровья
+                 playerHealth += healAmount;
+                 playerHealth = Math.min(playerHealth, playerMaxHealth);
+                 eventMessage += `Ты отдыхаешь в Храме. Восстановлено ${healAmount} здоровья.`;
+                 updateStatsDisplay();
+                 break;
+             case "Лагерь":
+                 const restHeal = Math.floor(playerMaxHealth * 0.3); // Восстановить 30% макс здоровья
+                 playerHealth += restHeal;
+                 playerHealth = Math.min(playerHealth, playerMaxHealth);
+                 eventMessage += `Ты разбил лагерь. Отдохнул и восстановил ${restHeal} здоровья.`;
+                 updateStatsDisplay();
+                 break;
+             case "Реликвия":
+                 const healthBoost = 20; // Увеличить макс здоровье
+                 playerMaxHealth += healthBoost;
+                 playerHealth += healthBoost; // Также лечим на увеличенную величину
+                 eventMessage += `Ты нашел древнюю Реликвию! Максимальное здоровье увеличено на ${healthBoost}.`;
+                 updateStatsDisplay();
+                 break;
+             case "Босс":
+                 const bossWinChance = 0.3; // 30% шанс победить босса
+                 const bossDamage = Math.floor(playerMaxHealth * 0.6); // 60% макс здоровья при поражении
+                 const bossReward = 200; // Большая награда золотом при победе
+
+                 eventMessage = `БИТВА С БОССОМ! `; // Переписываем начало сообщения
+                 if (Math.random() < bossWinChance) {
+                     playerGold += bossReward;
+                     eventMessage += `ТЫ ПОБЕДИЛ! Огромная награда: +${bossReward} золота!`;
+                 } else {
+                     playerHealth -= bossDamage;
+                     eventMessage += `Поражение... Потерял ${bossDamage} здоровья.`;
+                 }
+                 playerHealth = Math.max(0, playerHealth);
+                 updateStatsDisplay();
+                 // Game Over check is in updateStatsDisplay
+                 break;
+
+            default:
+                eventMessage += "Неизвестная точка.";
+                break;
+        }
+
+        // Устанавливаем итоговое сообщение о событии
+        document.getElementById('mapEvent').textContent = eventMessage;
+    }
+
+    // =====================================================
+    // КОНЕЦ RPG МЕХАНИК И СОСТОЯНИЕ ИГРОКА
+    // =====================================================
+
+
+    // =====================================================
+    // KONVA.JS КОД ДЛЯ КАРТЫ
+    // =====================================================
+    // Увеличенная сетка карты (3x5 = 15 точек)
+    const tileMapGrid = [
+        ["Старт", "Сундук", "Событие", "Магазин", "Квест"],
+        ["Битва", "Храм", "Событие", "Лагерь", "Реликвия"],
+        ["Событие", "Событие", "Битва", "Событие", "Босс"]
+    ];
+    const events = tileMapGrid.flat().filter(Boolean);
+    let tilePositions = [], token, stage, layer;
+    let currentTile = 0;
+
+    const container = document.getElementById('mapContainer');
+    const backgroundImg = new Image();
+    backgroundImg.src = "https://raw.githubusercontent.com/sinobu1/shark-tapper/main/whisk_storyboard00df66d2f2cf4296bc4a9560.png";
+
+    backgroundImg.onload = () => {
+        const width = container.offsetWidth;
+        const height = container.offsetHeight;
+
+        const scaleX = width / backgroundImg.width;
+        const scaleY = height / backgroundImg.height;
+        const scale = Math.min(scaleX, scaleY);
+        const scaledWidth = backgroundImg.width * scale;
+        const scaledHeight = backgroundImg.height * scale;
+        const offsetX = (width - scaledWidth) / 2;
+        const offsetY = (height - scaledHeight) / 2;
+
+        tilePositions = [];
+        tileMapGrid.forEach((row, y) => {
+            row.forEach((name, x) => {
+                if (name) { // Добавляем в tilePositions только если ячейка не пустая
+                    // Расчет позиции центра ячейки в масштабированном изображении
+                    const posX = offsetX + (x + 0.5) * (scaledWidth / tileMapGrid[0].length);
+                    const posY = offsetY + (y + 0.5) * (scaledHeight / tileMapGrid.length);
+                    // Сохраняем не только позицию, но и имя клетки
+                    tilePositions.push({ x: posX, y: posY, name: name });
+                }
+            });
+        });
+
+        stage = new Konva.Stage({ container: 'mapContainer', width, height });
+        layer = new Konva.Layer();
+        stage.add(layer);
+
+        const bg = new Konva.Image({
+            x: offsetX,
+            y: offsetY,
+            image: backgroundImg,
+            width: scaledWidth,
+            height: scaledHeight
+        });
+        layer.add(bg);
+        bg.moveToBottom();
+
+        tilePositions.forEach((pos, index) => {
+            const isRare = ["Босс", "Реликвия"].includes(pos.name);
+            const pulse = new Konva.Rect({
+                x: pos.x - 18, // Смещаем, чтобы центр рамки был в pos.x
+                y: pos.y - 18, // Смещаем, чтобы центр рамки был в pos.y
+                width: 36,
+                height: 36,
+                fillLinearGradientStartPoint: { x: 0, y: 0 },
+                fillLinearGradientEndPoint: { x: 36, y: 36 },
+                fillLinearGradientColorStops: [0, '#00f2fe', 1, '#4facfe'],
+                stroke: isRare ? '#ff00ffcc' : '#ffffff88',
+                shadowColor: isRare ? '#ff00ff' : '#00f2fe',
+                shadowBlur: isRare ? 24 : 12,
+                shadowOpacity: isRare ? 0.8 : 0.6,
+                cornerRadius: 8
+            });
+
+            const anim = new Konva.Animation((frame) => {
+                const scale = 1 + Math.sin(frame.time * 0.005 + index) * 0.08;
+                const opacity = 0.6 + Math.sin(frame.time * 0.005 + index) * 0.2;
+                pulse.scale({ x: scale, y: scale });
+                pulse.opacity(opacity);
+            }, layer);
+            anim.start();
+
+            layer.add(pulse);
+        });
+
+        // Создаем фишку игрока
+        if (tilePositions.length > 0) {
+             token = new Konva.Circle({
+                 x: tilePositions[currentTile].x,
+                 y: tilePositions[currentTile].y,
+                 radius: 10,
+                 fill: '#ffffff',
+                 stroke: '#00f2fe',
+                 strokeWidth: 3,
+                 shadowColor: '#00f2fe',
+                 shadowBlur: 15,
+                 shadowOpacity: 0.8,
+                 listening: false
+             });
+             layer.add(token);
+             layer.draw();
+
+             // Устанавливаем начальное сообщение события (название стартовой клетки)
+             // document.getElementById('mapEvent').textContent = tilePositions[currentTile].name; // Теперь это делается в initializePlayerStats
+
+             // --- Инициализация параметров игрока ПОСЛЕ загрузки карты ---
+             initializePlayerStats(); // Здесь же установится начальный текст mapEvent
+             // --- Конец инициализации ---
+
+        } else {
+             console.warn("tilePositions is empty, cannot place token or initialize stats.");
+             document.getElementById('mapEvent').textContent = "Карта не загружена или пуста";
+        }
+    };
+
+
+    window.addEventListener('resize', () => {
+        if (stage && backgroundImg.complete) {
+            const width = container.offsetWidth;
+            const height = container.offsetHeight;
+            stage.width(width);
+            stage.height(height);
+
+            const scaleX = width / backgroundImg.width;
+            const scaleY = height / backgroundImg.height;
+            const scale = Math.min(scaleX, scaleY);
+            const scaledWidth = backgroundImg.width * scale;
+            const scaledHeight = backgroundImg.height * scale;
+            const offsetX = (width - scaledWidth) / 2;
+            const offsetY = (height - scaledHeight) / 2;
+
+            const bg = layer.getChildren(node => node.getClassName() === 'Image')[0];
+            if(bg) {
+                 bg.x(offsetX);
+                 bg.y(offsetY);
+                 bg.width(scaledWidth);
+                 bg.height(scaledHeight);
+            }
+
+            // Пересчитываем tilePositions
+            const newTilePositions = [];
+            tileMapGrid.forEach((row, y) => {
+                row.forEach((name, x) => {
+                    if (name) {
+                         const posX = offsetX + (x + 0.5) * (scaledWidth / tileMapGrid[0].length);
+                         const posY = offsetY + (y + 0.5) * (scaledHeight / tileMapGrid.length);
+                         newTilePositions.push({ x: posX, y: posY, name: name });
+                    }
+                });
+            });
+            tilePositions = newTilePositions; // Обновляем глобальный массив
+
+            // Обновляем позиции пульсирующих рамок
+            const pulses = layer.getChildren(node => node.getClassName() === 'Rect');
+            if (pulses.length === tilePositions.length) {
+                tilePositions.forEach((pos, index) => {
+                    pulses[index].x(pos.x - pulses[index].width()/2);
+                    pulses[index].y(pos.y - pulses[index].height()/2);
+                });
+            } else {
+                 console.warn("Mismatch between number of pulses and tilePositions on resize. Expected", tilePositions.length, "got", pulses.length);
+                 // В реальном приложении здесь может потребоваться пересоздание рамок
+                 // Попробуем очистить и пересоздать рамки
+                 pulses.forEach(pulse => pulse.destroy());
+                 tilePositions.forEach((pos, index) => {
+                    const isRare = ["Босс", "Реликвия"].includes(pos.name);
+                    const pulse = new Konva.Rect({
+                        x: pos.x - 18, y: pos.y - 18, width: 36, height: 36,
+                        fillLinearGradientStartPoint: { x: 0, y: 0 }, fillLinearGradientEndPoint: { x: 36, y: 36 },
+                        fillLinearGradientColorStops: [0, '#00f2fe', 1, '#4facfe'],
+                        stroke: isRare ? '#ff00ffcc' : '#ffffff88',
+                        shadowColor: isRare ? '#ff00ff' : '#00f2fe',
+                        shadowBlur: isRare ? 24 : 12, shadowOpacity: isRare ? 0.8 : 0.6,
+                        cornerRadius: 8
+                    });
+                     const anim = new Konva.Animation((frame) => {
+                         const scale = 1 + Math.sin(frame.time * 0.005 + index) * 0.08;
+                         const opacity = 0.6 + Math.sin(frame.time * 0.005 + index) * 0.2;
+                         pulse.scale({ x: scale, y: scale });
+                         pulse.opacity(opacity);
+                     }, layer);
+                     anim.start();
+                     layer.add(pulse);
+                 });
+                 layer.batchDraw(); // Перерисовать после добавления новых рамок
+            }
+
+
+             if (token && tilePositions.length > 0) {
+                 // Убеждаемся, что currentTile находится в пределах нового массива tilePositions
+                 if (currentTile >= tilePositions.length) {
+                     currentTile = 0; // Сбрасываем на старт
+                 }
+                 token.to({ // Используем .to для плавной смены позиции при ресайзе
+                     x: tilePositions[currentTile].x,
+                     y: tilePositions[currentTile].y,
+                     duration: 0.1,
+                     easing: Konva.Easings.Linear
+                 });
+                 // После ресайза текст события может сброситься, устанавливаем его снова
+                  // Устанавливаем название клетки, если не Game Over
+                 if (playerHealth > 0) {
+                     document.getElementById('mapEvent').textContent = tilePositions[currentTile].name;
+                 } else {
+                     // Если Game Over, оставляем сообщение Game Over
+                     document.getElementById('mapEvent').textContent = "Game Over!";
+                 }
+
+
+             } else if (tilePositions.length > 0) {
+                  console.warn("Token not found on resize, but tilePositions available.");
+             }
+
+
+            layer.batchDraw();
+        }
+    });
+
+  </script>
+</body>
+</html>
