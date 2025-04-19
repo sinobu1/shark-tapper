@@ -1,11 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#0a0a2a" />
-    <title>Shark Tapper</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&display=swap" rel="stylesheet">
+    <title>Акула Тапалка</title> <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <style>
         :root {
@@ -44,7 +43,7 @@
             /* Card styles added here */
             background: var(--card-bg);
             border-radius: var(--card-radius);
-            border: 1px solid var(--card-border);
+            border: 1px solid rgba(0,255,255,0.2); /* Consistent border */
             box-shadow: var(--card-shadow);
             backdrop-filter: blur(15px); /* Increased blur */
             -webkit-backdrop-filter: blur(15px); /* For Safari */
@@ -52,6 +51,7 @@
             display: flex; /* Use flexbox for layout */
             flex-direction: column; /* Stack items vertically */
             gap: 12px; /* Space between main sections */
+             border-color: var(--card-border); /* Use var for border color */
         }
         .screen { display: none; flex-direction: column; gap: 12px;} /* Also use flexbox for screens */
         .screen.active { display: flex; } /* Display as flex column when active */
@@ -63,38 +63,57 @@
 
         .currency {
             display: flex;
-            justify-content: space-between;
-            gap: 12px;
+            justify-content: space-around; /* Use space-around to spread currencies */
+            gap: 8px; /* Keep a small gap */
+            padding: 8px 10px;
             background: rgba(0, 255, 255, 0.08);
             border-radius: 16px;
-            padding: 8px 14px;
             /* margin-bottom: 12px; Removed due to container gap */
             backdrop-filter: blur(6px);
+            flex-wrap: wrap; /* Allow items to wrap on smaller screens */
         }
-        .currency span {
+         .currency span {
             display: flex;
             align-items: center;
             font-size: 14px;
             font-weight: 600;
+            /* Removed justify-content/flex-grow for more controlled spacing */
+             white-space: nowrap; /* Prevent wrapping within a currency span */
+             padding: 0 4px; /* Add padding within the span */
         }
+
+
         .currency img {
             width: 20px;
             height: 20px;
-            margin-right: 4px;
+            margin-right: 4px; /* Space between icon and text */
         }
 
-        /* Coin Counter Specific Style */
+        /* Coin Counter Specific Style - no specific font size change */
         .currency span:first-child {
-            font-size: 20px;
             font-weight: 700;
+             flex-grow: 1; /* Let the first item grow */
+             justify-content: flex-start;
         }
-         /* Gem Icon Size Adjustment */
-        .currency span:last-child img {
-             width: 20px;
-            height: 20px;
+         /* Gem Icon Size Adjustment - slightly larger */
+         .currency .gem-icon {
+             width: 24px; /* Increased width */
+             height: 24px; /* Increased height */
+             margin-right: 4px;
+         }
+        /* Ore Icon Style */
+        .currency .ore-icon {
+             width: 20px; /* Match coin size */
+             height: 20px; /* Match coin size */
+             margin-right: 4px;
         }
+         /* Style for the count text itself - ensure it aligns */
+         .currency span span {
+             margin-left: 0; /* Ensure count is right next to icon */
+         }
 
 
+        /* Player Profile Block */
         .player-profile {
             display: flex;
             align-items: center;
@@ -104,7 +123,20 @@
             /* margin-bottom: 12px; Removed due to container gap */
             backdrop-filter: blur(6px);
             border: 1px solid rgba(0,255,255,0.2);
+             /* Added transition for hiding/showing */
+            transition: all 0.3s ease-in-out;
         }
+        /* Style to hide the profile block */
+        .player-profile.hidden {
+            opacity: 0;
+            max-height: 0; /* Collapse the element */
+            padding-top: 0;
+            padding-bottom: 0;
+            margin-top: 0;
+            margin-bottom: 0;
+            overflow: hidden;
+        }
+
         .player-profile img {
             width: 42px;
             height: 42px;
@@ -131,9 +163,12 @@
         .progress-fill {
             background: linear-gradient(90deg, #49eaff, #4776e6);
             border-radius: 16px;
-            width: 60%; /* Example width */
+            width: 0%; /* Start with 0% fill */
             height: 100%;
+            transition: width 0.3s ease-out; /* Smooth progress animation */
         }
+
+
         .shark-wrapper {
             position: relative;
             width: var(--size);
@@ -223,6 +258,13 @@
             50% { transform: translateY(-8px) scale(1.02); } /* Subtle floating + slight scale */
             100% { transform: translateY(0) scale(1); }
         }
+         /* Simple tap response animation */
+         @keyframes shark-tap-bounce {
+             0% { transform: translateY(0) scale(0.95); } /* Starts from the :active state */
+             50% { transform: translateY(-5px) scale(1); }
+             100% { transform: translateY(0) scale(0.95); }
+         }
+
 
         .shark {
             width: 65%;
@@ -237,9 +279,9 @@
         }
         .shark:active {
             transform: scale(0.95); /* Tap feedback */
-            animation: none; /* Pause float animation on tap */
+            animation: shark-tap-bounce 0.3s ease-out; /* Apply short bounce animation on tap */
         }
-        .tap-effect, .tap-plus {
+        .tap-effect, .tap-plus, .tap-gem { /* Added tap-gem */
             position: absolute;
             pointer-events: none;
             z-index: 4; /* Above shark */
@@ -258,8 +300,17 @@
             font-size: 24px; /* Slightly larger plus */
             text-shadow: 0 0 5px rgba(0,255,255,0.5); /* Add text shadow */
             animation: tapPlusAnim 0.8s ease-out;
-             transform: translate(-50%, -50%); /* Center the text */
+            transform: translate(-50%, -50%); /* Center the text */
         }
+         /* Style for gem drop text */
+         .tap-gem {
+             color: #e91e63; /* Pinkish color for gems */
+             font-weight: bold;
+             font-size: 24px;
+             text-shadow: 0 0 5px rgba(233, 30, 99, 0.5);
+             animation: tapPlusAnim 1s ease-out; /* Same animation, maybe slightly longer */
+             transform: translate(-50%, -50%); /* Center the text */
+         }
         @keyframes tapBurst {
             from { opacity: 1; transform: translate(-50%, -50%) scale(0.5); }
             to { opacity: 0; transform: translate(-50%, -50%) scale(2); }
@@ -275,13 +326,14 @@
             margin-top: 16px;
         }
         .shark-gallery img {
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
+            width: 42px; /* Keep size */
+            height: 42px; /* Keep size */
+            border-radius: 50%; /* Keep circular */
             border: 1px solid rgba(0,255,255,0.4);
             background: rgba(255,255,255,0.05);
             backdrop-filter: blur(4px);
              cursor: pointer; /* Indicate they are clickable/selectable */
+             object-fit: cover; /* Ensure coin fills the circle nicely */
         }
         .boost-btn {
             width: 100%;
@@ -297,11 +349,24 @@
             margin-top: 16px;
             cursor: pointer;
             transition: all 0.3s ease;
+            display: flex; /* Use flexbox to align icon and text */
+            align-items: center;
+            justify-content: center;
+        }
+        .boost-btn i {
+            margin-right: 8px; /* Space between icon and text */
         }
          .boost-btn:active {
             transform: scale(0.98);
             box-shadow: 0 0 8px rgba(73, 234, 255, 0.6), 0 0 15px rgba(71, 118, 230, 0.5);
          }
+         .boost-btn:disabled {
+             opacity: 0.6;
+             cursor: not-allowed;
+             background: gray; /* Indicate disabled state */
+             box-shadow: none;
+         }
+
 
         /* Styles for shop helper cards */
         h3 {
@@ -356,6 +421,56 @@
         .helper-card .buy-btn:active {
              transform: scale(0.95);
         }
+         .helper-card .buy-btn:disabled {
+             opacity: 0.6;
+             cursor: not-allowed;
+             background: gray;
+         }
+
+
+        /* Shop Tabs Styles */
+        .tabs-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 12px; /* Space before shop content */
+        }
+        .tabs {
+            display: flex;
+            justify-content: center; /* Center the tab buttons */
+            background: rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 6px;
+            gap: 8px;
+        }
+        .tab-button {
+            flex-grow: 1; /* Make buttons fill space */
+            padding: 8px 12px;
+            border-radius: 12px;
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.7);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .tab-button.active {
+            background: rgba(0,255,255,0.2); /* Highlight active tab */
+            color: var(--neon);
+            box-shadow: 0 0 10px rgba(0,255,255,0.3);
+        }
+        .tab-content {
+            /* This container holds the tab panes */
+        }
+        .tab-pane {
+            display: none; /* Hide inactive panes */
+            flex-direction: column; /* Content inside panes is also flex column */
+            gap: 12px; /* Gap between items in the pane */
+        }
+        .tab-pane.active {
+            display: flex; /* Show active pane */
+        }
 
 
         .bottom-nav {
@@ -367,19 +482,37 @@
             background: rgba(255,255,255,0.05);
             backdrop-filter: blur(4px);
         }
-        .bottom-nav button {
+         /* Style for bottom nav buttons and links */
+        .bottom-nav button,
+        .bottom-nav a.nav-button { /* Added style for the link */
             background: none;
             border: none;
             color: white;
             font-size: 20px;
             opacity: 0.6;
             cursor: pointer;
-             transition: opacity 0.3s ease, color 0.3s ease;
+            transition: opacity 0.3s ease, color 0.3s ease;
+            text-decoration: none; /* Remove underline from link */
+            display: flex; /* Make link a flex container for icon */
+            align-items: center;
+            justify-content: center;
+            padding: 0 8px; /* Add some horizontal padding */
         }
-        .bottom-nav button.active {
+        .bottom-nav button.active,
+         .bottom-nav a.nav-button.active { /* Add active style for the link */
             opacity: 1;
             color: var(--neon);
         }
+         /* Adjust spacing for 4 items */
+        .bottom-nav {
+             justify-content: space-between; /* Use space-between for 4 items */
+             padding: 10px 16px; /* Add more horizontal padding */
+        }
+         .bottom-nav button i,
+         .bottom-nav a.nav-button i {
+             /* Icon inside button/link */
+         }
+
          /* Add padding to screen content to avoid bottom nav overlap */
          .screen {
             padding-bottom: 20px; /* Adjust as needed */
@@ -391,74 +524,173 @@
 <body>
     <div class="container">
         <div class="currency">
-            <span><img src="https://raw.githubusercontent.com/sinobu1/shark-tapper/main/coin.png" alt="Coin icon"/> <span id="coin-count">0</span></span>
-            <span><img src="https://raw.githubusercontent.com/sinobu1/shark-tapper/main/dimond.png" alt="Diamond icon" style="height: 20px; width: 20px;"/> 32</span>
+            <span><img src="https://raw.githubusercontent.com/sinobu1/shark-tapper/main/coin.png" alt="Иконка монеты"/> <span id="coin-count">0</span></span>
+            <span><img src="https://raw.githubusercontent.com/sinobu1/shark-tapper/main/dimond.png" alt="Иконка алмаза" class="gem-icon"/> <span id="gem-count">0</span></span> <span><img src="https://raw.githubusercontent.com/sinobu1/shark-tapper/main/ruda.png" alt="Иконка руды" class="ore-icon"/> <span id="ore-count">0</span></span>
         </div>
-        <div class="player-profile">
-            <img src="https://img.icons8.com/ios-filled/50/user-male-circle.png" alt="Player Avatar"/>
+
+        <div class="player-profile" id="player-profile-block"> <img src="https://img.icons8.com/ios-filled/50/user-male-circle.png" alt="Аватар игрока"/>
             <div class="player-info">
                 <div class="player-meta">
-                    <span class="player-name">player</span> | <strong class="player-level">lvl 5</strong>
+                    <span class="player-name">Игрок</span> | <strong class="player-level">Ур. 0</strong>
                 </div>
-                <div class="income">+123/sec</div>
+                <div class="income">+0/сек</div>
                 <div class="progress-bar">
                     <div class="progress-fill"></div>
                 </div>
             </div>
         </div>
+
+
         <div id="screen1" class="screen active">
-            <div class="shark-wrapper">
-                <div class="coin-circle"><div class="inner1"></div></div> <img class="shark" src="https://raw.githubusercontent.com/sinobu1/shark-tapper/main/shark.png" onclick="tapShark(event)" alt="shark">
-            </div>
+             <div class="shark-wrapper">
+                <div class="coin-circle"><div class="inner1"></div></div> <img class="shark" src="https://raw.githubusercontent.com/sinobu1/shark-tapper/main/shark.png" onclick="tapShark(event)" alt="Акула"> </div>
             <div class="shark-gallery">
-                <img src="https://img.icons8.com/color/96/shark.png" alt="Small shark icon"/>
-                <img src="https://img.icons8.com/color/96/shark-fin.png" alt="Small shark fin icon"/>
-                <img src="https://img.icons8.com/color/96/hammerhead-shark.png" alt="Small hammerhead shark icon"/>
+                <img src="https://raw.githubusercontent.com/sinobu1/shark-tapper/main/coin.png" alt="Иконка монеты"/>
+                <img src="https://raw.githubusercontent.com/sinobu1/shark-tapper/main/coin.png" alt="Иконка монеты"/>
+                <img src="https://raw.githubusercontent.com/sinobu1/shark-tapper/main/coin.png" alt="Иконка монеты"/>
             </div>
-            <button class="boost-btn">Boost</button>
+            <button class="boost-btn" id="boost-button" onclick="activateBoost()">
+                 <i class="fas fa-rocket"></i> Буст
+            </button>
         </div>
         <div id="screen2" class="screen">
-            <h3>Магазин</h3>
-            <div class="helper-card">
-                <img src="https://img.icons8.com/color/96/dolphin.png" alt="Дельфин" />
-                <div class="helper-info">
-                    <strong>Дельфин</strong>
-                    <span>+20 монет / сек</span>
-                    <button class="buy-btn">Купить за 500</button>
+            <h3>Магазин</h3> <div class="tabs-container">
+                <div class="tabs">
+                    <button class="tab-button active" onclick="switchShopTab('helpers')">Помощники</button>
+                    <button class="tab-button" onclick="switchShopTab('skins')">Скины</button>
                 </div>
-            </div>
-            <div class="helper-card">
-                <img src="https://img.icons8.com/color/96/orca.png" alt="Касатка" />
-                <div class="helper-info">
-                    <strong>Касатка</strong>
-                    <span>+50 монет / сек</span>
-                    <button class="buy-btn">Купить за 1500</button>
+                <div class="tab-content">
+                    <div id="helpers-tab" class="tab-pane active">
+                        <div class="helper-card">
+                            <img src="https://img.icons8.com/color/96/dolphin.png" alt="Дельфин" />
+                            <div class="helper-info">
+                                <strong>Дельфин</strong>
+                                <span>+20 монет / сек</span>
+                                <button class="buy-btn" onclick="buyHelper('dolphin', this)">Купить за 500</button>
+                            </div>
+                        </div>
+                        <div class="helper-card">
+                            <img src="https://img.icons8.com/color/96/orca.png" alt="Касатка" />
+                            <div class="helper-info">
+                                <strong>Касатка</strong>
+                                <span>+50 монет / сек</span>
+                                <button class="buy-btn" onclick="buyHelper('orca', this)">Купить за 1500</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="skins-tab" class="tab-pane">
+                        <p style="text-align: center;">Будущие скины.</p>
+                    </div>
                 </div>
             </div>
         </div>
         <div id="screen3" class="screen">
-            <h3>Профиль</h3>
-            <p style="text-align: center;">Будущая настройка, аватар и прогресс.</p>
-        </div>
+            <h3>Профиль</h3> <p style="text-align: center;">Будущая настройка, аватар и прогресс.</p> </div>
+
         <div class="bottom-nav">
             <button class="active" onclick="switchScreen(1)"><i class="fas fa-fish"></i></button>
             <button onclick="switchScreen(2)"><i class="fas fa-store"></i></button>
             <button onclick="switchScreen(3)"><i class="fas fa-user"></i></button>
+             <a href="index3.html" class="nav-button"><i class="fas fa-map"></i></a>
         </div>
     </div>
     <script>
         let coinCount = 0;
+        let gemCount = 0; // Gem counter variable
+        let oreCount = 0; // Ore counter variable
+        let passiveIncome = 0; // Passive income per second
+
+        let playerLevel = 0; // Player level
+        let playerProgress = 0; // Progress towards next level
+        let progressToNextLevel = 100; // Taps needed for level 1
+        let currentTapValue = 1; // Base tap value
+        let boostActive = false; // Flag to check if boost is active
+
+        // Helper data (cost and income)
+        const helpers = {
+            dolphin: { cost: 500, income: 20 },
+            orca: { cost: 1500, income: 50 }
+        };
+         // Store purchased state (basic example)
+         const purchasedHelpers = {
+             dolphin: false,
+             orca: false
+         };
+
+
         const coinCountElement = document.getElementById('coin-count');
+        const gemCountElement = document.getElementById('gem-count'); // Gem count element
+        const oreCountElement = document.getElementById('ore-count'); // Ore count element
+
+        // Get profile elements from the player-profile block
+        const playerProfileBlock = document.getElementById('player-profile-block'); // Get the profile block itself
+        const playerLevelElement = document.querySelector('#player-profile-block .player-level'); // Player level element
+        const progressFillElement = document.querySelector('#player-profile-block .progress-fill'); // Progress bar fill element
+        const incomeElement = document.querySelector('#player-profile-block .income'); // Income element
+
+        const boostButton = document.getElementById('boost-button'); // Boost button element
+
+
+        // Helper function to format numbers (k, m, b)
+        function formatNumber(num) {
+            if (num < 10000) {
+                return num;
+            } else if (num < 1000000) {
+                return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
+            } else if (num < 1000000000) {
+                return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'm';
+            } else {
+                return (num / 1000000000).toFixed(1).replace(/\.0$/, '') + 'b';
+            }
+        }
 
         function tapShark(e) {
-            coinCount++;
-            coinCountElement.textContent = coinCount;
+            coinCount += currentTapValue; // Use currentTapValue
+            // Format coin count for display
+            coinCountElement.textContent = formatNumber(coinCount);
 
+            // Gem drop chance (1 in 100)
+            if (Math.random() < 0.01) { // 0.01 for 1% chance
+                gemCount++;
+                gemCountElement.textContent = gemCount;
+                 // Show gem drop effect
+                 showTapEffect(e, 'gem');
+            } else {
+                 // Show coin tap effect
+                 showTapEffect(e, 'coin', currentTapValue); // Pass tap value
+            }
+
+             // Ore is NOT earned by tapping, so no oreCount increment here
+
+            // Update player progress - always update when tapping the shark
+            playerProgress++;
+
+            // Update progress bar
+            const progressPercentage = (playerProgress / progressToNextLevel) * 100;
+            // Ensure percentage doesn't exceed 100% before leveling up
+            progressFillElement.style.width = Math.min(progressPercentage, 100) + '%';
+
+            // Check for level up
+            if (playerProgress >= progressToNextLevel) {
+                playerLevel++;
+                playerLevelElement.textContent = `Ур. ${playerLevel}`; // Update level display
+                playerProgress = 0; // Reset progress
+                progressToNextLevel = Math.floor(progressToNextLevel * 1.5); // Make next level harder (e.g., 1.5 times more taps)
+                // Ensure progressToNextLevel is at least a reasonable base value, like 100
+                 if (progressToNextLevel < 100) progressToNextLevel = 100;
+
+                progressFillElement.style.width = '0%'; // Reset progress bar visually
+                // Income increase logic would go here if tied to leveling up
+            }
+        }
+
+        // Function to show tap effect (coin or gem)
+         function showTapEffect(e, type, value = 1) { // Added value parameter
             const shark = e.target;
             const wrapper = shark.closest('.shark-wrapper');
             const wrapperRect = wrapper.getBoundingClientRect();
 
-            // Create and position tap effect
+            // Create and position tap effect (the circle burst)
             const effect = document.createElement('div');
             effect.className = 'tap-effect';
              // Position relative to the wrapper center, then offset by click location
@@ -466,11 +698,10 @@
             effect.style.top = (e.clientY - wrapperRect.top) + 'px';
             wrapper.appendChild(effect);
 
-            // Create and position tap plus text
+            // Create and position tap text (+1 coin or +1 gem)
             const plus = document.createElement('div');
-            plus.className = 'tap-plus';
-            const tapValue = 1; // Current tap value
-            plus.innerText = '+' + tapValue;
+            plus.className = type === 'gem' ? 'tap-gem' : 'tap-plus'; // Use different class for gem
+            plus.innerText = type === 'gem' ? '+1 Гем' : `+${value}`; // Use value for coin text
             // Position relative to the wrapper center, then offset by click location
              plus.style.left = (e.clientX - wrapperRect.left) + 'px';
              plus.style.top = (e.clientY - wrapperRect.top) + 'px';
@@ -480,22 +711,154 @@
             setTimeout(() => {
                 effect.remove();
                 plus.remove();
-            }, 800);
+            }, type === 'gem' ? 1000 : 800); // Keep gem text slightly longer
         }
 
+        // Boost button mechanic
+        function activateBoost() {
+            if (boostActive) return; // Prevent activating if already active
+
+            // You might want to add a cost for the boost here, e.g., check coin/gem count
+            // if (coinCount < 500) {
+            //     alert("Недостаточно монет для буста!");
+            //     return;
+            // }
+            // coinCount -= 500; // Deduct cost
+            // coinCountElement.textContent = formatNumber(coinCount); // Format cost deduction display
+
+
+            boostActive = true;
+            currentTapValue = 5; // Example: Increase tap value to 5
+            boostButton.disabled = true; // Disable button while boost is active
+            boostButton.textContent = 'Буст Активен!'; // Change button text
+
+            // Set a timer to end the boost
+            setTimeout(() => {
+                boostActive = false;
+                currentTapValue = 1; // Reset tap value
+                boostButton.disabled = false; // Re-enable button
+                 // Reset button text and icon
+                boostButton.innerHTML = '<i class="fas fa-rocket"></i> Буст';
+            }, 10000); // Boost lasts for 10 seconds (10000 milliseconds)
+        }
+
+        // Shop tab switching function
+        function switchShopTab(tabId) {
+            // Hide all tab panes within screen2
+            document.querySelectorAll('#screen2 .tab-pane').forEach(pane => {
+                pane.classList.remove('active');
+            });
+            // Deactivate all tab buttons within screen2
+            document.querySelectorAll('#screen2 .tab-button').forEach(button => {
+                button.classList.remove('active');
+            });
+
+            // Activate the selected tab pane
+            document.getElementById(tabId + '-tab').classList.add('active');
+            // Activate the corresponding tab button
+            document.querySelector(`#screen2 .tab-button[onclick="switchShopTab('${tabId}')"]`).classList.add('active');
+        }
+
+        // Helper purchase function
+        function buyHelper(helperId, buttonElement) {
+             const helper = helpers[helperId];
+
+             // Prevent buying if already purchased (basic check)
+             if (purchasedHelpers[helperId]) {
+                 alert(`Вы уже купили "${helperId === 'dolphin' ? 'Дельфина' : 'Касатку'}"!`); // Translated message
+                 return;
+             }
+
+
+             if (coinCount >= helper.cost) {
+                 coinCount -= helper.cost;
+                 coinCountElement.textContent = formatNumber(coinCount); // Format coin display
+
+                 passiveIncome += helper.income;
+                 incomeElement.textContent = `+${passiveIncome}/сек`; // Update income display
+
+                 purchasedHelpers[helperId] = true; // Mark as purchased
+                 buttonElement.disabled = true; // Disable the button after purchase
+                 buttonElement.textContent = 'Куплено'; // Change button text
+
+                 console.log(`Куплен ${helperId}. Доход: +${helper.income}/сек`); // Log purchase
+             } else {
+                 alert('Недостаточно монет!'); // Translated message
+             }
+        }
+
+
+        // Function to switch main screens
         function switchScreen(index) {
+            // Screen indexes are 1, 2, and 3
+            if (index < 1 || index > 3) {
+                console.error("Invalid screen index:", index);
+                return;
+            }
+
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(`screen${index}`).classList.add('active');
-            document.querySelectorAll('.bottom-nav button').forEach((btn, i) => {
-                btn.classList.toggle('active', i === index - 1);
+
+            // Hide profile block on screen 2, show on others
+            if (index === 2) {
+                playerProfileBlock.classList.add('hidden');
+                 // When switching to screen 2, ensure the default tab is active
+                 switchShopTab('helpers');
+            } else {
+                playerProfileBlock.classList.remove('hidden');
+            }
+
+
+            // Update button active state for all 4 items (3 buttons + 1 link)
+            document.querySelectorAll('.bottom-nav button, .bottom-nav a.nav-button').forEach((item, i) => {
+                 // Index i is 0, 1, 2 for buttons 1, 2, 3 respectively, and 3 for the link
+                 // Note: This assumes the link is the 4th item in the HTML.
+                 // Adjust logic if button/link order changes.
+                item.classList.toggle('active', i === index - 1);
+                 // For the link, active state might be less meaningful as it navigates away,
+                 // but we'll toggle the class for consistency if the user is on index3.html
+                 // (which this basic switchScreen doesn't track across pages).
+                 // A more robust app would check the current page URL.
             });
         }
 
-        // Initialize coin count display on load
-        document.addEventListener('DOMContentLoaded', () => {
-             coinCountElement.textContent = coinCount;
-        });
+        // --- Passive Income Interval ---
+        setInterval(() => {
+            if (passiveIncome > 0) {
+                coinCount += passiveIncome;
+                coinCountElement.textContent = formatNumber(coinCount); // Update display
+                // console.log(`Доход +${passiveIncome} монет`); // Optional log
+            }
+        }, 1000); // Add passive income every 1 second (1000ms)
+        // -----------------------------
 
+
+        // Initialize display on load
+        document.addEventListener('DOMContentLoaded', () => {
+             coinCountElement.textContent = formatNumber(coinCount); // Format initial coin display
+             gemCountElement.textContent = gemCount; // Initialize gem count display
+             oreCountElement.textContent = oreCount; // Initialize ore count display
+
+             // Profile elements are always visible (unless hidden by CSS/JS), so initialize their display
+             playerLevelElement.textContent = `Ур. ${playerLevel}`; // Initialize level display
+             progressFillElement.style.width = '0%'; // Initialize progress bar
+             incomeElement.textContent = `+${passiveIncome}/сек`; // Initialize income display
+
+             // Ensure default shop tab is active when screen2 is initially shown (if it's the starting screen)
+             if (document.getElementById('screen2').classList.contains('active')) {
+                 switchShopTab('helpers');
+             }
+
+             // Basic check if helpers were previously purchased (for persistence, would need backend)
+             // if (purchasedHelpers.dolphin) {
+             //      document.querySelector('#helpers-tab .helper-card:nth-child(1) .buy-btn').disabled = true;
+             //      document.querySelector('#helpers-tab .helper-card:nth-child(1) .buy-btn').textContent = 'Куплено';
+             // }
+             // if (purchasedHelpers.orca) {
+             //      document.querySelector('#helpers-tab .helper-card:nth-child(2) .buy-btn').disabled = true;
+             //      document.querySelector('#helpers-tab .helper-card:nth-child(2) .buy-btn').textContent = 'Куплено';
+             // }
+        });
 
         // Optional: Add click sound (requires an audio element)
         // const tapSound = new Audio('tap.mp3'); // Add your sound file
@@ -503,6 +866,14 @@
         //   tapSound.currentTime = 0;
         //   tapSound.play();
         // });
+
+        // Optional: Add idle ore gain (example - uncomment to activate)
+        /*
+        setInterval(() => {
+            oreCount++;
+            oreCountElement.textContent = oreCount;
+        }, 5000); // Gain 1 ore every 5 seconds
+        */
 
     </script>
 </body>
