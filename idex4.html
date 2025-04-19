@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0a0a2a" />
+    <title>Shark Tapper</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --size: min(70vw, 280px);
+            --inner1: calc(var(--size) * 0.85);
+            --inner2: calc(var(--size) * 0.71);
+            --neon: #00f2fe;
+            /* Added for card style */
+            --card-bg: rgba(50, 30, 100, 0.3); /* Translucent purple/blue */
+            --card-border: rgba(150, 100, 255, 0.4); /* Lighter border */
+            --card-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            --card-radius: 30px;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            /* Enhanced background */
+            background: linear-gradient(135deg, #0a0a2a 0%, #2a0a2a 50%, #000018 100%);
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            padding: 20px; /* Add some padding to body */
+            overflow-y: auto; /* Allow scrolling if content exceeds height */
+        }
+        .container {
+            text-align: center;
+            padding: 24px;
+            max-width: 420px;
+            width: 100%;
+            /* Card styles added here */
+            background: var(--card-bg);
+            border-radius: var(--card-radius);
+            border: 1px solid var(--card-border);
+            box-shadow: var(--card-shadow);
+            backdrop-filter: blur(15px); /* Increased blur */
+            -webkit-backdrop-filter: blur(15px); /* For Safari */
+            overflow: hidden; /* Ensures content doesn't spill out of rounded corners */
+            display: flex; /* Use flexbox for layout */
+            flex-direction: column; /* Stack items vertically */
+            gap: 12px; /* Space between main sections */
+        }
+        .screen { display: none; flex-direction: column; gap: 12px;} /* Also use flexbox for screens */
+        .screen.active { display: flex; } /* Display as flex column when active */
+
+        /* Ensure elements inside screen stretch */
+        .screen > * {
+            width: 100%;
+        }
+
+        .currency {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            background: rgba(0, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 8px 14px;
+            /* margin-bottom: 12px; Removed due to container gap */
+            backdrop-filter: blur(6px);
+        }
+        .currency span {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        .currency img {
+            width: 20px;
+            height: 20px;
+            margin-right: 4px;
+        }
+
+        /* Coin Counter Specific Style */
+        .currency span:first-child {
+            font-size: 20px;
+            font-weight: 700;
+        }
+         /* Gem Icon Size Adjustment */
+        .currency span:last-child img {
+             width: 20px;
+            height: 20px;
+        }
+
+
+        .player-profile {
+            display: flex;
+            align-items: center;
+            background: rgba(0, 255, 255, 0.05);
+            border-radius: 24px;
+            padding: 10px 16px;
+            /* margin-bottom: 12px; Removed due to container gap */
+            backdrop-filter: blur(6px);
+            border: 1px solid rgba(0,255,255,0.2);
+        }
+        .player-profile img {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            margin-right: 12px;
+        }
+        .player-info { flex: 1; text-align: left; }
+        .player-meta {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .income {
+            font-size: 14px;
+            color: #9efaff;
+        }
+        .progress-bar {
+            background: #2e2e4d;
+            border-radius: 16px;
+            overflow: hidden;
+            margin-top: 6px;
+            height: 8px;
+        }
+        .progress-fill {
+            background: linear-gradient(90deg, #49eaff, #4776e6);
+            border-radius: 16px;
+            width: 60%; /* Example width */
+            height: 100%;
+        }
+        .shark-wrapper {
+            position: relative;
+            width: var(--size);
+            aspect-ratio: 1 / 1;
+            margin: 20px auto; /* Center horizontally */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Shimmering Circle Effect */
+        @keyframes shimmer {
+            0% {
+                background-position: -400px 0;
+            }
+            100% {
+                background-position: 400px 0;
+            }
+        }
+        .coin-circle {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: #0a0a2a; /* Base color */
+            box-shadow:
+                inset 0 4px 6px rgba(0, 255, 255, 0.1),
+                inset 0 -4px 6px rgba(0, 255, 255, 0.05),
+                0 6px 10px rgba(0, 255, 255, 0.05);
+            border: 2px solid rgba(0, 255, 255, 0.15);
+            z-index: 0;
+            overflow: hidden; /* Hide shimmer overflow */
+        }
+        .coin-circle::before {
+             content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 200%; /* Width of the shimmer effect */
+            height: 100%;
+            background: linear-gradient(
+                to right,
+                rgba(0, 255, 255, 0) 0%,
+                rgba(0, 255, 255, 0.1) 30%, /* Shimmer color and transparency */
+                rgba(0, 255, 255, 0.2) 50%,
+                rgba(0, 255, 255, 0.1) 70%,
+                rgba(0, 255, 255, 0) 100%
+            );
+            background-repeat: no-repeat;
+            background-size: 50% 100%; /* Size of the repeating shimmer pattern */
+            animation: shimmer 3s infinite linear; /* Animation details */
+             z-index: 1; /* Ensure shimmer is above the base background */
+        }
+
+         /* Inner circles - kept for visual depth */
+        .coin-circle::after {
+            content: "";
+            position: absolute;
+            border-radius: 50%;
+            width: var(--inner2);
+            height: var(--inner2);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.01);
+            box-shadow: inset 0 2px 3px rgba(0, 255, 255, 0.08);
+            z-index: 2; /* Above shimmer */
+        }
+         .coin-circle .inner1 { /* Use a separate element for the middle circle */
+            content: "";
+            position: absolute;
+            border-radius: 50%;
+             width: var(--inner1);
+            height: var(--inner1);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.02);
+            box-shadow: inset 0 2px 4px rgba(0, 255, 255, 0.1);
+             z-index: 2; /* Above shimmer */
+         }
+
+
+        /* Shark Animation */
+        @keyframes shark-float {
+            0% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-8px) scale(1.02); } /* Subtle floating + slight scale */
+            100% { transform: translateY(0) scale(1); }
+        }
+
+        .shark {
+            width: 65%;
+            z-index: 3; /* Ensure shark is above circles and shimmer */
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.1s ease; /* Faster transition for tap feedback */
+            filter:
+                drop-shadow(0 0 10px rgba(0,255,255,0.4))
+                drop-shadow(0 0 30px rgba(0,255,255,0.2));
+            animation: shark-float 2s infinite ease-in-out; /* Apply animation */
+        }
+        .shark:active {
+            transform: scale(0.95); /* Tap feedback */
+            animation: none; /* Pause float animation on tap */
+        }
+        .tap-effect, .tap-plus {
+            position: absolute;
+            pointer-events: none;
+            z-index: 4; /* Above shark */
+        }
+        .tap-effect {
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0,255,255,0.3) 0%, rgba(0,255,255,0) 60%);
+            animation: tapBurst 0.6s ease-out;
+            width: 120px;
+            height: 120px;
+            transform: translate(-50%, -50%); /* Center the effect */
+        }
+        .tap-plus {
+            color: var(--neon);
+            font-weight: bold;
+            font-size: 24px; /* Slightly larger plus */
+            text-shadow: 0 0 5px rgba(0,255,255,0.5); /* Add text shadow */
+            animation: tapPlusAnim 0.8s ease-out;
+             transform: translate(-50%, -50%); /* Center the text */
+        }
+        @keyframes tapBurst {
+            from { opacity: 1; transform: translate(-50%, -50%) scale(0.5); }
+            to { opacity: 0; transform: translate(-50%, -50%) scale(2); }
+        }
+        @keyframes tapPlusAnim {
+            from { opacity: 1; transform: translate(-50%, -50%) translateY(0); }
+            to { opacity: 0; transform: translate(-50%, -50%) translateY(-40px); }
+        }
+        .shark-gallery {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 16px;
+        }
+        .shark-gallery img {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 1px solid rgba(0,255,255,0.4);
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(4px);
+             cursor: pointer; /* Indicate they are clickable/selectable */
+        }
+        .boost-btn {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px; /* Slightly larger text */
+            font-weight: bold;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #49eaff, #4776e6); /* Solid button style */
+            color: white;
+            border: none; /* Remove border */
+            /* backdrop-filter: blur(10px); Removed for solid button */
+            box-shadow: 0 0 15px rgba(73, 234, 255, 0.4), 0 0 30px rgba(71, 118, 230, 0.3); /* Adjusted shadow */
+            margin-top: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+         .boost-btn:active {
+            transform: scale(0.98);
+            box-shadow: 0 0 8px rgba(73, 234, 255, 0.6), 0 0 15px rgba(71, 118, 230, 0.5);
+         }
+
+        /* Styles for shop helper cards */
+        h3 {
+            margin-top: 0;
+            color: var(--neon);
+            text-shadow: 0 0 8px rgba(0,255,255,0.5);
+            margin-bottom: 16px; /* Add space below heading */
+        }
+
+        .helper-card {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05); /* Slightly different background for internal cards */
+            border-radius: 16px;
+            padding: 10px 16px;
+            /* margin-bottom: 12px; Removed due to screen gap */
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .helper-card img {
+            width: 50px; /* Increased image size */
+            height: 50px;
+            margin-right: 16px;
+        }
+        .helper-info {
+            flex: 1;
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+        }
+        .helper-info strong {
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+         .helper-info span {
+            font-size: 12px;
+            color: #b3e0ff; /* Lighter blue for income */
+            margin-bottom: 8px;
+        }
+        .helper-card .buy-btn {
+            padding: 8px 12px;
+            font-size: 12px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #49eaff, #4776e6); /* Gradient button */
+            color: white;
+            border: none;
+            cursor: pointer;
+            align-self: flex-start; /* Align button to the start */
+            margin-top: 4px;
+             transition: all 0.3s ease;
+        }
+        .helper-card .buy-btn:active {
+             transform: scale(0.95);
+        }
+
+
+        .bottom-nav {
+            display: flex;
+            justify-content: space-around;
+            margin-top: auto; /* Push nav to the bottom of the flex container */
+            padding: 10px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(4px);
+        }
+        .bottom-nav button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            opacity: 0.6;
+            cursor: pointer;
+             transition: opacity 0.3s ease, color 0.3s ease;
+        }
+        .bottom-nav button.active {
+            opacity: 1;
+            color: var(--neon);
+        }
+         /* Add padding to screen content to avoid bottom nav overlap */
+         .screen {
+            padding-bottom: 20px; /* Adjust as needed */
+         }
+
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="currency">
+            <span><img src="https://raw.githubusercontent.com/sinobu1/shark-tapper/main/coin.png" alt="Coin icon"/> <span id="coin-count">0</span></span>
+            <span><img src="https://raw.githubusercontent.com/sinobu1/shark-tapper/main/dimond.png" alt="Diamond icon" style="height: 20px; width: 20px;"/> 32</span>
+        </div>
+        <div class="player-profile">
+            <img src="https://img.icons8.com/ios-filled/50/user-male-circle.png" alt="Player Avatar"/>
+            <div class="player-info">
+                <div class="player-meta">
+                    <span class="player-name">player</span> | <strong class="player-level">lvl 5</strong>
+                </div>
+                <div class="income">+123/sec</div>
+                <div class="progress-bar">
+                    <div class="progress-fill"></div>
+                </div>
+            </div>
+        </div>
+        <div id="screen1" class="screen active">
+            <div class="shark-wrapper">
+                <div class="coin-circle"><div class="inner1"></div></div> <img class="shark" src="https://raw.githubusercontent.com/sinobu1/shark-tapper/main/shark.png" onclick="tapShark(event)" alt="shark">
+            </div>
+            <div class="shark-gallery">
+                <img src="https://img.icons8.com/color/96/shark.png" alt="Small shark icon"/>
+                <img src="https://img.icons8.com/color/96/shark-fin.png" alt="Small shark fin icon"/>
+                <img src="https://img.icons8.com/color/96/hammerhead-shark.png" alt="Small hammerhead shark icon"/>
+            </div>
+            <button class="boost-btn">Boost</button>
+        </div>
+        <div id="screen2" class="screen">
+            <h3>Магазин</h3>
+            <div class="helper-card">
+                <img src="https://img.icons8.com/color/96/dolphin.png" alt="Дельфин" />
+                <div class="helper-info">
+                    <strong>Дельфин</strong>
+                    <span>+20 монет / сек</span>
+                    <button class="buy-btn">Купить за 500</button>
+                </div>
+            </div>
+            <div class="helper-card">
+                <img src="https://img.icons8.com/color/96/orca.png" alt="Касатка" />
+                <div class="helper-info">
+                    <strong>Касатка</strong>
+                    <span>+50 монет / сек</span>
+                    <button class="buy-btn">Купить за 1500</button>
+                </div>
+            </div>
+        </div>
+        <div id="screen3" class="screen">
+            <h3>Профиль</h3>
+            <p style="text-align: center;">Будущая настройка, аватар и прогресс.</p>
+        </div>
+        <div class="bottom-nav">
+            <button class="active" onclick="switchScreen(1)"><i class="fas fa-fish"></i></button>
+            <button onclick="switchScreen(2)"><i class="fas fa-store"></i></button>
+            <button onclick="switchScreen(3)"><i class="fas fa-user"></i></button>
+        </div>
+    </div>
+    <script>
+        let coinCount = 0;
+        const coinCountElement = document.getElementById('coin-count');
+
+        function tapShark(e) {
+            coinCount++;
+            coinCountElement.textContent = coinCount;
+
+            const shark = e.target;
+            const wrapper = shark.closest('.shark-wrapper');
+            const wrapperRect = wrapper.getBoundingClientRect();
+
+            // Create and position tap effect
+            const effect = document.createElement('div');
+            effect.className = 'tap-effect';
+             // Position relative to the wrapper center, then offset by click location
+            effect.style.left = (e.clientX - wrapperRect.left) + 'px';
+            effect.style.top = (e.clientY - wrapperRect.top) + 'px';
+            wrapper.appendChild(effect);
+
+            // Create and position tap plus text
+            const plus = document.createElement('div');
+            plus.className = 'tap-plus';
+            const tapValue = 1; // Current tap value
+            plus.innerText = '+' + tapValue;
+            // Position relative to the wrapper center, then offset by click location
+             plus.style.left = (e.clientX - wrapperRect.left) + 'px';
+             plus.style.top = (e.clientY - wrapperRect.top) + 'px';
+            wrapper.appendChild(plus);
+
+
+            setTimeout(() => {
+                effect.remove();
+                plus.remove();
+            }, 800);
+        }
+
+        function switchScreen(index) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(`screen${index}`).classList.add('active');
+            document.querySelectorAll('.bottom-nav button').forEach((btn, i) => {
+                btn.classList.toggle('active', i === index - 1);
+            });
+        }
+
+        // Initialize coin count display on load
+        document.addEventListener('DOMContentLoaded', () => {
+             coinCountElement.textContent = coinCount;
+        });
+
+
+        // Optional: Add click sound (requires an audio element)
+        // const tapSound = new Audio('tap.mp3'); // Add your sound file
+        // document.querySelector('.shark').addEventListener('click', () => {
+        //   tapSound.currentTime = 0;
+        //   tapSound.play();
+        // });
+
+    </script>
+</body>
+</html>
