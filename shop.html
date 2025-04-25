@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0a0a2a" />
+    <title>Акула Тапалка - Магазин</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+    <!-- Telegram Web App SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            --neon: #00f2fe;
+            --neon-pink: #ff00ff;
+            --neon-purple: #9d00ff;
+            --card-bg: rgba(50, 30, 100, 0.3);
+            --card-border: rgba(150, 100, 255, 0.4);
+            --card-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            --card-radius: 30px;
+            --gem-color: #e91e63;
+            --ore-color: #ff9800;
+            --energy-color: #4caf50;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0a0a2a 0%, #2a0a2a 50%, #000018 100%);
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .container {
+            text-align: center;
+            padding: 24px;
+            max-width: 420px;
+            width: 100%;
+            background: var(--card-bg);
+            border-radius: var(--card-radius);
+            border: 1px solid rgba(0,255,255,0.2);
+            box-shadow: var(--card-shadow);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            border-color: var(--card-border);
+            position: relative;
+        }
+
+        /* Floating particles background */
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            background: rgba(0, 255, 255, 0.5);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        /* Currency styles */
+        .currency {
+            display: flex;
+            justify-content: space-around;
+            gap: 8px;
+            padding: 8px 10px;
+            background: rgba(0, 255, 255, 0.08);
+            border-radius: 16px;
+            backdrop-filter: blur(6px);
+            flex-wrap: wrap;
+            border: 1px solid rgba(0, 255, 255, 0.2);
+        }
+
+        .currency span {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 600;
+            white-space: nowrap;
+            padding: 0 4px;
+            transition: all 0.3s ease;
+        }
+
+        .currency span:hover {
+            transform: scale(1.05);
+        }
+
+        .currency img {
+            width: 20px;
+            height: 20px;
+            margin-right: 4px;
+        }
+
+        .currency .coin-count {
+            color: var(--neon);
+            text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+        }
+
+        .currency .gem-count {
+            color: var(--gem-color);
+            text-shadow: 0 0 5px rgba(233, 30, 99, 0.5);
+        }
+
+        .currency .ore-count {
+            color: var(--ore-color);
+            text-shadow: 0 0 5px rgba(255, 152, 0, 0.5);
+        }
+
+        .currency .energy-count {
+            color: var(--energy-color);
+            text-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+        }
+
+        .currency .gem-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 4px;
+        }
+
+        .currency .ore-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 4px;
+        }
+
+        .currency .energy-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 4px;
+        }
+
+        /* Shop tabs */
+        .shop-tabs {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 16px;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+            padding-bottom: 8px;
+        }
+
+        .shop-tab {
+            padding: 8px 16px;
+            cursor: pointer;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.6);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .shop-tab.active {
+            color: var(--neon);
+        }
+
+        .shop-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -9px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 2px;
+            background: var(--neon);
+        }
+
+        /* Shop items */
+        .shop-items {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .shop-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            border: 1px solid rgba(0, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .shop-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(0, 255, 255, 0.3);
+        }
+
+        .shop-item-icon {
+            width: 40px;
+            height: 40px;
+            margin-right: 12px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 255, 255, 0.1);
+            font-size: 20px;
+            color: var(--neon);
+        }
+
+        .shop-item-info {
+            flex: 1;
+            text-align: left;
+        }
+
+        .shop-item-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .shop-item-desc {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .shop-item-price {
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+            white-space: nowrap;
+            margin-left: 12px;
+        }
+
+        .shop-item-price.coins {
+            color: var(--neon);
+        }
+
+        .shop-item-price.gems {
+            color: var(--gem-color);
+        }
+
+        .shop-item-price.ore {
+            color: var(--ore-color);
+        }
+
+        .shop-item-price i {
+            margin-right: 4px;
+        }
+
+        .shop-item-button {
+            background: rgba(0, 255, 255, 0.1);
+            border: none;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-left: 12px;
+            white-space: nowrap;
+        }
+
+        .shop-item-button:hover {
+            background: rgba(0, 255, 255, 0.2);
+        }
+
+        .shop-item-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .shop-item-button.owned {
+            background: rgba(76, 175, 80, 0.2);
+            color: #8bc34a;
+        }
+
+        /* Bottom navigation */
+        .bottom-nav {
+            display: flex;
+            justify-content: space-between;
+            margin-top: auto;
+            padding: 10px 16px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(4px);
+        }
+
+        .bottom-nav button,
+        .bottom-nav a.nav-button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            opacity: 0.6;
+            cursor: pointer;
+            transition: opacity 0.3s ease, color 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 8px;
+            position: relative;
+        }
+
+        .bottom-nav button.active,
+        .bottom-nav a.nav-button.active {
+            opacity: 1;
+            color: var(--neon);
+        }
+
+        .bottom-nav button::after,
+        .bottom-nav a.nav-button::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 2px;
+            background: var(--neon);
+            transition: width 0.3s ease;
+        }
+
+        .bottom-nav button.active::after,
+        .bottom-nav a.nav-button.active::after {
+            width: 20px;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 400px) {
+            .container {
+                padding: 16px;
+            }
+
+            .currency span {
+                font-size: 12px;
+            }
+
+            .shop-tab {
+                padding: 6px 12px;
+                font-size: 14px;
+            }
+
+            .shop-item {
+                padding: 10px;
+            }
+
+            .shop-item-icon {
+                width: 36px;
+                height: 36px;
+                margin-right: 8px;
+                font-size: 18px;
+            }
+
+            .shop-item-name {
+                font-size: 14px;
+            }
+
+            .shop-item-desc {
+                font-size: 11px;
+            }
+
+            .shop-item-button {
+                padding: 4px 8px;
+                font-size: 12px;
+            }
+
+            .bottom-nav {
+                padding: 8px 12px;
+            }
+
+            .bottom-nav button,
+            .bottom-nav a.nav-button {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating particles background -->
+    <div class="particles" id="particles"></div>
+
+    <div class="container">
+        <div class="currency">
+            <span><img src="https://raw.githubusercontent.com/sinobu1/shark-tapper/main/coin.png" alt="Иконка монеты"/> <span id="coin-count" class="coin-count">0</span></span>
+            <span><img src="https://raw.githubusercontent.com/sinobu1/shark-tapper/main/dimond.png" alt="Иконка алмаза" class="gem-icon"/> <span id="gem-count" class="gem-count">0</span></span>
+            <span><img src="https://raw.githubusercontent.com/sinobu1/shark-tapper/main/ruda.png" alt="Иконка руды" class="ore-icon"/> <span id="ore-count" class="ore-count">0</span></span>
+            <span><img src="https://img.icons8.com/ios-filled/50/4CAF50/lightning-bolt.png" alt="Иконка энергии" class="energy-icon"/> <span id="energy-count" class="energy-count">100</span></span>
+        </div>
+
+        <div class="shop-tabs">
+            <div class="shop-tab active" onclick="changeTab('helpers')">Помощники</div>
+            <div class="shop-tab" onclick="changeTab('upgrades')">Улучшения</div>
+            <div class="shop-tab" onclick="changeTab('skins')">Скины</div>
+        </div>
+
+        <div class="shop-items" id="helpers-tab">
+            <!-- Помощники будут загружены через JS -->
+        </div>
+
+        <div class="shop-items" id="upgrades-tab" style="display: none;">
+            <!-- Улучшения будут загружены через JS -->
+        </div>
+
+        <div class="shop-items" id="skins-tab" style="display: none;">
+            <!-- Скины будут загружены через JS -->
+        </div>
+
+        <div class="bottom-nav">
+            <a href="index.html" class="nav-button"><i class="fas fa-fish"></i></a>
+            <button class="active"><i class="fas fa-store"></i></button>
+            <a href="profile.html" class="nav-button"><i class="fas fa-user"></i></a>
+            <a href="map.html" class="nav-button"><i class="fas fa-map"></i></a>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyB4X2wWQKQ7Q9Q9Q9Q9Q9Q9Q9Q9Q9Q9Q9Q",
+            authDomain: "tralalero-fec07.firebaseapp.com",
+            databaseURL: "https://tralalero-fec07-default-rtdb.firebaseio.com",
+            projectId: "tralalero-fec07",
+            storageBucket: "tralalero-fec07.appspot.com",
+            messagingSenderId: "8019182445",
+            appId: "1:8019182445:web:9Q9Q9Q9Q9Q9Q9Q9Q9Q9Q9Q"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Telegram Web App initialization
+        const tg = window.Telegram.WebApp;
+        tg.expand(); // Expand the Web App to full screen
+        
+        // Game state (loaded from Firebase)
+        let coinCount = 0;
+        let gemCount = 0;
+        let oreCount = 0;
+        let energy = 100;
+        let maxEnergy = 100;
+        let passiveIncome = 0;
+        let playerLevel = 0;
+        let baseTapValue = 1;
+        let incomeMultiplier = 1;
+        let criticalChance = 0.05;
+        let oreChance = 0.03;
+        let energyRegenRate = 1;
+        let userId = tg.initDataUnsafe.user?.id || 'default_user';
+
+        // Shop items data
+        const helpers = [
+            { id: 'dolphin', name: 'Дельфин', description: '+20 монет/сек', icon: 'fas fa-fish', cost: 500, income: 20, owned: 0, currency: 'coins' },
+            { id: 'orca', name: 'Косатка', description: '+50 монет/сек', icon: 'fas fa-whale', cost: 1500, income: 50, owned: 0, currency: 'coins' },
+            { id: 'whale', name: 'Кит', description: '+100 монет/сек', icon: 'fas fa-water', cost: 5000, income: 100, owned: 0, currency: 'coins' },
+            { id: 'shark', name: 'Акула', description: '+200 монет/сек', icon: 'fas fa-shark', cost: 15000, income: 200, owned: 0, currency: 'coins' }
+        ];
+
+        const upgrades = [
+            { id: 'powerTap', name: 'Сильный удар', description: '+1 к базовому урону', icon: 'fas fa-fist-raised', cost: 2000, effect: 1, owned: false, currency: 'coins' },
+            { id: 'criticalChance', name: 'Критический шанс', description: '+10% к шансу крита', icon: 'fas fa-bolt', cost: 5000, effect: 0.1, owned: false, currency: 'coins' },
+            { id: 'oreChance', name: 'Удача рудокопа', description: '+5% к шансу руды', icon: 'fas fa-gem', cost: 3000, effect: 0.05, owned: false, currency: 'coins' },
+            { id: 'energyRegen', name: 'Регенерация', description: '+1 к восстановлению энергии', icon: 'fas fa-battery-three-quarters', cost: 4000, effect: 1, owned: false, currency: 'gems' },
+            { id: 'energyMax', name: 'Энергия+', description: '+50 к максимуму энергии', icon: 'fas fa-battery-full', cost: 2500, effect: 50, owned: false, currency: 'gems' }
+        ];
+
+        const skins = [
+            { id: 'golden', name: 'Золотая акула', description: 'x1.1 к доходу', icon: 'fas fa-crown', cost: 1000, multiplier: 1.1, owned: false, currency: 'gems' },
+            { id: 'crystal', name: 'Кристальная акула', description: 'x1.25 к доходу', icon: 'fas fa-gem', cost: 5000, multiplier: 1.25, owned: false, currency: 'gems' },
+            { id: 'legendary', name: 'Легендарная акула', description: 'x1.5 к доходу', icon: 'fas fa-dragon', cost: 15000, multiplier: 1.5, owned: false, currency: 'gems' },
+            { id: 'neon', name: 'Неоновая акула', description: 'x2 к доходу', icon: 'fas fa-lightbulb', cost: 30000, multiplier: 2, owned: false, currency: 'gems' }
+        ];
+
+        // DOM elements
+        const coinCountElement = document.getElementById('coin-count');
+        const gemCountElement = document.getElementById('gem-count');
+        const oreCountElement = document.getElementById('ore-count');
+        const energyCountElement = document.getElementById('energy-count');
+        const helpersTab = document.getElementById('helpers-tab');
+        const upgradesTab = document.getElementById('upgrades-tab');
+        const skinsTab = document.getElementById('skins-tab');
+
+        // Format numbers with k, m, b suffixes
+        function formatNumber(num) {
+            if (num < 10000) {
+                return num;
+            } else if (num < 1000000) {
+                return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
+            } else if (num < 1000000000) {
+                return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'm';
+            } else {
+                return (num / 1000000000).toFixed(1).replace(/\.0$/, '') + 'b';
+            }
+        }
+
+        // Create floating particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = Math.floor(window.innerWidth / 10);
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+
+                // Random size between 1px and 3px
+                const size = Math.random() * 2 + 1;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+
+                // Random position
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.top = `${Math.random() * 100}%`;
+
+                // Random opacity
+                particle.style.opacity = Math.random() * 0.5 + 0.1;
+
+                // Random animation duration and delay
+                const duration = Math.random() * 20 + 10;
+                const delay = Math.random() * 5;
+                particle.style.animation = `float ${duration}s linear ${delay}s infinite`;
+
+                // Add to container
+                particlesContainer.appendChild(particle);
+            }
+
+            // Add floating animation
+            const style = document.createElement('style');
+            style.innerHTML = `
+                @keyframes float {
+                    0% { transform: translateY(0) translateX(0); }
+                    50% { transform: translateY(-100px) translateX(20px); }
+                    100% { transform: translateY(-200px) translateX(0); opacity: 0; }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        // Change shop tab
+        function changeTab(tabName) {
+            // Update active tab
+            document.querySelectorAll('.shop-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelector(`.shop-tab[onclick="changeTab('${tabName}')"]`).classList.add('active');
+
+            // Show selected tab content
+            document.querySelectorAll('.shop-items').forEach(tab => {
+                tab.style.display = 'none';
+            });
+            document.getElementById(`${tabName}-tab`).style.display = 'flex';
+        }
+
+        // Render shop items
+        function renderShopItems(items, container) {
+            container.innerHTML = '';
+            
+            items.forEach(item => {
+                const itemElement = document.createElement('div');
+                itemElement.className = 'shop-item';
+                itemElement.id = `shop-item-${item.id}`;
+                
+                itemElement.innerHTML = `
+                    <div class="shop-item-icon">
+                        <i class="${item.icon}"></i>
+                    </div>
+                    <div class="shop-item-info">
+                        <div class="shop-item-name">${item.name}</div>
+                        <div class="shop-item-desc">${item.description}</div>
+                    </div>
+                    <div class="shop-item-price ${item.currency}">
+                        <i class="${item.currency === 'coins' ? 'fas fa-coins' : 
+                                  item.currency === 'gems' ? 'fas fa-gem' : 
+                                  'fas fa-cube'}"></i>
+                        ${formatNumber(item.cost)}
+                    </div>
+                    <button class="shop-item-button" onclick="buyItem('${item.id}', '${item.type || 'helper'}')" 
+                         ${(item.currency === 'coins' && coinCount < item.cost) ||
+                           (item.currency === 'gems' && gemCount < item.cost) ||
+                           (item.currency === 'ore' && oreCount < item.cost) ? 'disabled' : ''}>
+                        ${item.owned ? (item.type === 'skin' || item.type === 'upgrade' ? 'Куплено' : `Куплено: ${item.owned}`) : 'Купить'}
+                    </button>
+                `;
+                
+                container.appendChild(itemElement);
+            });
+        }
+
+        // Buy item function
+        function buyItem(itemId, itemType) {
+            let item;
+            let itemsArray;
+            
+            if (itemType === 'helper') {
+                itemsArray = helpers;
+            } else if (itemType === 'upgrade') {
+                itemsArray = upgrades;
+            } else if (itemType === 'skin') {
+                itemsArray = skins;
+            }
+            
+            item = itemsArray.find(i => i.id === itemId);
+            
+            if (!item) return;
+            
+            // Check if player can afford it
+            if ((item.currency === 'coins' && coinCount < item.cost) || 
+                (item.currency === 'gems' && gemCount < item.cost) || 
+                (item.currency === 'ore' && oreCount < item.cost)) {
+                return;
+            }
+            
+            // Deduct currency
+            if (item.currency === 'coins') {
+                coinCount -= item.cost;
+                coinCountElement.textContent = formatNumber(coinCount);
+            } else if (item.currency === 'gems') {
+                gemCount -= item.cost;
+                gemCountElement.textContent = gemCount;
+            } else if (item.currency === 'ore') {
+                oreCount -= item.cost;
+                oreCountElement.textContent = oreCount;
+            }
+            
+            // Apply item effect
+            if (itemType === 'helper') {
+                item.owned++;
+                passiveIncome += item.income;
+            } else if (itemType === 'upgrade') {
+                item.owned = true;
+                if (item.id === 'powerTap') {
+                    baseTapValue += item.effect;
+                } else if (item.id === 'criticalChance') {
+                    criticalChance += item.effect;
+                } else if (item.id === 'oreChance') {
+                    oreChance += item.effect;
+                } else if (item.id === 'energyRegen') {
+                    energyRegenRate += item.effect;
+                } else if (item.id === 'energyMax') {
+                    maxEnergy += item.effect;
+                }
+            } else if (itemType === 'skin') {
+                item.owned = true;
+                incomeMultiplier = item.multiplier;
+            }
+            
+            // Update UI
+            renderShopItems(helpers, helpersTab);
+            renderShopItems(upgrades, upgradesTab);
+            renderShopItems(skins, skinsTab);
+            
+            // Save game
+            saveGame();
+        }
+
+        // Save game state to Firebase
+        function saveGame() {
+            const gameState = {
+                coinCount,
+                gemCount,
+                oreCount,
+                energy,
+                maxEnergy,
+                passiveIncome,
+                playerLevel,
+                baseTapValue,
+                incomeMultiplier,
+                criticalChance,
+                oreChance,
+                energyRegenRate,
+                helpers,
+                upgrades,
+                skins
+            };
+            
+            // Save to Firebase
+            database.ref('users/' + userId).set(gameState)
+                .then(() => console.log('Game saved successfully'))
+                .catch(error => console.error('Error saving game:', error));
+        }
+
+        // Load game state from Firebase
+        function loadGame() {
+            database.ref('users/' + userId).once('value')
+                .then((snapshot) => {
+                    const gameState = snapshot.val();
+                    
+                    if (gameState) {
+                        // Restore all game state variables
+                        coinCount = gameState.coinCount || 0;
+                        gemCount = gameState.gemCount || 0;
+                        oreCount = gameState.oreCount || 0;
+                        energy = gameState.energy || 100;
+                        maxEnergy = gameState.maxEnergy || 100;
+                        passiveIncome = gameState.passiveIncome || 0;
+                        playerLevel = gameState.playerLevel || 0;
+                        baseTapValue = gameState.baseTapValue || 1;
+                        incomeMultiplier = gameState.incomeMultiplier || 1;
+                        criticalChance = gameState.criticalChance || 0.05;
+                        oreChance = gameState.oreChance || 0.03;
+                        energyRegenRate = gameState.energyRegenRate || 1;
+                        
+                        // Restore shop items
+                        if (gameState.helpers) {
+                            for (const key in gameState.helpers) {
+                                const savedHelper = gameState.helpers[key];
+                                const localHelper = helpers.find(h => h.id === savedHelper.id);
+                                if (localHelper) {
+                                    localHelper.owned = savedHelper.owned || 0;
+                                }
+                            }
+                        }
+                        
+                        if (gameState.upgrades) {
+                            for (const key in gameState.upgrades) {
+                                const savedUpgrade = gameState.upgrades[key];
+                                const localUpgrade = upgrades.find(u => u.id === savedUpgrade.id);
+                                if (localUpgrade) {
+                                    localUpgrade.owned = savedUpgrade.owned || false;
+                                }
+                            }
+                        }
+                        
+                        if (gameState.skins) {
+                            for (const key in gameState.skins) {
+                                const savedSkin = gameState.skins[key];
+                                const localSkin = skins.find(s => s.id === savedSkin.id);
+                                if (localSkin) {
+                                    localSkin.owned = savedSkin.owned || false;
+                                }
+                            }
+                        }
+
+                        // Update UI
+                        coinCountElement.textContent = formatNumber(coinCount);
+                        gemCountElement.textContent = gemCount;
+                        oreCountElement.textContent = oreCount;
+                        energyCountElement.textContent = energy;
+                    }
+                })
+                .catch(error => console.error('Error loading game:', error));
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', () => {
+            createParticles();
+            loadGame();
+            
+            // Add types to items for rendering
+            helpers.forEach(h => h.type = 'helper');
+            upgrades.forEach(u => u.type = 'upgrade');
+            skins.forEach(s => s.type = 'skin');
+            
+            // Render initial shop items
+            renderShopItems(helpers, helpersTab);
+            renderShopItems(upgrades, upgradesTab);
+            renderShopItems(skins, skinsTab);
+        });
+
+        // Auto-save every 30 seconds
+        setInterval(saveGame, 30000);
+
+        // Save game when page is about to unload
+        window.addEventListener('beforeunload', () => {
+            saveGame();
+        });
+    </script>
+</body>
+</html>
