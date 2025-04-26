@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0a0a2a" />
+    <title>Акула Тапалка - Карта игр</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="skript.js" defer></script>
+    <style>
+        :root {
+            --neon: #00f2fe;
+            --neon-pink: #ff00ff;
+            --neon-purple: #9d00ff;
+            --card-bg: rgba(50, 30, 100, 0.3);
+            --card-border: rgba(150, 100, 255, 0.4);
+            --card-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            --card-radius: 30px;
+            --gem-color: #e91e63;
+            --ore-color: #ff9800;
+            --energy-color: #4caf50;
+            --wave-color: rgba(0, 242, 254, 0.1);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0a0a2a 0%, #2a0a2a 50%, #000018 100%);
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .container {
+            text-align: center;
+            padding: 24px;
+            max-width: 420px;
+            width: 100%;
+            background: var(--card-bg);
+            border-radius: var(--card-radius);
+            border: 1px solid rgba(0,255,255,0.2);
+            box-shadow: var(--card-shadow);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            border-color: var(--card-border);
+            position: relative;
+        }
+
+        /* Floating particles background */
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            background: rgba(0, 255, 255, 0.5);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        /* Currency styles */
+        .currency {
+            display: flex;
+            justify-content: space-around;
+            gap: 8px;
+            padding: 8px 10px;
+            background: rgba(0, 255, 255, 0.08);
+            border-radius: 16px;
+            backdrop-filter: blur(6px);
+            flex-wrap: wrap;
+            border: 1px solid rgba(0, 255, 255, 0.2);
+        }
+
+        .currency span {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 600;
+            white-space: nowrap;
+            padding: 0 4px;
+            transition: all 0.3s ease;
+        }
+
+        .currency span:hover {
+            transform: scale(1.05);
+        }
+
+        .currency img {
+            width: 20px;
+            height: 20px;
+            margin-right: 4px;
+        }
+
+        .currency .coin-count {
+            color: var(--neon);
+            text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+        }
+
+        .currency .gem-count {
+            color: var(--gem-color);
+            text-shadow: 0 0 5px rgba(233, 30, 99, 0.5);
+        }
+
+        .currency .ore-count {
+            color: var(--ore-color);
+            text-shadow: 0 0 5px rgba(255, 152, 0, 0.5);
+        }
+
+        .currency .energy-count {
+            color: var(--energy-color);
+            text-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+        }
+
+        /* Game map styles */
+        .game-map {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            background: url('https://raw.githubusercontent.com/sinobu1/shark-tapper/main/map-bg.png') no-repeat center center;
+            background-size: cover;
+            margin: 20px 0;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.1);
+        }
+
+        /* Ocean wave animation */
+        .wave {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 200%;
+            height: 100px;
+            background: url('data:image/svg+xml;utf8,<svg viewBox="0 0 1200 120" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none"><path d="M0,0V46.29c47.79,22.2,103.59,32.17,158,32,66.2,0,128.1-21.5,182-38.9,30.2-9.9,59.4-18.4,88.7-24.2,35.8-7.1,74.1-10.3,112-10.3,37.9,0,76.2,3.3,112,10.3,29.3,5.8,58.5,14.3,88.7,24.2,53.9,17.4,115.8,32,182,32,54.4,0.17,110.2-9.8,158-32V0Z" opacity=".25" fill="%2300f2fe"/><path d="M0,0V15.81C13,36.92,27.64,56.86,47.69,72.05,99.41,111.27,165,111,224.58,91.58c31.15-10.15,60.09-26.07,89.67-39.8,40.92-19,84.73-46,130.83-49.67,36.26-2.85,70.9,9.42,98.6,31.56,31.77,25.39,62.32,62,103.63,73,40.44,10.79,81.35-6.69,119.13-24.28s75.16-39,116.92-43.05c59.73-5.85,113.28,22.88,168.9,38.84,30.2,8.66,59,6.17,87.09-7.5,22.43-10.89,48-26.93,60-41.34V0Z" opacity=".5" fill="%2300f2fe"/><path d="M0,0V5.63C149.93,59,314.09,71.32,475.83,42.57c43-7.64,84.23-20.12,127.61-26.46,59-8.63,112.48,12.24,165.56,35.4C827.93,77.22,886,95.24,951.2,90c86.53-7,172.46-45.71,248.8-84.81V0Z" fill="%2300f2fe"/></svg>');
+            background-repeat: repeat-x;
+            animation: wave 15s linear infinite;
+            opacity: 0.3;
+            z-index: 1;
+        }
+
+        .wave:nth-child(2) {
+            bottom: 10px;
+            animation: wave 12s linear infinite reverse;
+            opacity: 0.2;
+        }
+
+        .wave:nth-child(3) {
+            bottom: 20px;
+            animation: wave 10s linear infinite;
+            opacity: 0.1;
+        }
+
+        @keyframes wave {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        .game-location {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(0, 255, 255, 0.2);
+            border: 2px solid var(--neon);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+            z-index: 2;
+            animation: pulse 2s infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 15px rgba(0, 255, 255, 0.3); }
+            100% { box-shadow: 0 0 30px rgba(0, 255, 255, 0.6); }
+        }
+
+        .game-location:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 25px rgba(0, 255, 255, 0.5);
+            animation: none;
+        }
+
+        .game-location i {
+            font-size: 28px;
+            color: white;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.7);
+        }
+
+        .game-location.locked {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.3);
+            cursor: not-allowed;
+            animation: none;
+        }
+
+        .game-location.locked i {
+            color: rgba(255, 255, 255, 0.3);
+            text-shadow: none;
+        }
+
+        .game-location .level-badge {
+            position: absolute;
+            bottom: -5px;
+            right: -5px;
+            background: var(--neon);
+            color: #0a0a2a;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            font-size: 12px;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .game-location.locked .level-badge {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        /* Bottom navigation */
+        .bottom-nav {
+            display: flex;
+            justify-content: space-between;
+            margin-top: auto;
+            padding: 10px 16px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .bottom-nav button,
+        .bottom-nav a.nav-button {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            opacity: 0.6;
+            cursor: pointer;
+            transition: opacity 0.3s ease, color 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 8px;
+            position: relative;
+        }
+
+        .bottom-nav button.active,
+        .bottom-nav a.nav-button.active {
+            opacity: 1;
+            color: var(--neon);
+        }
+
+        .bottom-nav button::after,
+        .bottom-nav a.nav-button::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 2px;
+            background: var(--neon);
+            transition: width 0.3s ease;
+        }
+
+        .bottom-nav button.active::after,
+        .bottom-nav a.nav-button.active::after {
+            width: 20px;
+        }
+
+        /* Game info card */
+        .game-info-card {
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 16px;
+            padding: 15px;
+            margin-top: 10px;
+            border: 1px solid var(--neon);
+            display: none;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 3;
+        }
+
+        .game-info-card.show {
+            transform: translateY(0);
+            opacity: 1;
+            display: block;
+        }
+
+        .game-info-card h3 {
+            margin-top: 0;
+            color: var(--neon);
+            margin-bottom: 10px;
+            font-size: 18px;
+            text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+        }
+
+        .game-info-card p {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .game-info-card .rewards {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 10px 0;
+        }
+
+        .game-info-card .reward-item {
+            display: flex;
+            align-items: center;
+            background: rgba(0, 255, 255, 0.1);
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        .game-info-card .reward-item img {
+            width: 16px;
+            height: 16px;
+            margin-right: 4px;
+        }
+
+        .game-info-card .start-btn {
+            background: linear-gradient(90deg, #49eaff, #4776e6);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 10px;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+        }
+
+        .game-info-card .start-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 255, 0.4);
+        }
+
+        .game-info-card .start-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Location path animation */
+        .location-path {
+            position: absolute;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--neon), transparent);
+            transform-origin: left center;
+            z-index: 1;
+            box-shadow: 0 0 5px var(--neon);
+            animation: pathGlow 2s infinite alternate;
+        }
+
+        @keyframes pathGlow {
+            0% { opacity: 0.3; }
+            100% { opacity: 0.7; }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 400px) {
+            .container {
+                padding: 16px;
+            }
+
+            .currency span {
+                font-size: 12px;
+            }
+
+            .game-location {
+                width: 50px;
+                height: 50px;
+            }
+
+            .game-location i {
+                font-size: 24px;
+            }
+
+            .bottom-nav {
+                padding: 8px 12px;
+            }
+
+            .bottom-nav button,
+            .bottom-nav a.nav-button {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Floating particles background -->
+    <div class="particles" id="particles"></div>
+
+    <div class="container" id="map-container">
+        <div class="currency">
+            <span><img src="https://raw.githubusercontent.com/sinobu1/shark-tapper/main/coin.png" alt="Иконка монеты"/> <span id="coin-count" class="coin-count">0</span></span>
+            <span><img src="https://raw.githubusercontent.com/sinobu1/shark-tapper/main/dimond.png" alt="Иконка алмаза"/> <span id="gem-count" class="gem-count">0</span></span>
+            <span><img src="https://raw.githubusercontent.com/sinobu1/shark-tapper/main/ruda.png" alt="Иконка руды"/> <span id="ore-count" class="ore-count">0</span></span>
+            <span><img src="https://img.icons8.com/ios-filled/50/4CAF50/lightning-bolt.png" alt="Иконка энергии"/> <span id="energy-count" class="energy-count">100</span></span>
+        </div>
+
+        <h3 class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Карта мини-игр</h3>
+        <p class="text-sm text-cyan-100 mb-2">Выберите игру для заработка дополнительных ресурсов</p>
+
+        <div class="game-map">
+            <!-- Ocean waves -->
+            <div class="wave"></div>
+            <div class="wave"></div>
+            <div class="wave"></div>
+
+            <!-- Paths between locations -->
+            <div class="location-path" id="path1" style="width: 100px; top: 40%; left: 30%; transform: rotate(-30deg);"></div>
+            <div class="location-path" id="path2" style="width: 120px; top: 25%; left: 20%; transform: rotate(45deg);"></div>
+            <div class="location-path" id="path3" style="width: 150px; top: 65%; left: 50%; transform: rotate(15deg);"></div>
+            <div class="location-path" id="path4" style="width: 180px; top: 55%; left: 70%; transform: rotate(-20deg);"></div>
+
+            <!-- Main game (always available) -->
+            <div class="game-location" style="top: 30%; left: 50%;" onclick="showGameInfo('main')">
+                <i class="fas fa-fish"></i>
+                <div class="level-badge">1</div>
+            </div>
+
+            <!-- Fishing game (unlocks at level 5) -->
+            <div class="game-location locked" style="top: 60%; left: 30%;" onclick="showGameInfo('fishing')">
+                <i class="fas fa-anchor"></i>
+                <div class="level-badge">5</div>
+            </div>
+
+            <!-- Mining game (unlocks at level 10) -->
+            <div class="game-location locked" style="top: 20%; left: 20%;" onclick="showGameInfo('mining')">
+                <i class="fas fa-mountain"></i>
+                <div class="level-badge">10</div>
+            </div>
+
+            <!-- Treasure hunt (unlocks at level 15) -->
+            <div class="game-location locked" style="top: 70%; left: 70%;" onclick="showGameInfo('treasure')">
+                <i class="fas fa-treasure-chest"></i>
+                <div class="level-badge">15</div>
+            </div>
+
+            <!-- Shark racing (unlocks at level 20) -->
+            <div class="game-location locked" style="top: 40%; left: 80%;" onclick="showGameInfo('racing')">
+                <i class="fas fa-flag-checkered"></i>
+                <div class="level-badge">20</div>
+            </div>
+        </div>
+
+        <div class="game-info-card" id="game-info">
+            <h3 id="game-title">Название игры</h3>
+            <p id="game-description">Описание игры и её особенностей</p>
+            
+            <div class="rewards" id="game-rewards">
+                <!-- Rewards will be added dynamically -->
+            </div>
+            
+            <p id="game-requirements" class="text-sm text-cyan-200"></p>
+            <button class="start-btn" id="start-game-btn">
+                <i class="fas fa-play mr-2"></i> Начать игру
+            </button>
+        </div>
+
+        <div class="bottom-nav">
+            <a href="index.html" class="nav-button"><i class="fas fa-fish"></i></a>
+            <a href="shop.html" class="nav-button"><i class="fas fa-store"></i></a>
+            <a href="profile.html" class="nav-button"><i class="fas fa-user"></i></a>
+            <a href="map.html" class="nav-button active"><i class="fas fa-map"></i></a>
+        </div>
+    </div>
+</body>
+</html>
