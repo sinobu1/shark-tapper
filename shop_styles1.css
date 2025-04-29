@@ -1,0 +1,460 @@
+/* shop_styles.css */
+
+/* --- Базовые переменные и стили --- */
+:root {
+    /* Цвета неоновых эффектов */
+    --neon: #00f2fe;
+    --neon-pink: #ff00ff;
+    --neon-purple: #9d00ff;
+
+    /* Стили фона и границ карточек */
+    --card-bg: rgba(50, 30, 100, 0.3); /* Фон основного контейнера */
+    --card-border: rgba(150, 100, 255, 0.4); /* Цвет рамки контейнера */
+    --card-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37); /* Тень контейнера */
+    --card-radius: 18px; /* Радиус скругления углов виджетов/контейнера (увеличен для виджет-стиля) */
+
+    /* Цвета ресурсов */
+    --gem-color: #e91e63; /* Гемы */
+    --ore-color: #ff9800; /* Руда */
+    --energy-color: #4caf50; /* Энергия */
+    --star-color: #ffeb3b; /* Звезды */
+
+    /* Основные цвета интерфейса */
+    --primary: #3b82f6;
+    --secondary: #10b981;
+    --dark: #0f172a;
+    --light: #f8fafc;
+
+    /* Стили фона и границ виджетов (iOS-стиль) */
+    --ios-widget-bg: rgba(255, 255, 255, 0.08); /* Слегка изменен фон виджета */
+    --ios-widget-border: rgba(255, 255, 255, 0.15); /* Цвет рамки виджета */
+
+    /* Дополнительные цвета для NFT */
+    --nft-blue: #2081e2;
+    --nft-purple: #7851a9;
+}
+
+* {
+    box-sizing: border-box; /* Учитывать padding и border в размерах */
+    -webkit-tap-highlight-color: transparent; /* Убрать подсветку при тапе на мобильных */
+}
+
+body {
+    margin: 0;
+    font-family: 'Inter', sans-serif; /* Шрифт */
+    /* Фоновый градиент */
+    background: linear-gradient(135deg, #0a0a2a 0%, #2a0a2a 50%, #000018 100%);
+    background-size: cover; /* Масштабировать фон */
+    background-repeat: no-repeat; /* Не повторять фон */
+    background-attachment: fixed; /* Фиксировать фон при прокрутке */
+    min-height: 100vh; /* Минимальная высота на весь экран */
+    display: flex;
+    justify-content: center; /* Центрировать контент по горизонтали */
+    align-items: center; /* Центрировать контент по вертикали */
+    color: white; /* Цвет текста по умолчанию */
+    padding: 10px; /* Уменьшены отступы для body */
+    overflow-y: auto; /* Разрешить вертикальную прокрутку при необходимости */
+}
+
+/* --- Основной контейнер магазина --- */
+.container {
+    text-align: center;
+    padding: 15px; /* Уменьшены внутренние отступы */
+    max-width: 400px; /* Максимальная ширина контейнера */
+    width: 100%;
+    background: var(--card-bg); /* Фон */
+    border-radius: 20px; /* Увеличен радиус для контейнера */
+    border: 1px solid rgba(0,255,255,0.2); /* Рамка */
+    box-shadow: var(--card-shadow); /* Тень */
+    backdrop-filter: blur(15px); /* Эффект размытия фона */
+    -webkit-backdrop-filter: blur(15px); /* Для Safari */
+    overflow: hidden; /* Скрыть выходящий контент */
+    display: flex;
+    flex-direction: column; /* Элементы в столбец */
+    gap: 12px; /* Уменьшен отступ между элементами */
+    border-color: var(--card-border);
+    position: relative; /* Для позиционирования псевдо-элементов или частиц */
+}
+
+/* --- Фон с плавающими частицами (эффект) --- */
+.particles {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1; /* Поместить за контентом */
+    overflow: hidden; /* Скрыть выходящие частицы */
+    pointer-events: none; /* Не мешать кликам */
+}
+
+.particle {
+    position: absolute;
+    background: rgba(0, 255, 255, 0.5); /* Цвет частиц */
+    border-radius: 50%; /* Круглая форма */
+    /* Анимация задается через JS или CSS @keyframes */
+}
+
+/* --- Отображение валют --- */
+.currency {
+    display: flex;
+    justify-content: space-around; /* Распределить элементы */
+    flex-wrap: wrap; /* Перенос на новую строку при нехватке места */
+    gap: 5px; /* Уменьшен отступ */
+    padding: 8px 10px;
+    background: rgba(0, 255, 255, 0.08); /* Полупрозрачный фон */
+    border-radius: 18px;
+    backdrop-filter: blur(6px); /* Эффект размытия */
+    border: 1px solid rgba(0, 255, 255, 0.2);
+}
+
+.currency span {
+    display: flex;
+    align-items: center; /* Выровнять иконку и текст */
+    font-size: 12px; /* Уменьшен размер шрифта */
+    font-weight: 600;
+    white-space: nowrap; /* Запретить перенос текста */
+    padding: 0 4px;
+    transition: all 0.3s ease; /* Плавный переход для hover */
+}
+
+.currency span:hover {
+    transform: scale(1.05); /* Небольшое увеличение при наведении */
+}
+
+.currency img, .currency i { /* Стили для иконок (img или FontAwesome) */
+    width: 16px; /* Уменьшен размер */
+    height: 16px;
+    margin-right: 4px;
+    text-align: center;
+    line-height: 16px; /* Выровнять иконки FA по вертикали */
+}
+
+/* Цвета для разных валют */
+.currency .coin-count { color: var(--neon); text-shadow: 0 0 5px rgba(0, 255, 255, 0.5); }
+.currency .gem-count { color: var(--gem-color); text-shadow: 0 0 5px rgba(233, 30, 99, 0.5); }
+.currency .ore-count { color: var(--ore-color); text-shadow: 0 0 5px rgba(255, 152, 0, 0.5); }
+.currency .energy-count { color: var(--energy-color); text-shadow: 0 0 5px rgba(76, 175, 80, 0.5); }
+.currency .star-count { color: var(--star-color); text-shadow: 0 0 5px rgba(255, 235, 59, 0.5); }
+.currency .key-icon { color: var(--neon); }
+.currency .key-count { color: var(--neon); }
+
+/* --- Табы магазина (iOS-стиль) --- */
+.shop-tabs {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 12px;
+    padding: 4px; /* Уменьшен padding */
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 18px;
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.shop-tab {
+    padding: 6px 12px; /* Уменьшен padding */
+    cursor: pointer;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.6); /* Неактивный таб */
+    transition: all 0.3s ease; /* Плавный переход */
+    position: relative;
+    border-radius: 14px; /* Скругление */
+    font-size: 13px; /* Уменьшен шрифт */
+}
+
+.shop-tab.active {
+    color: white; /* Активный таб */
+    background: rgba(255, 255, 255, 0.15); /* Фон активного таба */
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* --- Сетка с товарами --- */
+.shop-items {
+    display: grid;
+    /* ИЗМЕНЕНО: Адаптивная сетка с базовым размером ~150px */
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px; /* Отступ между карточками */
+    max-height: 420px; /* Увеличена максимальная высота для прокрутки */
+    overflow-y: auto; /* Включить вертикальную прокрутку */
+    padding: 5px 4px 5px 0; /* Отступы (справа для скроллбара) */
+}
+
+/* --- Стиль карточки товара (iOS Widget) --- */
+.ios-widget {
+    background: var(--ios-widget-bg); /* Фон */
+    border-radius: var(--card-radius); /* Скругление углов */
+    padding: 10px; /* Уменьшены внутренние отступы */
+    border: 1px solid var(--ios-widget-border); /* Рамка */
+    transition: all 0.3s ease; /* Плавные переходы */
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08); /* Тень */
+    backdrop-filter: blur(10px); /* Размытие фона */
+    -webkit-backdrop-filter: blur(10px);
+    /* ДОБАВЛЕНО: Соотношение сторон 1:1 для квадратной формы */
+    aspect-ratio: 1 / 1;
+    /* УБРАНО: min-height (контролируется aspect-ratio) */
+    /* min-height: 150px; */
+    display: flex;
+    flex-direction: column; /* Элементы в столбец */
+    justify-content: space-between; /* Распределить пространство */
+    position: relative; /* Для позиционирования псевдо-элементов */
+    overflow: hidden; /* Скрыть выходящий градиент анимации */
+}
+
+/* --- Анимация переливающегося градиента --- */
+@keyframes shimmer-gradient {
+    0% { background-position: -200% 0; } /* Начальная позиция градиента за левым краем */
+    100% { background-position: 200% 0; } /* Конечная позиция за правым краем */
+}
+
+/* Псевдо-элемент для анимации градиента */
+.ios-widget::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* Большой градиент, который будет двигаться */
+    background: linear-gradient(
+        110deg,
+        rgba(255, 255, 255, 0) 40%, /* Прозрачный */
+        rgba(255, 255, 255, 0.15) 50%, /* Полупрозрачный белый блик */
+        rgba(255, 255, 255, 0) 60% /* Прозрачный */
+    );
+    background-size: 200% 100%; /* Размер градиента в два раза шире элемента */
+    z-index: 1; /* Поверх основного фона, но под контентом */
+    opacity: 0.8; /* Небольшая прозрачность */
+    animation: shimmer-gradient 4s infinite linear; /* Применить анимацию */
+    pointer-events: none; /* Не мешать кликам */
+}
+
+/* Контент виджета должен быть поверх анимации */
+.ios-widget-header,
+.ios-widget-body {
+    position: relative;
+    z-index: 2;
+}
+
+
+/* --- Фоны для разной редкости --- */
+/* Rarity backgrounds (adjusted for shimmer) */
+.ios-widget.common { border-color: rgba(150, 150, 150, 0.6); background-color: rgba(150, 150, 150, 0.1); } /* Упрощенный фон */
+.ios-widget.rare { border-color: rgba(32, 129, 226, 0.6); background-color: rgba(32, 129, 226, 0.1); }
+.ios-widget.epic { border-color: rgba(120, 81, 169, 0.6); background-color: rgba(120, 81, 169, 0.1); }
+.ios-widget.legendary { border-color: rgba(255, 215, 0, 0.6); background-color: rgba(255, 215, 0, 0.1); }
+
+
+.ios-widget:hover {
+    transform: translateY(-3px); /* Увеличено смещение при наведении */
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15); /* Увеличена тень */
+}
+
+/* --- Внутренние элементы виджета --- */
+.ios-widget-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 6px; /* Уменьшен отступ */
+    text-align: center;
+}
+
+/* Иконка товара */
+.ios-widget-icon, .skin-widget-icon {
+    width: 40px; /* Уменьшен размер */
+    height: 40px;
+    margin-bottom: 5px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 255, 255, 0.1); /* Фон иконки */
+    font-size: 20px; /* Размер иконки FontAwesome */
+    color: var(--neon);
+    overflow: hidden; /* Для обрезки изображения скина */
+    flex-shrink: 0; /* Предотвратить сжатие иконки */
+}
+
+.skin-widget-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Масштабировать изображение */
+}
+
+/* Название товара */
+.ios-widget-title {
+    font-weight: 600;
+    font-size: 13px; /* Уменьшен шрифт */
+    line-height: 1.25; /* Межстрочный интервал */
+    text-align: center;
+    margin-bottom: 3px;
+    color: #f0f0f0; /* Слегка светлее для контраста */
+    word-break: break-word; /* Перенос длинных слов */
+}
+
+/* Цена товара */
+.ios-widget-price {
+    font-weight: 500; /* Слегка уменьшен вес */
+    display: flex;
+    flex-direction: column; /* Цены в столбец */
+    align-items: center;
+    gap: 2px;
+    justify-content: center;
+    margin-bottom: 5px;
+    font-size: 11px; /* Уменьшен шрифт цены */
+    color: #cccccc; /* Цвет цены по умолчанию */
+}
+
+.price-tag {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.ios-widget-price i {
+    font-size: 10px; /* Размер иконки валюты */
+    width: 12px; /* Ширина для выравнивания */
+    text-align: center;
+}
+
+/* Основная часть виджета (описание, кнопка) */
+.ios-widget-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between; /* Разнести описание и кнопку */
+    flex-grow: 1; /* Занять оставшееся место */
+    width: 100%; /* На всю ширину */
+}
+
+/* Описание товара */
+.ios-widget-description {
+    font-size: 11px; /* Уменьшен шрифт */
+    color: rgba(255, 255, 255, 0.7);
+    text-align: center;
+    margin-bottom: 8px; /* Отступ снизу */
+    line-height: 1.3;
+    flex-grow: 1; /* Позволить описанию растягиваться */
+    width: 100%; /* На всю ширину */
+    word-break: break-word;
+    /* Добавлено для ограничения высоты текста в квадратном виджете */
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2; /* Ограничить 2 строками (для WebKit) */
+     line-clamp: 2; /* ДОБАВЛЕНО: Стандартное свойство */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-height: calc(1.3 * 11px * 2); /* Оценка макс. высоты для 2 строк */
+}
+
+/* Кнопка в виджете */
+.ios-widget-button {
+    background: rgba(0, 255, 255, 0.15); /* Слегка ярче фон */
+    border: none;
+    color: white;
+    padding: 6px 10px; /* Уменьшен padding */
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 12px; /* Уменьшен шрифт */
+    border: 1px solid rgba(0, 255, 255, 0.25); /* Слегка ярче рамка */
+    width: 95%; /* Немного меньше 100% */
+    max-width: 100px; /* Максимальная ширина */
+    margin-top: auto; /* Прижать кнопку к низу */
+    flex-shrink: 0; /* Не сжимать кнопку */
+    white-space: nowrap; /* Запретить перенос текста на кнопке */
+    overflow: hidden;
+    text-overflow: ellipsis; /* Добавить троеточие, если текст не влезает */
+}
+
+.ios-widget-button:hover { background: rgba(0, 255, 255, 0.25); }
+.ios-widget-button:active { transform: scale(0.96); }
+.ios-widget-button:disabled { opacity: 0.5; cursor: not-allowed; background: rgba(100, 100, 100, 0.1); border-color: rgba(100, 100, 100, 0.2); }
+
+/* Стили для разных состояний кнопки */
+.ios-widget-button.owned { background: rgba(76, 175, 80, 0.2); color: #a5d6a7; border-color: rgba(76, 175, 80, 0.4); }
+.ios-widget-button.equipped { background: rgba(59, 130, 246, 0.2); color: #90caf9; border-color: rgba(59, 130, 246, 0.4); }
+.ios-widget-button.maxed { background: rgba(159, 32, 181, 0.2); color: #ce93d8; border-color: rgba(159, 32, 181, 0.4); }
+
+/* --- Значки редкости NFT --- */
+.nft-badge {
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 10px; /* Увеличено скругление */
+    text-transform: uppercase;
+    margin-top: 4px; /* Отступ сверху */
+    display: inline-block; /* Для корректного отображения */
+}
+
+/* Цвета значков редкости */
+.common { background: rgba(158, 158, 158, 0.3); color: #e0e0e0; border: 1px solid rgba(158, 158, 158, 0.4); }
+.rare { background: rgba(66, 165, 245, 0.3); color: #90caf9; border: 1px solid rgba(66, 165, 245, 0.4); }
+.epic { background: rgba(186, 104, 200, 0.3); color: #e1bee7; border: 1px solid rgba(186, 104, 200, 0.4); }
+.legendary { background: rgba(255, 215, 0, 0.3); color: #fff59d; border: 1px solid rgba(255, 215, 0, 0.4); }
+
+/* --- Цвета тегов цен --- */
+.coins-price { color: var(--neon); }
+.gems-price { color: var(--gem-color); }
+.ore-price { color: var(--ore-color); }
+.stars-price { color: var(--star-color); }
+
+/* --- Стили Лутбокса --- (без изменений) */
+.lootbox-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); display: flex; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(5px); }
+.lootbox { background: linear-gradient(135deg, #1a0638 0%, #2a0a5a 100%); border-radius: 20px; padding: 20px; width: 90%; max-width: 350px; text-align: center; box-shadow: 0 0 30px rgba(157, 0, 255, 0.5); border: 2px solid var(--neon-purple); position: relative; overflow: hidden; }
+.lootbox::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: linear-gradient( to bottom right, rgba(157, 0, 255, 0.1), rgba(157, 0, 255, 0.3), rgba(157, 0, 255, 0.1) ); transform: rotate(30deg); animation: shine 3s infinite linear; }
+@keyframes shine { 0% { transform: rotate(30deg) translate(-30%, -30%); } 100% { transform: rotate(30deg) translate(30%, 30%); } }
+.lootbox-title { font-size: 24px; font-weight: 700; margin-bottom: 15px; color: var(--neon); text-shadow: 0 0 10px rgba(0, 242, 254, 0.5); }
+.lootbox-image { width: 150px; height: 150px; margin: 0 auto 20px; background: url('https://raw.githubusercontent.com/sinobu1/shark-tapper/main/shark.png') center/contain no-repeat; position: relative; }
+.lootbox-reward { font-size: 18px; font-weight: 600; margin: 15px 0; padding: 10px; background: rgba(0, 255, 255, 0.1); border-radius: 10px; border: 1px solid var(--neon); }
+.lootbox-button { background: linear-gradient(to right, var(--neon-purple), var(--neon-pink)); border: none; color: white; padding: 12px 24px; border-radius: 30px; font-weight: 700; cursor: pointer; margin-top: 15px; font-size: 16px; box-shadow: 0 0 20px rgba(157, 0, 255, 0.5); transition: all 0.3s ease; }
+.lootbox-button:hover { transform: scale(1.05); box-shadow: 0 0 30px rgba(157, 0, 255, 0.7); }
+.lootbox-button:active { transform: scale(0.98); }
+.key-count { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 20px; font-size: 16px; }
+.key-icon { color: var(--neon); font-size: 20px; }
+
+/* --- Стилизация скроллбара --- */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.1); border-radius: 10px; }
+::-webkit-scrollbar-thumb { background: rgba(0, 255, 255, 0.3); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(0, 255, 255, 0.5); }
+
+/* --- Анимация пульсации при покупке --- */
+@keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+.pulse { animation: pulse 0.3s ease; }
+
+/* --- Адаптивные стили --- */
+/* Медиа-запрос для маленьких экранов */
+@media (max-width: 380px) { /* Уменьшена точка срабатывания */
+    body { padding: 8px; }
+    .container { padding: 12px; gap: 10px; }
+    .currency span { font-size: 11px; }
+    .currency img, .currency i { width: 14px; height: 14px; margin-right: 3px;}
+    .shop-tab { padding: 5px 8px; font-size: 12px; border-radius: 12px;}
+    .shop-items {
+        /* ИЗМЕНЕНО: На маленьких экранах - 2 колонки, подстраивающиеся под ширину */
+        grid-template-columns: repeat(2, minmax(0, 1fr)); /* Используем minmax для гибкости */
+        gap: 8px; /* Уменьшен отступ */
+         padding-right: 2px;
+    }
+    .ios-widget {
+        padding: 8px; /* Еще меньше отступы */
+        /* УБРАНО: min-height */
+        border-radius: 16px; /* Чуть меньше скругление */
+    }
+    .ios-widget-icon, .skin-widget-icon { width: 35px; height: 35px; font-size: 18px; margin-bottom: 4px; border-radius: 8px;}
+    .ios-widget-title { font-size: 12px; }
+    .ios-widget-description {
+        font-size: 10px;
+        margin-bottom: 6px;
+        line-height: 1.2;
+        /* Ограничение строк для маленьких экранов */
+        -webkit-line-clamp: 2; /* (для WebKit) */
+         line-clamp: 2; /* ДОБАВЛЕНО: Стандартное свойство */
+        max-height: calc(1.2 * 10px * 2);
+    }
+    .ios-widget-button { padding: 5px 8px; font-size: 11px; width: 98%; max-width: 90px; border-radius: 6px;}
+    .ios-widget-price { font-size: 10px; margin-bottom: 4px;}
+    .ios-widget-price i { font-size: 9px; width: 10px; }
+    .nft-badge { font-size: 8px; padding: 1px 4px; margin-top: 3px; border-radius: 8px; }
+}

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0a0a2a" />
+  <title>Акула Тапалка - Магазин</title>
+  
+  <!-- Шрифты и иконки -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  
+  <!-- Стили -->
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="shop_styles1.css">
+  <!-- Скрипты -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="shop_logic.js" defer></script>
+  <script src="skript3.js" defer></script>
+  
+</head>
+
+<body>
+  <!-- Фон с частицами -->
+  <div id="particles" class="particles"></div>
+
+  <main id="shop-container" class="container">
+    <!-- Валюта -->
+    <section class="currency" aria-label="Валюта игрока">
+      <span>
+        <img src="https://raw.githubusercontent.com/sinobu1/shark-tapper/main/coin.png" alt="Монета"/> 
+        <span id="coin-count" class="coin-count">0</span>
+      </span>
+      <span>
+        <img src="https://raw.githubusercontent.com/sinobu1/shark-tapper/main/dimond.png" alt="Алмаз" class="gem-icon"/> 
+        <span id="gem-count" class="gem-count">0</span>
+      </span>
+      <span>
+        <img src="https://raw.githubusercontent.com/sinobu1/shark-tapper/main/ruda.png" alt="Руда" class="ore-icon"/> 
+        <span id="ore-count" class="ore-count">0</span>
+      </span>
+      <span>
+        <img src="https://img.icons8.com/ios-filled/50/4CAF50/lightning-bolt.png" alt="Энергия" class="energy-icon"/> 
+        <span id="energy-count" class="energy-count">100</span>
+      </span>
+    </section>
+    <div class="shop-tabs">
+      <div class="shop-tab active" onclick="changeTab('helpers')">NFT Помощники</div>
+      <div class="shop-tab" onclick="changeTab('upgrades')">NFT Улучшения</div>
+      <div class="shop-tab" onclick="changeTab('skins')">NFT Скины</div>
+      <div class="shop-tab" onclick="changeTab('lootboxes')">Лутбоксы</div>
+  </div>
+    <div class="shop-items" id="helpers-tab">
+      <div class="ios-widget common" id="shop-item-dolphin">
+           <div class="ios-widget-header">
+              <div class="ios-widget-icon"><i class="fas fa-fish"></i></div>
+              <div class="ios-widget-title">NFT Дельфин</div>
+              <div class="nft-badge common">Common</div>
+              <div class="ios-widget-price"><span class="price-tag coins-price"><i class="fas fa-coins"></i> 500</span></div>
+          </div>
+          <div class="ios-widget-body">
+              <div class="ios-widget-description">+20 монет/сек. Уровень: <span id="dolphin-level">0</span></div>
+              <button class="ios-widget-button" onclick="buyItem('dolphin', 'helper')">Купить</button>
+          </div>
+      </div>
+       <div class="ios-widget rare" id="shop-item-orca"> <div class="ios-widget-header"> <div class="ios-widget-icon"> <i class="fas fa-whale"></i> </div> <div class="ios-widget-title">NFT Косатка</div> <div class="nft-badge rare">Rare</div> <div class="ios-widget-price"> <span class="price-tag coins-price"><i class="fas fa-coins"></i> 1,500</span> </div> </div> <div class="ios-widget-body"> <div class="ios-widget-description">+50 монет/сек. Уровень: <span id="orca-level">0</span></div> <button class="ios-widget-button" onclick="buyItem('orca', 'helper')">Купить</button> </div> </div>
+       <div class="ios-widget rare" id="shop-item-whale"> <div class="ios-widget-header"> <div class="ios-widget-icon"> <i class="fas fa-water"></i> </div> <div class="ios-widget-title">NFT Кит</div> <div class="nft-badge rare">Rare</div> <div class="ios-widget-price"> <span class="price-tag coins-price"><i class="fas fa-coins"></i> 5,000</span> </div> </div> <div class="ios-widget-body"> <div class="ios-widget-description">+100 монет/сек. Уровень: <span id="whale-level">0</span></div> <button class="ios-widget-button" onclick="buyItem('whale', 'helper')">Купить</button> </div> </div>
+       <div class="ios-widget epic" id="shop-item-shark"> <div class="ios-widget-header"> <div class="ios-widget-icon"> <i class="fas fa-shark"></i> </div> <div class="ios-widget-title">NFT Акула</div> <div class="nft-badge epic">Epic</div> <div class="ios-widget-price"> <span class="price-tag coins-price"><i class="fas fa-coins"></i> 15,000</span> </div> </div> <div class="ios-widget-body"> <div class="ios-widget-description">+200 монет/сек. Уровень: <span id="shark-level">0</span></div> <button class="ios-widget-button" onclick="buyItem('shark', 'helper')">Купить</button> </div> </div>
+       <div class="ios-widget epic" id="shop-item-submarine"> <div class="ios-widget-header"> <div class="ios-widget-icon"> <i class="fas fa-subway"></i> </div> <div class="ios-widget-title">NFT Подлодка</div> <div class="nft-badge epic">Epic</div> <div class="ios-widget-price"> <span class="price-tag coins-price"><i class="fas fa-coins"></i> 50,000</span> </div> </div> <div class="ios-widget-body"> <div class="ios-widget-description">+500 монет/сек. Уровень: <span id="submarine-level">0</span></div> <button class="ios-widget-button" onclick="buyItem('submarine', 'helper')">Купить</button> </div> </div>
+       <div class="ios-widget legendary" id="shop-item-fleet"> <div class="ios-widget-header"> <div class="ios-widget-icon"> <i class="fas fa-ship"></i> </div> <div class="ios-widget-title">NFT Флот</div> <div class="nft-badge legendary">Legendary</div> <div class="ios-widget-price"> <span class="price-tag coins-price"><i class="fas fa-coins"></i> 150,000</span> </div> </div> <div class="ios-widget-body"> <div class="ios-widget-description">+1,000 монет/сек. Уровень: <span id="fleet-level">0</span></div> <button class="ios-widget-button" onclick="buyItem('fleet', 'helper')">Купить</button> </div> </div>
+  </div>
+
+  <div class="shop-items" id="upgrades-tab" style="display: none;">
+       <div class="ios-widget common" id="shop-item-powerTap"> <div class="ios-widget-header"> <div class="ios-widget-icon"> <i class="fas fa-fist-raised"></i> </div> <div class="ios-widget-title">NFT Сила удара</div> <div class="nft-badge common">Common</div> <div class="ios-widget-price"> <span class="price-tag coins-price"><i class="fas fa-coins"></i> 2,000</span> </div> </div> <div class="ios-widget-body"> <div class="ios-widget-description">+1 к базовому урону. Уровень: <span id="powerTap-level">0/10</span></div> <button class="ios-widget-button" onclick="buyItem('powerTap', 'upgrade')">Улучшить</button> </div> </div>
+       <div class="ios-widget rare" id="shop-item-criticalChance"> <div class="ios-widget-header"> <div class="ios-widget-icon"> <i class="fas fa-bolt"></i> </div> <div class="ios-widget-title">NFT Критический шанс</div> <div class="nft-badge rare">Rare</div> <div class="ios-widget-price"> <span class="price-tag coins-price"><i class="fas fa-coins"></i> 5,000</span> </div> </div> <div class="ios-widget-body"> <div class="ios-widget-description">+10% к шансу крита. Уровень: <span id="criticalChance-level">0/5</span></div> <button class="ios-widget-button" onclick="buyItem('criticalChance', 'upgrade')">Улучшить</button> </div> </div>
+       <div class="ios-widget rare" id="shop-item-oreChance"> <div class="ios-widget-header"> <div class="ios-widget-icon"> <i class="fas fa-gem"></i> </div> <div class="ios-widget-title">NFT Удача рудокопа</div> <div class="nft-badge rare">Rare</div> <div class="ios-widget-price"> <span class="price-tag coins-price"><i class="fas fa-coins"></i> 3,000</span> </div> </div> <div class="ios-widget-body"> <div class="ios-widget-description">+5% к шансу руды. Уровень: <span id="oreChance-level">0/10</span></div> <button class="ios-widget-button" onclick="buyItem('oreChance', 'upgrade')">Улучшить</button> </div> </div>
+       <div class="ios-widget epic" id="shop-item-energyRegen"> <div class="ios-widget-header"> <div class="ios-widget-icon"> <i class="fas fa-battery-three-quarters"></i> </div> <div class="ios-widget-title">NFT Регенерация</div> <div class="nft-badge epic">Epic</div> <div class="ios-widget-price"> <span class="price-tag gems-price"><i class="fas fa-gem"></i> 10</span> </div> </div> <div class="ios-widget-body"> <div class="ios-widget-description">+1 к восстановлению энергии. Уровень: <span id="energyRegen-level">0/5</span></div> <button class="ios-widget-button" onclick="buyItem('energyRegen', 'upgrade')">Улучшить</button> </div> </div>
+       <div class="ios-widget epic" id="shop-item-energyMax"> <div class="ios-widget-header"> <div class="ios-widget-icon"> <i class="fas fa-battery-full"></i> </div> <div class="ios-widget-title">NFT Энергия+</div> <div class="nft-badge epic">Epic</div> <div class="ios-widget-price"> <span class="price-tag gems-price"><i class="fas fa-gem"></i> 5</span> </div> </div> <div class="ios-widget-body"> <div class="ios-widget-description">+50 к максимуму энергии. Уровень: <span id="energyMax-level">0/10</span></div> <button class="ios-widget-button" onclick="buyItem('energyMax', 'upgrade')">Улучшить</button> </div> </div>
+       <div class="ios-widget legendary" id="shop-item-incomeMultiplier"> <div class="ios-widget-header"> <div class="ios-widget-icon"> <i class="fas fa-chart-line"></i> </div> <div class="ios-widget-title">NFT Множитель дохода</div> <div class="nft-badge legendary">Legendary</div> <div class="ios-widget-price"> <span class="price-tag coins-price"><i class="fas fa-coins"></i> 10,000</span> </div> </div> <div class="ios-widget-body"> <div class="ios-widget-description">x1.2 к доходу от помощников. Уровень: <span id="incomeMultiplier-level">0/5</span></div> <button class="ios-widget-button" onclick="buyItem('incomeMultiplier', 'upgrade')">Улучшить</button> </div> </div>
+  </div>
+
+  <div class="shop-items" id="skins-tab" style="display: none;">
+      <div class="ios-widget common" id="shop-item-basic"> <div class="ios-widget-header"> <div class="skin-widget-icon"> <img src="https://raw.githubusercontent.com/sinobu1/shark-tapper/main/shark.png" alt="Базовая акула"> </div> <div class="ios-widget-title">NFT Базовая акула</div> <div class="nft-badge common">Common</div> <div class="ios-widget-price"> <span class="price-tag coins-price"><i class="fas fa-coins"></i> 0</span> </div> </div> <div class="ios-widget-body"> <div class="ios-widget-description">Стандартный NFT скин без бонусов</div> <button class="ios-widget-button equipped" onclick="handleSkinAction('basic')">Надет</button> </div> </div>
+      <div class="ios-widget rare" id="shop-item-gold"> <div class="ios-widget-header"> <div class="skin-widget-icon"> <img src="https://raw.githubusercontent.com/sinobu1/shark-tapper/main/shark.png" alt="Золотая акула"> </div> <div class="ios-widget-title">NFT Золотая акула</div> <div class="nft-badge rare">Rare</div> <div class="ios-widget-price"> <span class="price-tag coins-price"><i class="fas fa-coins"></i> 5,000</span> <span class="price-tag gems-price"><i class="fas fa-gem"></i> 5</span> </div> </div> <div class="ios-widget-body"> <div class="ios-widget-description">x1.5 к доходу от тапов</div> <button class="ios-widget-button" onclick="handleSkinAction('gold')">Купить</button> </div> </div>
+      <div class="ios-widget rare" id="shop-item-robot"> <div class="ios-widget-header"> <div class="skin-widget-icon"> <img src="https://raw.githubusercontent.com/sinobu1/shark-tapper/main/shark.png" alt="Акула-робот"> </div> <div class="ios-widget-title">NFT Акула-робот</div> <div class="nft-badge rare">Rare</div> <div class="ios-widget-price"> <span class="price-tag coins-price"><i class="fas fa-coins"></i> 10,000</span> <span class="price-tag ore-price"><i class="fas fa-cube"></i> 10</span> </div> </div> <div class="ios-widget-body"> <div class="ios-widget-description">x2 к доходу от тапов</div> <button class="ios-widget-button" onclick="handleSkinAction('robot')">Купить</button> </div> </div>
+      <div class="ios-widget epic" id="shop-item-dragon"> <div class="ios-widget-header"> <div class="skin-widget-icon"> <img src="https://raw.githubusercontent.com/sinobu1/shark-tapper/main/shark.png" alt="Акула-дракон"> </div> <div class="ios-widget-title">NFT Акула-дракон</div> <div class="nft-badge epic">Epic</div> <div class="ios-widget-price"> <span class="price-tag coins-price"><i class="fas fa-coins"></i> 20,000</span> <span class="price-tag gems-price"><i class="fas fa-gem"></i> 10</span> </div> </div> <div class="ios-widget-body"> <div class="ios-widget-description">x3 к доходу от тапов</div> <button class="ios-widget-button" onclick="handleSkinAction('dragon')">Купить</button> </div> </div>
+      <div class="ios-widget epic" id="shop-item-cyber"> <div class="ios-widget-header"> <div class="skin-widget-icon"> <img src="https://raw.githubusercontent.com/sinobu1/shark-tapper/main/shark.png" alt="Кибер-акула"> </div> <div class="ios-widget-title">NFT Кибер-акула</div> <div class="nft-badge epic">Epic</div> <div class="ios-widget-price"> <span class="price-tag coins-price"><i class="fas fa-coins"></i> 50,000</span> <span class="price-tag ore-price"><i class="fas fa-cube"></i> 20</span> </div> </div> <div class="ios-widget-body"> <div class="ios-widget-description">x5 к доходу от тапов</div> <button class="ios-widget-button" onclick="handleSkinAction('cyber')">Купить</button> </div> </div>
+      <div class="ios-widget legendary" id="shop-item-legendary"> <div class="ios-widget-header"> <div class="skin-widget-icon"> <img src="https://raw.githubusercontent.com/sinobu1/shark-tapper/main/shark.png" alt="Легендарная акула"> </div> <div class="ios-widget-title">NFT Легендарная акула</div> <div class="nft-badge legendary">Legendary</div> <div class="ios-widget-price"> <span class="price-tag coins-price"><i class="fas fa-coins"></i> 100,000</span> <span class="price-tag stars-price"><i class="fas fa-star"></i> 5</span> </div> </div> <div class="ios-widget-body"> <div class="ios-widget-description">x10 к доходу от тапов</div> <button class="ios-widget-button" onclick="handleSkinAction('legendary')">Купить</button> </div> </div>
+  </div>
+
+  <div class="shop-items" id="lootboxes-tab" style="display: none;">
+      <div class="ios-widget common" id="shop-item-common-lootbox"> <div class="ios-widget-header"> <div class="ios-widget-icon"> <i class="fas fa-box-open"></i> </div> <div class="ios-widget-title">Обычный лутбокс</div> <div class="nft-badge common">Common</div> <div class="ios-widget-price"> <span class="price-tag coins-price"><i class="fas fa-coins"></i> 5,000</span> <span class="price-tag"><i class="fas fa-key"></i> 1</span> </div> </div> <div class="ios-widget-body"> <div class="ios-widget-description">Шанс получить обычные и редкие предметы</div> <button class="ios-widget-button" onclick="openLootbox('common')">Открыть</button> </div> </div>
+       <div class="ios-widget rare" id="shop-item-rare-lootbox"> <div class="ios-widget-header"> <div class="ios-widget-icon"> <i class="fas fa-box-open"></i> </div> <div class="ios-widget-title">Редкий лутбокс</div> <div class="nft-badge rare">Rare</div> <div class="ios-widget-price"> <span class="price-tag coins-price"><i class="fas fa-coins"></i> 15,000</span> <span class="price-tag"><i class="fas fa-key"></i> 3</span> </div> </div> <div class="ios-widget-body"> <div class="ios-widget-description">Шанс получить редкие и эпические предметы</div> <button class="ios-widget-button" onclick="openLootbox('rare')">Открыть</button> </div> </div>
+       <div class="ios-widget epic" id="shop-item-epic-lootbox"> <div class="ios-widget-header"> <div class="ios-widget-icon"> <i class="fas fa-box-open"></i> </div> <div class="ios-widget-title">Эпический лутбокс</div> <div class="nft-badge epic">Epic</div> <div class="ios-widget-price"> <span class="price-tag coins-price"><i class="fas fa-coins"></i> 50,000</span> <span class="price-tag"><i class="fas fa-key"></i> 5</span> </div> </div> <div class="ios-widget-body"> <div class="ios-widget-description">Шанс получить эпические и легендарные предметы</div> <button class="ios-widget-button" onclick="openLootbox('epic')">Открыть</button> </div> </div>
+       <div class="ios-widget legendary" id="shop-item-legendary-lootbox"> <div class="ios-widget-header"> <div class="ios-widget-icon"> <i class="fas fa-box-open"></i> </div> <div class="ios-widget-title">Легендарный лутбокс</div> <div class="nft-badge legendary">Legendary</div> <div class="ios-widget-price"> <span class="price-tag coins-price"><i class="fas fa-coins"></i> 150,000</span> <span class="price-tag"><i class="fas fa-key"></i> 10</span> </div> </div> <div class="ios-widget-body"> <div class="ios-widget-description">Гарантированный легендарный предмет</div> <button class="ios-widget-button" onclick="openLootbox('legendary')">Открыть</button> </div> </div>
+  </div>
+
+  </div>
+
+<div class="lootbox-container" id="lootbox-modal" style="display: none;">
+  <div class="lootbox">
+      <div class="lootbox-title" id="lootbox-title">Обычный лутбокс</div>
+      <div class="lootbox-image" id="lootbox-image"></div>
+      <div class="lootbox-reward" id="lootbox-reward">Вы получили: 1000 монет</div>
+      <button class="lootbox-button" onclick="closeLootbox()">Закрыть</button>
+  </div>
+</div>
+
+
+
+    <!-- Нижняя навигация -->
+    <nav class="bottom-nav" aria-label="Навигация по игре">
+      <a href="index.html" class="nav-button" aria-label="Главная">
+        <i class="fas fa-fish"></i>
+      </a>
+      <a href="shop.html" class="nav-button active" aria-label="Магазин">
+        <i class="fas fa-store"></i>
+      </a>
+      <a href="profile.html" class="nav-button" aria-label="Профиль">
+        <i class="fas fa-user"></i>
+      </a>
+      <a href="map.html" class="nav-button" aria-label="Карта">
+        <i class="fas fa-map"></i>
+      </a>
+    </nav>
+  </main>
+  
+</body>
+</html>
