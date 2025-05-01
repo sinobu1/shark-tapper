@@ -1,5 +1,6 @@
 /* CSS Variables */
 :root {
+    box-sizing: border-box;
     /* Colors */
     --primary: #3b82f6;
     --secondary: #10b981;
@@ -56,12 +57,13 @@
 
   /* Shop Items Grid */
   .shop-items-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); /* Reduced minmax */
-    gap: 9px; /* Reduced gap */
-    max-height: 420px;
-    overflow-y: auto;
-    padding: 5px 4px 5px 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      /* <= изменено */
+      gap: 9px;
+      max-height: 420px;
+      overflow-y: auto;
+      padding: 5px 4px 5px 0;
   }
 
   /* Item Card */
@@ -80,6 +82,8 @@
     justify-content: space-between;
     position: relative;
     overflow: hidden;
+    max-width: 100%;
+        /* Чтобы не вылезала за колонку */
   }
 
   .shop-item-card::before {
