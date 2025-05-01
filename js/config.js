@@ -39,7 +39,7 @@ export const config = {
       currency: "coin",
       costIncrease: 1.15,
       rarity: "common",
-      icon: "fa-fish",
+      imageUrl: "https://github.com/sinobu1/shark-tapper/blob/main/u2.png?raw=true",
     },
     orca: {
       name: "Косатка",
@@ -48,7 +48,7 @@ export const config = {
       currency: "coin",
       costIncrease: 1.2,
       rarity: "rare",
-      icon: "fa-fish",
+      imageUrl: "https://github.com/sinobu1/shark-tapper/blob/main/u2.png?raw=true",
     }, // Иконки можно кастомизировать
     whale: {
       name: "Кит",
@@ -57,7 +57,7 @@ export const config = {
       currency: "coin",
       costIncrease: 1.25,
       rarity: "rare",
-      icon: "fa-fish",
+      imageUrl: "https://github.com/sinobu1/shark-tapper/blob/main/u2.png?raw=true",
     },
     shark: {
       name: "Акула",
@@ -66,7 +66,7 @@ export const config = {
       currency: "coin",
       costIncrease: 1.3,
       rarity: "epic",
-      icon: "fa-fish",
+      imageUrl: "https://github.com/sinobu1/shark-tapper/blob/main/u2.png?raw=true",
     },
     submarine: {
       name: "Подлодка",
@@ -75,7 +75,7 @@ export const config = {
       currency: "coin",
       costIncrease: 1.35,
       rarity: "epic",
-      icon: "fa-ship",
+      imageUrl: "https://github.com/sinobu1/shark-tapper/blob/main/u2.png?raw=true",
     },
     fleet: {
       name: "Флот",
@@ -84,12 +84,12 @@ export const config = {
       currency: "coin",
       costIncrease: 1.4,
       rarity: "legendary",
-      icon: "fa-anchor",
+      imageUrl: "https://github.com/sinobu1/shark-tapper/blob/main/u2.png?raw=true",
     },
   },
   upgrades: {
     powerTap: {
-      name: "NFT Сила удара",
+      name: "Сила Тапа",
       cost: 2000,
       effect: 1,
       currency: "coin",
@@ -166,30 +166,27 @@ export const config = {
       costOre: 0,
       multiplier: 1,
       rarity: "common",
-      iconSrc:
-        "https://raw.githubusercontent.com/sinobu1/shark-tapper/main/shark.png",
+      imageUrl: "https://github.com/sinobu1/shark-tapper/blob/main/shark.png?raw=true",
       description: "Стандартный NFT скин",
     },
     gold: {
-      name: "Золотая акула",
-      cost: 5000,
-      costGems: 5,
+      name: "Фиолетта",
+      cost: 100,
+      costGems: 0,
       costOre: 0,
       multiplier: 1.5,
       rarity: "rare",
-      iconSrc:
-        "https://raw.githubusercontent.com/sinobu1/shark-tapper/main/shark.png",
+      imageUrl: "https://github.com/sinobu1/shark-tapper/blob/main/shark2.png?raw=true",
       description: (mult) => `x${mult} к силе тапа`,
     }, // TODO: Add specific icon paths
     robot: {
       name: "Акула-робот",
       cost: 10000,
       costGems: 0,
-      costOre: 10,
+      costOre: 0,
       multiplier: 2,
       rarity: "rare",
-      iconSrc:
-        "https://raw.githubusercontent.com/sinobu1/shark-tapper/main/shark.png",
+      imageUrl: "https://github.com/sinobu1/shark-tapper/blob/main/shark.png?raw=true",
       description: (mult) => `x${mult} к силе тапа`,
     },
     dragon: {
@@ -199,19 +196,17 @@ export const config = {
       costOre: 0,
       multiplier: 3,
       rarity: "epic",
-      iconSrc:
-        "https://raw.githubusercontent.com/sinobu1/shark-tapper/main/shark.png",
+      imageUrl: "https://github.com/sinobu1/shark-tapper/blob/main/shark.png?raw=true",
       description: (mult) => `x${mult} к силе тапа`,
     },
     cyber: {
       name: "Кибер-акула",
       cost: 50000,
       costGems: 0,
-      costOre: 20,
+      costOre: 0,
       multiplier: 5,
       rarity: "epic",
-      iconSrc:
-        "https://raw.githubusercontent.com/sinobu1/shark-tapper/main/shark.png",
+      imageUrl: "https://github.com/sinobu1/shark-tapper/blob/main/shark.png?raw=true",
       description: (mult) => `x${mult} к силе тапа`,
     },
     legendary: {
@@ -221,8 +216,7 @@ export const config = {
       costOre: 0,
       multiplier: 10,
       rarity: "legendary",
-      iconSrc:
-        "https://raw.githubusercontent.com/sinobu1/shark-tapper/main/shark.png",
+      imageUrl: "https://github.com/sinobu1/shark-tapper/blob/main/shark.png?raw=true",
       description: (mult) => `x${mult} к силе тапа`,
     },
   },
@@ -231,7 +225,7 @@ export const config = {
       name: "Обычный лутбокс",
       cost: 5000,
       currency: "coin",
-      icon: "fa-box-open",
+      imageUrl: "https://github.com/sinobu1/shark-tapper/blob/main/sunduk.png?raw=true",
       rarity: "common",
       description: "Шанс получить обычные и редкие предметы",
       rewards: [
@@ -244,7 +238,7 @@ export const config = {
       name: "Редкий лутбокс",
       cost: 15000,
       currency: "coin",
-      icon: "fa-box-open",
+      imageUrl: "https://github.com/sinobu1/shark-tapper/blob/main/sunduk.png?raw=true",
       rarity: "rare",
       description: "Шанс получить редкие и эпические предметы",
       rewards: [
@@ -258,7 +252,7 @@ export const config = {
       name: "Эпический лутбокс",
       cost: 50000,
       currency: "coin",
-      icon: "fa-box-open",
+      imageUrl: "https://github.com/sinobu1/shark-tapper/blob/main/sunduk.png?raw=true",
       rarity: "epic",
       description: "Шанс получить эпические и легендарные предметы",
       rewards: [
@@ -272,7 +266,7 @@ export const config = {
       name: "Легендарный лутбокс",
       cost: 150000,
       currency: "coin",
-      icon: "fa-box-open",
+      imageUrl: "https://github.com/sinobu1/shark-tapper/blob/main/sunduk.png?raw=true",
       rarity: "legendary",
       description: "Высокий шанс на лучшие предметы",
       rewards: [

@@ -1,13 +1,7 @@
 // js/uiManager.js
 import { eventBus } from "./eventBus.js";
 import { config } from "./config.js";
-import {
-  formatNumber,
-  getCurrentCost,
-  formatLootboxReward,
-  createElement,
-} from "./utils.js";
-import { shopManager } from "./shopManager.js"; // Импортируем ShopManager
+import { formatNumber, getCurrentCost, createElement } from "./utils.js";
 
 class UIManager {
   constructor() {
@@ -70,6 +64,7 @@ class UIManager {
 
   updateUI(state) {
     if (!state || !this.elements) return; // Проверка
+
     // Валюты
     if (this.elements.coinCount)
       this.elements.coinCount.textContent = formatNumber(state.currencies.coin);
@@ -77,6 +72,7 @@ class UIManager {
       this.elements.gemCount.textContent = formatNumber(state.currencies.gem);
     if (this.elements.oreCount)
       this.elements.oreCount.textContent = formatNumber(state.currencies.ore);
+
     // Энергия
     if (this.elements.energyCount)
       this.elements.energyCount.textContent = state.energy.current;
@@ -84,6 +80,7 @@ class UIManager {
       this.elements.energyBar.style.width = `${
         (state.energy.current / state.energy.max) * 100
       }%`;
+
     // Уровень и прогресс
     if (this.elements.playerLevel)
       this.elements.playerLevel.textContent = `Ур. ${state.player.level}`;
@@ -94,16 +91,19 @@ class UIManager {
     } else if (this.elements.progressFill) {
       this.elements.progressFill.style.width = `0%`;
     }
+
     // Пассивный доход
     if (this.elements.income)
       this.elements.income.textContent = `+${formatNumber(
         state.derived.passiveIncomePerSec
       )}/сек`;
+
     // Сила тапа (если нужно отображать)
     if (this.elements.tapValueDisplay)
       this.elements.tapValueDisplay.textContent = `Тап: ${formatNumber(
         state.derived.currentTapValue
       )}`;
+
     // Кнопка буста
     if (this.elements.boostButton) {
       this.elements.boostButton.disabled = state.boost.active;
@@ -111,6 +111,7 @@ class UIManager {
         ? '<i class="fas fa-rocket"></i> Буст Активен!'
         : '<i class="fas fa-rocket"></i> Буст';
     }
+
     // Обновление магазина (перерисовка нужной вкладки)
     this.renderShop(state); // Передаем текущее состояние
   }
@@ -161,6 +162,7 @@ class UIManager {
   }
 
   // --- Управление Магазином ---
+
   setupShopTabs() {
     if (!this.elements.shopTabsContainer) return;
     this.elements.shopTabsContainer.addEventListener("click", (event) => {
@@ -182,6 +184,7 @@ class UIManager {
       `.shop-tab[data-tab="${tabName}"]`
     );
     if (activeTabElement) activeTabElement.classList.add("active");
+
     for (const name in this.elements.shopContent) {
       if (this.elements.shopContent[name]) {
         this.elements.shopContent[name].style.display =
@@ -214,7 +217,9 @@ class UIManager {
   renderShopTabContent(tabName, state) {
     const container = this.elements.shopContent[tabName];
     if (!container) return;
+
     container.innerHTML = ""; // Очищаем перед рендером
+
     switch (tabName) {
       case "helpers":
         this.renderHelpers(container, state);
@@ -232,216 +237,214 @@ class UIManager {
   }
 
   // Рендер Помощников
-  renderHelpers(container, state) {
+renderHelpers(container, state) {
     const userCoins = state.currencies.coin;
     Object.entries(config.helpers).forEach(([id, itemConfig]) => {
-      const itemState = state.shop.helpers[id];
-      if (!itemState || itemState.owned === undefined) {
-        console.warn(`Helper ${id} has no 'owned' property in state.`);
-        return;
-      }
-      const currentCost = getCurrentCost(
-        itemConfig.cost,
-        itemState.owned,
-        itemConfig.costIncrease
-      );
-      const canAfford = userCoins >= currentCost;
-      const itemHTML = `
-        <div class="shop-item-card ${
-          itemConfig.rarity
-        }" data-item-id="${id}" data-item-type="helper">
-          <div class="card-header">
-            <div class="card-icon"><i class="fas ${itemConfig.icon}"></i></div>
-            <div class="card-title">${itemConfig.name}</div>
-            <div class="rarity-badge ${itemConfig.rarity}">${
-        itemConfig.rarity
-      }</div>
-            <div class="card-price">
-              <span class="price-tag coins-price"><i class="fas fa-coins"></i> ${formatNumber(
-                currentCost
-              )}</span>
-            </div>
-          </div>
-          <div class="card-body">
-            <div class="card-description">+${
-              itemConfig.income
-            } Монет/сек. Уровень: ${itemState.owned}</div>
-            <button class="card-button ${!canAfford ? "disabled" : ""}">
-              ${itemState.owned > 0 ? `Куплено: ${itemState.owned}` : "Купить"}
-            </button>
-          </div>
-        </div>`;
-      container.insertAdjacentHTML("beforeend", itemHTML);
+        const itemState = state.shop.helpers[id];
+        if (!itemState || itemState.owned === undefined) {
+            console.warn(`Helper ${id} has no 'owned' property in state.`);
+            return;
+        }
+        const currentCost = getCurrentCost(
+            itemConfig.cost,
+            itemState.owned,
+            itemConfig.costIncrease
+        );
+        const canAfford = userCoins >= currentCost;
+
+        // Генерация HTML для карточки
+        const itemHTML = `
+            <div class="shop-item-card ${itemConfig.rarity}" data-item-id="${id}" data-item-type="helper">
+                <!-- Skin Preview -->
+                <div class="skin-preview" style="background-image: url('${itemConfig.imageUrl}');"></div>
+                
+                <!-- Card Header -->
+                <div class="rarity-badge ${itemConfig.rarity}">${itemConfig.rarity}</div>
+                <div class="card-header">
+                    <div class="card-title">${itemConfig.name}</div>
+                    
+                </div>
+                
+                <!-- Card Body -->
+                <div class="card-body">
+                    <div class="card-description">+${itemConfig.income} /сек. Уровень: ${itemState.owned}</div>
+                    <div class="card-price">
+                        <span class="price-tag coins-price"><i class="fas fa-coins"></i> ${formatNumber(currentCost)}</span>
+                    </div>
+                    <button class="card-button ${!canAfford ? "disabled" : ""}">
+                        ${itemState.owned > 0 ? `Куплено: ${itemState.owned}` : "Купить"}
+                    </button>
+                </div>
+            </div>`;
+
+        // Вставка HTML в контейнер
+        container.insertAdjacentHTML("beforeend", itemHTML);
     });
-  }
+}
 
   // Рендер Улучшений
-  renderUpgrades(container, state) {
-    Object.entries(config.upgrades).forEach(([id, itemConfig]) => {
+renderUpgrades(container, state) {
+  Object.entries(config.upgrades).forEach(([id, itemConfig]) => {
       const itemState = state.shop.upgrades[id];
       if (!itemState || itemState.owned === undefined) {
-        console.warn(`Upgrade ${id} has no 'owned' property in state.`);
-        return;
+          console.warn(`Upgrade ${id} has no 'owned' property in state.`);
+          return;
       }
       const currentCost = getCurrentCost(
-        itemConfig.cost,
-        itemState.owned,
-        itemConfig.costIncrease
+          itemConfig.cost,
+          itemState.owned,
+          itemConfig.costIncrease
       );
       const currency = itemConfig.currency;
       const userCurrency = state.currencies[currency];
       const isMaxLevel =
-        itemConfig.maxLevel && itemState.owned >= itemConfig.maxLevel;
+          itemConfig.maxLevel && itemState.owned >= itemConfig.maxLevel;
       const canAfford = !isMaxLevel && userCurrency >= currentCost;
       let currencyIcon = "fa-coins";
       if (currency === "gem") currencyIcon = "fa-gem";
       if (currency === "ore") currencyIcon = "fa-cube";
+
       // Получаем описание эффекта
       let descriptionText = "";
       if (typeof itemConfig.description === "function") {
-        descriptionText = itemConfig.description(
-          itemState.owned,
-          itemConfig.effect
-        );
+          descriptionText = itemConfig.description(
+              itemState.owned,
+              itemConfig.effect
+          );
       } else {
-        descriptionText = `Эффект: ${itemConfig.effect}`; // Фоллбэк
+          descriptionText = `Эффект: ${itemConfig.effect}`; // Фоллбэк
       }
+
       const itemHTML = `
-        <div class="shop-item-card ${
-          itemConfig.rarity
-        }" data-item-id="${id}" data-item-type="upgrade">
-          <div class="card-header">
-            <div class="card-icon"><i class="fas ${itemConfig.icon}"></i></div>
-            <div class="card-title">${itemConfig.name}</div>
-            <div class="rarity-badge ${itemConfig.rarity}">${
-        itemConfig.rarity
-      }</div>
-            <div class="card-price">
-              <span class="price-tag ${currency}-price"><i class="fas ${currencyIcon}"></i> ${formatNumber(
-        currentCost
-      )}</span>
-            </div>
-          </div>
-          <div class="card-body">
-            <div class="card-description">${descriptionText} Уровень: ${
-        itemState.owned
-      }/${itemConfig.maxLevel || "∞"}</div>
-            <button class="card-button ${isMaxLevel ? "maxed" : ""}" ${
-        isMaxLevel || !canAfford ? "disabled" : ""
-      }>
-              ${isMaxLevel ? "Макс" : "Улучшить"}
-            </button>
-          </div>
-        </div>`;
+          <div class="shop-item-card ${itemConfig.rarity}" data-item-id="${id}" data-item-type="upgrade">
+              <!-- Skin Preview -->
+              <div class="skin-preview" style="background-image: url('${itemConfig.imageUrl}');"></div>
+              
+              <!-- Card Header -->
+              <div class="rarity-badge ${itemConfig.rarity}">${itemConfig.rarity}</div>
+              <div class="card-header">
+                  <div class="card-title">${itemConfig.name}</div>
+                  
+              </div>
+              
+              <!-- Card Body -->
+              <div class="card-body">
+                  <div class="card-description">${descriptionText} Уровень: ${itemState.owned}/${itemConfig.maxLevel || "∞"}</div>
+                  <div class="card-price">
+                      <span class="price-tag ${currency}-price"><i class="fas ${currencyIcon}"></i> ${formatNumber(currentCost)}</span>
+                  </div>
+                  <button class="card-button ${isMaxLevel ? "maxed" : ""} ${isMaxLevel || !canAfford ? "disabled" : ""}">
+                      ${isMaxLevel ? "Макс" : "Улучшить"}
+                  </button>
+              </div>
+          </div>`;
+
+      // Вставка HTML в контейнер
       container.insertAdjacentHTML("beforeend", itemHTML);
-    });
-  }
+  });
+}
 
   // Рендер Скинов
-  renderSkins(container, state) {
-    const currentSkinId = state.shop.skins.current;
-    Object.entries(config.skins).forEach(([id, itemConfig]) => {
+renderSkins(container, state) {
+  const currentSkinId = state.shop.skins.current;
+  Object.entries(config.skins).forEach(([id, itemConfig]) => {
       const isOwned = state.shop.skins.owned[id];
       const isEquipped = currentSkinId === id;
       let canAfford = false;
       if (!isOwned) {
-        canAfford =
-          state.currencies.coin >= itemConfig.cost &&
-          state.currencies.gem >= itemConfig.costGems &&
-          state.currencies.ore >= itemConfig.costOre;
+          canAfford =
+              state.currencies.coin >= itemConfig.cost &&
+              state.currencies.gem >= itemConfig.costGems &&
+              state.currencies.ore >= itemConfig.costOre;
       }
       let priceHTML = "";
       if (
-        !isOwned &&
-        (itemConfig.cost > 0 ||
-          itemConfig.costGems > 0 ||
-          itemConfig.costOre > 0)
+          !isOwned &&
+          (itemConfig.cost > 0 ||
+           itemConfig.costGems > 0 ||
+           itemConfig.costOre > 0)
       ) {
-        if (itemConfig.cost > 0)
-          priceHTML += `<span class="price-tag coins-price"><i class="fas fa-coins"></i> ${formatNumber(
-            itemConfig.cost
-          )}</span>`;
-        if (itemConfig.costGems > 0)
-          priceHTML += `<span class="price-tag gems-price"><i class="fas fa-gem"></i> ${formatNumber(
-            itemConfig.costGems
-          )}</span>`;
-        if (itemConfig.costOre > 0)
-          priceHTML += `<span class="price-tag ore-price"><i class="fas fa-cube"></i> ${formatNumber(
-            itemConfig.costOre
-          )}</span>`;
+          if (itemConfig.cost > 0)
+              priceHTML += `<span class="price-tag coins-price"><i class="fas fa-coins"></i> ${formatNumber(itemConfig.cost)}</span>`;
+          if (itemConfig.costGems > 0)
+              priceHTML += `<span class="price-tag gems-price"><i class="fas fa-gem"></i> ${formatNumber(itemConfig.costGems)}</span>`;
+          if (itemConfig.costOre > 0)
+              priceHTML += `<span class="price-tag ore-price"><i class="fas fa-cube"></i> ${formatNumber(itemConfig.costOre)}</span>`;
       } else if (isOwned) {
-        // Можно ничего не показывать или "Куплено"
+          // Можно ничего не показывать или "Куплено"
       } else {
-        priceHTML = '<span class="price-tag free-tag">Бесплатно</span>';
+          priceHTML = '<span class="price-tag free-tag">Бесплатно</span>';
       }
       let descriptionText = "";
       if (typeof itemConfig.description === "function") {
-        descriptionText = itemConfig.description(itemConfig.multiplier);
+          descriptionText = itemConfig.description(itemConfig.multiplier);
       } else {
-        descriptionText = itemConfig.description || "";
+          descriptionText = itemConfig.description || "";
       }
       const itemHTML = `
-        <div class="shop-item-card ${itemConfig.rarity} ${
-        isEquipped ? "equipped-skin" : ""
-      }" data-item-id="${id}" data-item-type="skin">
-          <div class="card-header">
-            <div class="card-icon skin-icon"><img src="${
-              itemConfig.iconSrc
-            }" alt="${itemConfig.name}"></div>
-            <div class="card-title">${itemConfig.name}</div>
-            <div class="rarity-badge ${itemConfig.rarity}">${
-        itemConfig.rarity
-      }</div>
-            <div class="card-price">${priceHTML}</div>
-          </div>
-          <div class="card-body">
-            <div class="card-description">${descriptionText}</div>
-            <button class="card-button ${
-              isEquipped ? "equipped" : isOwned ? "owned" : ""
-            }" ${isEquipped || (!isOwned && !canAfford) ? "disabled" : ""}>
-              ${isEquipped ? "Надет" : isOwned ? "Надеть" : "Купить"}
-            </button>
-          </div>
-        </div>`;
+          <div class="shop-item-card ${itemConfig.rarity} ${
+              isEquipped ? "equipped-skin" : ""
+          }" data-item-id="${id}" data-item-type="skin">
+              <!-- Skin Preview -->
+              <div class="skin-preview" style="background-image: url('${itemConfig.imageUrl}');"></div>
+              
+              <!-- Card Header -->
+              <div class="rarity-badge ${itemConfig.rarity}">${itemConfig.rarity}</div>
+              <div class="card-header">
+                  <div class="card-title">${itemConfig.name}</div>
+                  
+              </div>
+              
+              <!-- Card Body -->
+              <div class="card-body">
+                  <div class="card-description">${descriptionText}</div>
+                  <div class="card-price">${priceHTML}</div>
+                  <button class="card-button ${
+                      isEquipped ? "equipped" : isOwned ? "owned" : ""
+                  }" ${isEquipped || (!isOwned && !canAfford) ? "disabled" : ""}>
+                      ${isEquipped ? "Надет" : isOwned ? "Надеть" : "Купить"}
+                  </button>
+              </div>
+          </div>`;
       container.insertAdjacentHTML("beforeend", itemHTML);
-    });
-  }
+  });
+}
 
   // Рендер Лутбоксов
-  renderLootboxes(container, state) {
-    Object.entries(config.lootboxes).forEach(([id, itemConfig]) => {
+renderLootboxes(container, state) {
+  Object.entries(config.lootboxes).forEach(([id, itemConfig]) => {
       const currency = itemConfig.currency;
       const cost = itemConfig.cost;
       const canAfford = state.currencies[currency] >= cost;
+
       let currencyIcon = "fa-coins";
       if (currency === "gem") currencyIcon = "fa-gem";
       if (currency === "ore") currencyIcon = "fa-cube";
+
       const itemHTML = `
-        <div class="shop-item-card ${
-          itemConfig.rarity
-        }" data-item-id="${id}" data-item-type="lootbox">
-          <div class="card-header">
-            <div class="card-icon"><i class="fas ${itemConfig.icon}"></i></div>
-            <div class="card-title">${itemConfig.name}</div>
-            <div class="rarity-badge ${itemConfig.rarity}">${
-        itemConfig.rarity
-      }</div>
-            <div class="card-price">
-              <span class="price-tag ${currency}-price"><i class="fas ${currencyIcon}"></i> ${formatNumber(
-        cost
-      )}</span>
-            </div>
-          </div>
-          <div class="card-body">
-            <div class="card-description">${itemConfig.description || ""}</div>
-            <button class="card-button" ${
-              !canAfford ? "disabled" : ""
-            }>Открыть</button>
-          </div>
-        </div>`;
+          <div class="shop-item-card ${itemConfig.rarity}" data-item-id="${id}" data-item-type="lootbox">
+              <!-- Skin Preview -->
+              <div class="skin-preview" style="background-image: url('${itemConfig.imageUrl}');"></div>
+              
+              <!-- Card Header -->
+              <div class="rarity-badge ${itemConfig.rarity}">${itemConfig.rarity}</div>
+              <div class="card-header">
+                  <div class="card-title">${itemConfig.name}</div>
+              
+              </div>
+              
+              <!-- Card Body -->
+              <div class="card-body">
+                  <div class="card-description">${itemConfig.description || ""}</div>
+                  <div class="card-price">
+                      <span class="price-tag ${currency}-price"><i class="fas ${currencyIcon}"></i> ${formatNumber(cost)}</span>
+                  </div>
+                  <button class="card-button" ${!canAfford ? "disabled" : ""}>Открыть</button>
+              </div>
+          </div>`;
       container.insertAdjacentHTML("beforeend", itemHTML);
-    });
-  }
+  });
+}
 
   setupLootboxModal() {
     const modal = this.elements.lootboxModal;
@@ -464,6 +467,7 @@ class UIManager {
       return;
     const lootboxConfig = config.lootboxes[lootboxType];
     if (!lootboxConfig) return;
+
     this.elements.lootboxTitle.textContent = lootboxConfig.name;
     // Используем форматированную награду
     this.elements.lootboxReward.textContent = `Вы получили: ${formatLootboxReward(
@@ -478,10 +482,12 @@ class UIManager {
     eventBus.on("state:updated", (state) => this.updateUI(state));
     // Обновление UI после загрузки (первый рендер)
     eventBus.on("state:loaded", (state) => this.updateUI(state));
+
     // Обновление информации о пользователе
     eventBus.on("user:info_updated", ({ name, photoUrl }) =>
       this.updateUserInfo(name, photoUrl)
     );
+
     // Показ уведомлений
     eventBus.on("ui:notification_show", (data) => this.showNotification(data));
     eventBus.on("ui:show_level_up", ({ newLevel }) =>
@@ -493,15 +499,18 @@ class UIManager {
     eventBus.on("ui:show_lootbox_reward", (data) =>
       this.showLootboxRewardModal(data)
     );
+
     // --- Делегирование событий клика ---
     // Клик по акуле
     this.elements.shark?.addEventListener("click", (event) => {
       eventBus.emit("game:tap_request", { event }); // Отправляем запрос на тап
     });
+
     // Клик по кнопке буста
     this.elements.boostButton?.addEventListener("click", () => {
       eventBus.emit("game:boost_request");
     });
+
     // Клики внутри магазина (делегирование)
     Object.values(this.elements.shopContent).forEach((container) => {
       if (container) {
@@ -510,6 +519,7 @@ class UIManager {
           const card = event.target.closest(".shop-item-card");
           if (button && card && card.dataset.itemId && card.dataset.itemType) {
             const { itemId, itemType } = card.dataset;
+            //console.log(`Shop click: type=${itemType}, id=${itemId}`);
             switch (itemType) {
               case "helper":
                 eventBus.emit("shop:buy_helper_request", { helperId: itemId });
