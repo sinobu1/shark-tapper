@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0a0a2a" />
+  <title>Акула Тапалка - Магазин</title>
+  
+  <!-- Шрифты и иконки -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/stylesmain.css">
+  <link rel="stylesheet" href="css/shopstyle.css">
+  
+  <!-- Скрипты -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  
+  <script type="module" src="js/main.js"></script>
+</head>
+
+<body>
+  <!-- Floating particles background -->
+  <div class="particles" id="particles"></div>
+
+  <!-- Level up notification -->
+  <div class="level-up-notification" id="level-up-notification">
+      <h2>Уровень повышен!</h2>
+      <p>Вы достигли нового уровня!</p>
+  </div>
+
+  <!-- Achievement notification -->
+  <div class="achievement-notification" id="achievement-notification">
+      <i class="fas fa-trophy"></i>
+      <div>
+          <h4>Новое достижение!</h4>
+          <p>Вы получили достижение!</p>
+      </div>
+  </div>
+      
+  <!-- Main App Container -->
+  <div id="app" class="container">
+    <!-- Currency Display Component -->
+    <div class="currency">
+      <span><img src="https://raw.githubusercontent.com/sinobu1/shark-tapper/main/coin.png" alt="Иконка монеты"/> <span id="coin-count" class="coin-count">0</span></span>
+      <span><img src="https://raw.githubusercontent.com/sinobu1/shark-tapper/main/dimond.png" alt="Иконка алмаза" class="gem-icon"/> <span id="gem-count" class="gem-count">0</span></span>
+      <span><img src="https://raw.githubusercontent.com/sinobu1/shark-tapper/main/ruda.png" alt="Иконка руды" class="ore-icon"/> <span id="ore-count" class="ore-count">0</span></span>
+      <span><img src="https://img.icons8.com/ios-filled/50/4CAF50/lightning-bolt.png" alt="Иконка энергии" class="energy-icon"/> <span id="energy-count" class="energy-count">100</span></span>
+  </div>
+
+    <!-- Tabs Navigation -->
+    <div class="shop-tabs">
+      <div class="shop-tab active" data-tab="helpers">Helpers</div>
+      <div class="shop-tab" data-tab="upgrades">UP 🚀</div>
+      <div class="shop-tab" data-tab="skins">Skins</div>
+      <div class="shop-tab" data-tab="lootboxes">Lootbox</div>
+    </div>
+<!-- Прокручиваемый контент -->
+<div class="content-scroll">
+    <!-- Tab Content -->
+    <div class="tab-content">
+      <!-- Helpers Tab -->
+      <div class="shop-items-grid" id="helpers-tab">
+        <!-- Items will be rendered here by JS -->
+      </div>
+
+      <!-- Upgrades Tab -->
+      <div class="shop-items-grid" id="upgrades-tab" style="display: none;">
+        <!-- Items will be rendered here by JS -->
+      </div>
+
+      <!-- Skins Tab -->
+      <div class="shop-items-grid" id="skins-tab" style="display: none;">
+        <!-- Items will be rendered here by JS -->
+      </div>
+
+      <!-- Lootboxes Tab -->
+      <div class="shop-items-grid" id="lootboxes-tab" style="display: none;">
+        <!-- Items will be rendered here by JS -->
+      </div>
+    </div>
+
+    <!-- Lootbox Modal -->
+    <div class="lootbox-modal" id="lootbox-modal" style="display: none;">
+      <div class="lootbox-content">
+        <div class="lootbox-title" id="lootbox-title">Обычный лутбокс</div>
+        <div class="lootbox-image" id="lootbox-image"></div>
+        <div class="lootbox-reward" id="lootbox-reward">Вы получили: 1000 монет</div>
+        <button class="lootbox-button" id="close-lootbox">Закрыть</button>
+      </div>
+    </div>
+    <!-- Нижняя навигация -->
+<nav class="bottom-nav" aria-label="Навигация по игре">
+  <a href="index.html" class="nav-button" aria-label="Главная">
+    <i class="fas fa-fish"></i>
+  </a>
+  <a href="shop.html" class="nav-button active" aria-label="Магазин">
+    <i class="fas fa-store"></i>
+  </a>
+  <a href="profile.html" class="nav-button" aria-label="Профиль">
+    <i class="fas fa-user"></i>
+  </a>
+  <a href="map.html" class="nav-button" aria-label="Карта">
+    <i class="fas fa-map"></i>
+  </a>
+</nav>
+  </div>
+
+  <script>
+    
+    function formatLootboxReward(reward) {
+      if (reward.wasDuplicate) {
+          return `Дубликат! Конвертировано в ${reward.amount} монет.`;
+      } else if (reward.itemId) {
+          const items = (config && config.items) || {};
+          const skins = (config && config.skins) || {};
+          const item = items[reward.itemId] || skins[reward.itemId];
+          if (item && item.name) {
+              return `${item.name} (предмет)`;
+          } else {
+              return `ID предмета: ${reward.itemId}`;
+          }
+      } else {
+          return reward.amount || reward.text || 'неизвестная награда';
+      }
+    }
+    
+    document.addEventListener('DOMContentLoaded', () => {
+      const modal = document.querySelector('#lootbox-modal');
+      const closeBtn = modal.querySelector('#close-lootbox') || modal.querySelector('.lootbox-button');
+    
+      if (!modal || !closeBtn) {
+          console.warn('❌ Модалка или кнопка закрытия не найдены в DOM');
+          return;
+      }
+    
+      closeBtn.style.pointerEvents = 'auto';
+    
+      closeBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          modal.style.display = 'none';
+          console.log('✅ Модалка закрыта кнопкой');
+      });
+    
+      modal.addEventListener('click', () => {
+          modal.style.display = 'none';
+          console.log('✅ Модалка закрыта кликом вне окна');
+      });
+    
+      console.log('✅ Обработчик кнопки закрытия модалки подключён');
+    });</script>
+</body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0a0a2a" />
+    <title>Акула Тапалка - Карта игр</title>
+
+    <link href="css/map.css" rel="stylesheet">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <script type="module" src="js/main.js"></script>
+    <script type="module" src="js/map.js"></script>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+
+    <div class="container">
+        <div class="currency">
+            <span><img src="https://raw.githubusercontent.com/sinobu1/shark-tapper/main/coin.png" alt="Иконка монеты"/> <span id="coin-count" class="coin-count">0</span></span>
+            <span><img src="https://raw.githubusercontent.com/sinobu1/shark-tapper/main/dimond.png" alt="Иконка алмаза"/> <span id="gem-count" class="gem-count">0</span></span>
+            <span><img src="https://raw.githubusercontent.com/sinobu1/shark-tapper/main/ruda.png" alt="Иконка руды"/> <span id="ore-count" class="ore-count">0</span></span>
+            <span><img src="https://img.icons8.com/ios-filled/50/4CAF50/lightning-bolt.png" alt="Иконка энергии"/> <span id="energy-count" class="energy-count">100</span></span>
+        </div>
+
+        <h3 class="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Карта мини-игр</h3>
+        <p class="text-sm text-cyan-100 mb-2">Выберите игру для заработка дополнительных ресурсов</p>
+
+        <div class="game-map">
+            <div class="wave"></div>
+            <div class="wave"></div>
+            <div class="wave"></div>
+
+            <div class="location-path" id="path1" style="width: 100px; top: 40%; left: 30%; transform: rotate(-30deg);"></div>
+            <div class="location-path" id="path2" style="width: 120px; top: 25%; left: 20%; transform: rotate(45deg);"></div>
+            <div class="location-path" id="path3" style="width: 150px; top: 65%; left: 50%; transform: rotate(15deg);"></div>
+            <div class="location-path" id="path4" style="width: 180px; top: 55%; left: 70%; transform: rotate(-20deg);"></div>
+
+            <div class="game-location" data-type="main" style="top: 30%; left: 50%;">
+                <i class="fas fa-fish"></i>
+                <div class="level-badge">1</div>
+            </div>
+            <div class="game-location locked" data-type="fishing" style="top: 60%; left: 30%;">
+                <i class="fas fa-anchor"></i>
+                <div class="level-badge">5</div>
+            </div>
+            <div class="game-location locked" data-type="mining" style="top: 20%; left: 20%;">
+                <i class="fas fa-mountain"></i>
+                <div class="level-badge">10</div>
+            </div>
+            <div class="game-location locked" data-type="treasure" style="top: 70%; left: 70%;">
+                <i class="fas fa-treasure-chest"></i>
+                <div class="level-badge">15</div>
+            </div>
+            <div class="game-location locked" data-type="racing" style="top: 40%; left: 80%;">
+                <i class="fas fa-flag-checkered"></i>
+                <div class="level-badge">20</div>
+            </div>
+        </div>
+
+        <div class="game-info-card" id="game-info">
+            <h3 id="game-title">Название игры</h3>
+            <p id="game-description">Описание игры и её особенностей</p>
+            <div class="rewards" id="game-rewards"></div>
+            <p id="game-requirements" class="text-sm text-cyan-200"></p>
+            <button class="start-btn" id="start-game-btn">
+                <i class="fas fa-play mr-2"></i> Начать игру
+            </button>
+        </div>
+
+        <div class="bottom-nav">
+            <a href="index.html" class="nav-button"><i class="fas fa-fish"></i></a>
+            <a href="shop.html" class="nav-button"><i class="fas fa-store"></i></a>
+            <a href="profile.html" class="nav-button"><i class="fas fa-user"></i></a>
+            <a href="map.html" class="nav-button active"><i class="fas fa-map"></i></a>
+        </div>
+    </div>
+
+    <script type="module">
+        import { showGameInfo } from './mp/mapCore.js';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.game-location').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const gameType = btn.dataset.type;
+                    showGameInfo(gameType);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
