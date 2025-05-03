@@ -1,0 +1,571 @@
+/* Определение переменных CSS */
+
+/* --- НАЧАЛО СТИЛЕЙ ЛИДЕРБОРДА (КИБЕРПАНК) --- */
+
+:root {
+    /* Добавим/переопределим переменные для киберпанка, если нужно */
+    --cyber-bg: rgba(10, 10, 25, 0.65);
+    /* Очень темный синеватый фон */
+    --cyber-border: rgba(0, 255, 255, 0.6);
+    /* Ярче граница */
+    --cyber-glow: 0 0 4px rgba(0, 255, 255, 0.8), 0 0 8px rgba(0, 255, 255, 0.6), 0 0 12px rgba(0, 255, 255, 0.4);
+    --glitch-color1: var(--neon-pink);
+    --glitch-color2: #00ff00;
+    /* Кислотно-зеленый для глитча */
+    --scanline-color: rgba(0, 0, 0, 0.2);
+}
+
+.leaderboard-section {
+    background: var(--cyber-bg);
+    border: 1px solid var(--cyber-border);
+    border-radius: 8px;
+    /* Более резкие углы */
+    padding: 20px;
+    backdrop-filter: blur(6px);
+    max-width: 500px;
+    margin: 20px auto;
+    box-shadow: var(--cyber-glow), inset 0 0 15px rgba(10, 10, 25, 0.5);
+    /* Внешнее и внутреннее свечение */
+    position: relative;
+    overflow: hidden;
+    /* Для эффектов */
+}
+
+/* Эффект сканирующих линий (опционально) */
+.leaderboard-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(var(--scanline-color) 50%, transparent 50%);
+    background-size: 100% 3px;
+    /* Толщина линий */
+    opacity: 0.15;
+    pointer-events: none;
+    z-index: 0;
+    animation: scanlines 15s linear infinite;
+    /* Медленное движение */
+}
+
+@keyframes scanlines {
+    from {
+        background-position: 0 0;
+    }
+
+    to {
+        background-position: 0 -60px;
+    }
+
+    /* Сдвигаем на высоту нескольких линий */
+}
+
+
+.leaderboard-section h2 {
+    text-align: center;
+    color: var(--neon);
+    text-shadow: var(--cyber-glow);
+    margin: 0 0 20px 0;
+    /* Убрали верхний отступ */
+    font-size: 1.6em;
+    /* Еще чуть крупнее */
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    /* Больше разрядка */
+    text-transform: uppercase;
+}
+
+#refresh-leaderboard {
+    display: block;
+    margin: 0 auto 20px;
+    padding: 10px 20px;
+    border: 1px solid var(--neon);
+    background: rgba(0, 255, 255, 0.1);
+    /* Полупрозрачный фон */
+    color: var(--neon);
+    border-radius: 4px;
+    /* Острые углы */
+    cursor: pointer;
+    font-weight: bold;
+    text-transform: uppercase;
+    transition: all 0.2s ease;
+    position: relative;
+    /* Для псевдоэлементов */
+    overflow: hidden;
+    letter-spacing: 1px;
+    z-index: 1;
+    /* Выше сканлайнов */
+}
+
+/* Эффект глитча на кнопке при наведении */
+#refresh-leaderboard:hover {
+    background: var(--neon);
+    color: #050515;
+    /* Очень темный для контраста */
+    box-shadow: var(--cyber-glow);
+}
+
+#refresh-leaderboard::before,
+#refresh-leaderboard::after {
+    content: attr(data-text);
+    /* Содержимое должно совпадать с текстом кнопки, лучше задать через JS */
+    /* Если JS сложно, можно просто оставить псевдоэлементы для визуального глитча */
+    /* content: '🔄 Обновить'; */
+    /* Статичный вариант */
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 10px 20px;
+    /* Должно совпадать с padding кнопки */
+    background: var(--cyber-bg);
+    /* Скрыть основной текст */
+    color: var(--neon);
+    overflow: hidden;
+    clip-path: inset(50% 0 50% 0);
+    /* Начинаем с невидимого состояния */
+    transition: clip-path 0.1s ease-out;
+    opacity: 0;
+    /* Начинаем невидимыми */
+}
+
+#refresh-leaderboard:hover::before {
+    text-shadow: -1px 0 var(--glitch-color1);
+    animation: glitch-clip 0.15s steps(2, end) infinite alternate-reverse;
+    opacity: 1;
+}
+
+#refresh-leaderboard:hover::after {
+    text-shadow: 1px 0 var(--glitch-color2);
+    animation: glitch-clip 0.1s steps(2, end) infinite alternate-reverse;
+    animation-delay: 0.05s;
+    /* Небольшая задержка для асинхронности */
+    opacity: 1;
+}
+
+/* Простая анимация для глитч-клипа */
+@keyframes glitch-clip {
+    0% {
+        clip-path: inset(60% 0 30% 0);
+    }
+
+    100% {
+        clip-path: inset(20% 0 55% 0);
+    }
+}
+
+
+.leaderboard-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 350px;
+    /* Немного увеличим высоту */
+    overflow-y: auto;
+    position: relative;
+    z-index: 1;
+    /* Выше сканлайнов секции */
+    /* Стилизация скроллбара (Киберпанк) */
+    scrollbar-width: thin;
+    scrollbar-color: var(--neon) rgba(10, 10, 25, 0.8);
+}
+
+.leaderboard-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.leaderboard-list::-webkit-scrollbar-track {
+    background: rgba(10, 10, 25, 0.5);
+    border-radius: 0;
+}
+
+.leaderboard-list::-webkit-scrollbar-thumb {
+    background-color: var(--neon);
+    border-radius: 0;
+    box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.5);
+}
+
+
+/* Стилизация строки */
+.leaderboard-list li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 15px;
+    /* Увеличим вертикальный паддинг */
+    /* Используем градиентную границу для киберпанк-эффекта */
+    border-bottom: 1px solid transparent;
+    border-image: linear-gradient(to right, transparent, var(--cyber-border) 50%, transparent) 1;
+    /* border-bottom: 1px dashed rgba(0, 255, 255, 0.3); */
+    /* Альтернатива: пунктир */
+    color: #e0e0ff;
+    /* Светло-лавандовый текст */
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    position: relative;
+    gap: 12px;
+}
+
+.leaderboard-list li:last-child {
+    border-bottom: none;
+    /* Убираем границу у последнего */
+}
+
+/* Эффект при наведении (не на себя) */
+.leaderboard-list li:not(.you):hover {
+    background-color: rgba(0, 255, 255, 0.1);
+    transform: translateX(3px);
+    /* Легкий сдвиг */
+    border-image: linear-gradient(to right, transparent, var(--neon) 50%, transparent) 1;
+    /* Ярче граница */
+}
+
+/* Ранг */
+.leaderboard-list li .rank {
+    font-weight: 700;
+    color: var(--neon);
+    text-shadow: 0 0 3px var(--neon);
+    flex-basis: 40px;
+    flex-shrink: 0;
+    text-align: left;
+    font-size: 1em;
+    font-family: 'Orbitron', 'monospace', sans-serif;
+    /* Предлагаемый киберпанк шрифт (добавить в <head> если нет) */
+    /* Если Orbitron не доступен, будет monospace */
+}
+
+/* Имя */
+.leaderboard-list li .name {
+    flex-grow: 1;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 0.95em;
+    letter-spacing: 0.5px;
+}
+
+/* Очки */
+.leaderboard-list li .score {
+    font-weight: 500;
+    color: #ffffff;
+    text-shadow: 0 0 2px rgba(255, 255, 255, 0.6);
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    font-size: 0.95em;
+    font-family: 'Orbitron', 'monospace', sans-serif;
+    /* Тот же шрифт для консистентности */
+}
+
+/* Иконка монеты */
+.leaderboard-list li .score .coin-icon {
+    color: #FFD700;
+    /* Золото */
+    font-size: 1em;
+    filter: drop-shadow(0 0 4px #FFD700);
+    /* Усиленная тень */
+    animation: spinCoin 5s linear infinite;
+    /* Легкое вращение иконки */
+    display: inline-block;
+    /* Для transform */
+}
+
+@keyframes spinCoin {
+    from {
+        transform: rotateY(0deg);
+    }
+
+    to {
+        transform: rotateY(360deg);
+    }
+}
+
+
+/* Индикатор (Вы) */
+.leaderboard-list li .you-indicator {
+    font-size: 0.8em;
+    color: var(--neon-pink);
+    /* Выделим другим неоном */
+    margin-left: 8px;
+    font-style: normal;
+    font-weight: bold;
+    text-shadow: 0 0 4px var(--neon-pink);
+}
+
+/* --- Топ-3: Усиленное свечение --- */
+.leaderboard-list li:nth-child(1) .rank {
+    color: #FFD700;
+    text-shadow: 0 0 6px #FFD700, 0 0 12px #FFD700;
+}
+
+.leaderboard-list li:nth-child(2) .rank {
+    color: #C0C0C0;
+    text-shadow: 0 0 6px #C0C0C0, 0 0 10px #C0C0C0;
+}
+
+.leaderboard-list li:nth-child(3) .rank {
+    color: #CD7F32;
+    text-shadow: 0 0 6px #CD7F32, 0 0 10px #CD7F32;
+}
+
+/* --- Выделение текущего игрока (Киберпанк) --- */
+.leaderboard-list li.you {
+    background: linear-gradient(90deg, rgba(0, 255, 255, 0.15) 0%, rgba(157, 0, 255, 0.15) 100%);
+    /* Градиент фона */
+    border: 1px solid;
+    border-image-source: linear-gradient(to right, var(--neon-purple), var(--neon));
+    border-image-slice: 1;
+    border-radius: 6px;
+    margin: 5px 0;
+    transform: scale(1.02);
+    /* Чуть больше выделение */
+    box-shadow: 0 0 10px var(--neon), 0 0 15px var(--neon-purple), inset 0 0 12px rgba(10, 10, 25, 0.7);
+    animation: pulseYouCyber 2.5s infinite ease-in-out;
+}
+
+@keyframes pulseYouCyber {
+
+    0%,
+    100% {
+        box-shadow: 0 0 10px var(--neon), 0 0 15px var(--neon-purple), inset 0 0 12px rgba(10, 10, 25, 0.7);
+        border-image-source: linear-gradient(to right, var(--neon-purple), var(--neon));
+    }
+
+    50% {
+        box-shadow: 0 0 15px var(--neon), 0 0 20px var(--neon-purple), 0 0 5px #fff, inset 0 0 15px rgba(10, 10, 25, 0.9);
+        border-image-source: linear-gradient(to right, var(--neon), var(--neon-purple));
+        /* Инверсия градиента */
+    }
+}
+
+.leaderboard-list li.you .rank {
+    color: #fff;
+    text-shadow: 0 0 5px #fff, 0 0 8px var(--neon);
+}
+
+.leaderboard-list li.you .name {
+    color: #fff;
+    font-weight: 500;
+}
+
+/* --- КОНЕЦ СТИЛЕЙ ЛИДЕРБОРДА (КИБЕРПАНК) --- */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Стили профиля игрока */
+.player-profile {
+    display: flex;
+    align-items: center;
+    background: rgba(0, 255, 255, 0.05);
+    border-radius: 24px;
+    padding: 10px 16px;
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(0,255,255,0.2);
+    transition: all 0.3s ease-in-out;
+}
+
+.player-profile img {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    margin-right: 12px;
+    border: 2px solid var(--neon);
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+}
+
+.player-info {
+    flex: 1;
+    text-align: left;
+}
+
+.player-meta {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.player-level {
+    color: var(--neon);
+    text-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+}
+
+.income {
+    font-size: 14px;
+    color: #9efaff;
+}
+
+.progress-bar {
+    background: #2e2e4d;
+    border-radius: 16px;
+    overflow: hidden;
+    margin-top: 6px;
+    height: 8px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.progress-fill {
+    background: linear-gradient(90deg, #49eaff, #4776e6);
+    border-radius: 16px;
+    width: 0%;
+    height: 100%;
+    transition: width 0.3s ease-out;
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.3) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    animation: progressShimmer 2s infinite linear;
+}
+
+@keyframes progressShimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+/* Стили профиля контента */
+h3 {
+    margin-top: 0;
+    color: var(--neon);
+    text-shadow: 0 0 8px rgba(0,255,255,0.5);
+    margin-bottom: 16px;
+    font-size: 20px;
+}
+
+.helper-card {
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 10px 16px;
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.helper-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.helper-card img {
+    width: 50px;
+    height: 50px;
+    margin-right: 16px;
+    border-radius: 50%;
+    border: 2px solid var(--neon);
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+}
+
+.helper-info {
+    flex: 1;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+}
+
+.helper-info strong {
+    font-size: 16px;
+    margin-bottom: 4px;
+}
+
+.helper-info span {
+    font-size: 12px;
+    color: #b3e0ff;
+    margin-bottom: 8px;
+}
+
+
+
+/* Стили достижений */
+.achievement {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.achievement i {
+    margin-right: 8px;
+    font-size: 16px;
+}
+
+.achievement.locked i {
+    color: #666;
+}
+
+.achievement.unlocked i {
+    color: var(--gem-color);
+}
+
+.achievement-text {
+    flex: 1;
+    text-align: left;
+}
+
+.achievement-text h4 {
+    margin: 0;
+    font-size: 14px;
+}
+
+.achievement-text p {
+    margin: 0;
+    font-size: 12px;
+    color: #aaa;
+}
+
+/* Адаптивные стили для меньших экранов */
+@media (max-width: 400px) {
+    .container {
+        padding: 16px;
+    }
+
+    .currency span {
+        font-size: 12px;
+    }
+
+    .helper-card {
+        padding: 8px 12px;
+    }
+
+    .helper-card img {
+        width: 40px;
+        height: 40px;
+        margin-right: 12px;
+    }
+
+    .bottom-nav {
+        padding: 8px 12px;
+    }
+
+    .bottom-nav button,
+    .bottom-nav a.nav-button {
+        font-size: 18px;
+    }
+}
