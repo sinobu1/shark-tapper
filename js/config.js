@@ -50,7 +50,7 @@ export const config = {
       costIncrease: 1.2,
       rarity: "rare",
       imageUrl:
-        "https://github.com/sinobu1/shark-tapper/blob/main/croc_ananas.png?raw=true",
+        "https://github.com/sinobu1/shark-tapper/blob/main/ananasini.png?raw=true",
     }, // Иконки можно кастомизировать
     whale: {
       name: "Тунг Тунг Тунг Саур",
@@ -63,24 +63,24 @@ export const config = {
         "https://github.com/sinobu1/shark-tapper/blob/main/tuntun.png?raw=true",
     },
     shark: {
-      name: "Акула",
+      name: "Бобрито Мафиито",
       cost: 15000,
       income: 200,
       currency: "coin",
       costIncrease: 1.3,
       rarity: "epic",
       imageUrl:
-        "https://github.com/sinobu1/shark-tapper/blob/main/u2.png?raw=true",
+        "https://github.com/sinobu1/shark-tapper/blob/main/bobrito.png?raw=true",
     },
     submarine: {
-      name: "Подлодка",
+      name: "Асасино Капучино",
       cost: 50000,
       income: 500,
       currency: "coin",
       costIncrease: 1.35,
       rarity: "epic",
       imageUrl:
-        "https://github.com/sinobu1/shark-tapper/blob/main/u2.png?raw=true",
+        "https://github.com/sinobu1/shark-tapper/blob/assassini.png?raw=true",
     },
     fleet: {
       name: "Флот",
