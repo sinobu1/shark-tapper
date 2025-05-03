@@ -31,15 +31,16 @@ export const config = {
     fallbackLootboxCoins: 500, // Монет, если из лутбокса ничего не выпало
   },
   // Определения предметов магазина (статичные данные)
-  helpers: {
+ helpers: {
     dolphin: {
-      name: "Дельфин",
-      cost: 500,
+      name: "Br Br Patapim.png",
+      cost: 300,
       income: 20,
       currency: "coin",
       costIncrease: 1.15,
       rarity: "common",
-      imageUrl: "https://github.com/sinobu1/shark-tapper/blob/main/u2.png?raw=true",
+      imageUrl:
+        "https://github.com/sinobu1/shark-tapper/blob/main/brbrpatapim.png?raw=true",
     },
     orca: {
       name: "Косатка",
