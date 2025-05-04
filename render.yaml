@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: shark-tapper-bot
+    env: python
+    plan: free
+    buildCommand: ""
+    startCommand: "python bot.py"
+    envVars:
+      - key: BOT_TOKEN
+        value: your_bot_token_here
